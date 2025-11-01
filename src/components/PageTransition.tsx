@@ -7,28 +7,19 @@ interface PageTransitionProps {
 
 export const PageTransition = ({ children }: PageTransitionProps) => {
   const location = useLocation();
-  const [displayLocation, setDisplayLocation] = useState(location);
-  const [transitionStage, setTransitionStage] = useState("fadeIn");
+  const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {
-    if (location !== displayLocation) {
-      setTransitionStage("fadeOut");
-    }
-  }, [location, displayLocation]);
-
-  const onAnimationEnd = () => {
-    if (transitionStage === "fadeOut") {
-      setTransitionStage("fadeIn");
-      setDisplayLocation(location);
-    }
-  };
+    setIsVisible(false);
+    const timer = setTimeout(() => setIsVisible(true), 50);
+    return () => clearTimeout(timer);
+  }, [location.pathname]);
 
   return (
     <div
-      className={`${
-        transitionStage === "fadeIn" ? "animate-fade-in" : "animate-fade-out"
+      className={`transition-opacity duration-300 ${
+        isVisible ? "opacity-100" : "opacity-0"
       }`}
-      onAnimationEnd={onAnimationEnd}
     >
       {children}
     </div>
