@@ -25,8 +25,8 @@ export function AppSidebar() {
   const collapsed = state === "collapsed";
 
   return (
-    <Sidebar collapsible="icon">
-      <SidebarContent>
+    <Sidebar collapsible="icon" className="bg-slate-950 border-r border-slate-800">
+      <SidebarContent className="bg-slate-950">
         <div className="p-4">
           <h1 className={`font-bold ${collapsed ? "text-xs" : "text-xl"} text-gradient`}>
             {collapsed ? "FN" : "FitNaija"}
@@ -46,7 +46,7 @@ export function AppSidebar() {
                         `flex items-center gap-3 px-3 py-2 rounded-lg transition-smooth ${
                           isActive
                             ? "bg-primary text-primary-foreground font-medium"
-                            : "hover:bg-muted"
+                            : "text-slate-300 hover:bg-slate-800 hover:text-white"
                         }`
                       }
                     >
