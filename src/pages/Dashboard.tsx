@@ -37,8 +37,8 @@ const Dashboard = () => {
   const mealProgress = totalCalories > 0 ? (consumedCalories / totalCalories) * 100 : 0;
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto">
-      <div className="flex items-center justify-between">
+    <div className="space-y-6 max-w-7xl mx-auto animate-fade-in">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-4xl font-bold">Welcome Back! 💪</h1>
           <p className="text-muted-foreground mt-2">Let's crush today's goals together</p>
@@ -50,16 +50,16 @@ const Dashboard = () => {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {stats.map((stat) => (
-          <Card key={stat.label} className="hover-scale shadow-card">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">{stat.label}</p>
-                  <p className="text-3xl font-bold mt-2">{stat.value}</p>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
+        {stats.map((stat, idx) => (
+          <Card key={stat.label} className="hover-scale shadow-card stagger-item" style={{ animationDelay: `${idx * 0.1}s` }}>
+            <CardContent className="p-4 lg:p-6">
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center justify-between">
+                  <p className="text-xs lg:text-sm text-muted-foreground">{stat.label}</p>
+                  <stat.icon className={`h-6 w-6 lg:h-8 lg:w-8 ${stat.color}`} />
                 </div>
-                <stat.icon className={`h-8 w-8 ${stat.color}`} />
+                <p className="text-2xl lg:text-3xl font-bold">{stat.value}</p>
               </div>
             </CardContent>
           </Card>

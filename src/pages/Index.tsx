@@ -5,10 +5,16 @@ import { ArrowRight, Dumbbell, UtensilsCrossed, Brain, TrendingUp, Users, Sparkl
 import heroImage from "@/assets/hero-fitness.jpg";
 import workoutImage from "@/assets/workout-session.jpg";
 import mealImage from "@/assets/nigerian-meal.jpg";
+import { useScrollReveal } from "@/hooks/useScrollReveal";
 
 const Index = () => {
+  const featuresReveal = useScrollReveal();
+  const workoutReveal = useScrollReveal();
+  const nutritionReveal = useScrollReveal();
+  const ctaReveal = useScrollReveal();
+
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background smooth-scroll">
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -34,8 +40,8 @@ const Index = () => {
       <section className="relative pt-24 pb-16 md:pt-32 md:pb-24 overflow-hidden">
         <div className="absolute inset-0 gradient-hero opacity-10"></div>
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div className="space-y-8">
+          <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+            <div className="space-y-6 lg:space-y-8 animate-fade-in">
               <Badge className="bg-primary/10 text-primary border-primary/20 hover:bg-primary/20">
                 <Brain className="w-3 h-3 mr-1" />
                 Powered by AI
@@ -57,29 +63,27 @@ const Index = () => {
                   Watch Demo
                 </Button>
               </div>
-              <div className="flex items-center gap-8 pt-4">
+              <div className="grid grid-cols-3 gap-4 lg:gap-8 pt-4">
                 <div>
-                  <div className="font-display text-3xl font-bold text-primary">50K+</div>
-                  <div className="text-sm text-muted-foreground">Active Users</div>
+                  <div className="font-display text-2xl lg:text-3xl font-bold text-primary">50K+</div>
+                  <div className="text-xs lg:text-sm text-muted-foreground">Active Users</div>
                 </div>
-                <div className="h-12 w-px bg-border"></div>
                 <div>
-                  <div className="font-display text-3xl font-bold text-secondary">10M+</div>
-                  <div className="text-sm text-muted-foreground">Calories Burned</div>
+                  <div className="font-display text-2xl lg:text-3xl font-bold text-secondary">10M+</div>
+                  <div className="text-xs lg:text-sm text-muted-foreground">Calories Burned</div>
                 </div>
-                <div className="h-12 w-px bg-border"></div>
                 <div>
-                  <div className="font-display text-3xl font-bold">4.9★</div>
-                  <div className="text-sm text-muted-foreground">User Rating</div>
+                  <div className="font-display text-2xl lg:text-3xl font-bold">4.9★</div>
+                  <div className="text-xs lg:text-sm text-muted-foreground">User Rating</div>
                 </div>
               </div>
             </div>
-            <div className="relative">
+            <div className="relative animate-slide-up" style={{ animationDelay: '0.2s' }}>
               <div className="absolute inset-0 gradient-primary opacity-20 blur-3xl rounded-full"></div>
               <img 
                 src={heroImage} 
                 alt="African woman exercising with confidence" 
-                className="relative rounded-3xl shadow-card w-full h-auto"
+                className="relative rounded-2xl lg:rounded-3xl shadow-card w-full h-auto"
               />
             </div>
           </div>
@@ -88,7 +92,7 @@ const Index = () => {
 
       {/* Features Section */}
       <section id="features" className="py-16 md:py-24 bg-muted/30">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8" ref={featuresReveal.ref}>
           <div className="text-center mb-16">
             <Badge className="bg-secondary/10 text-secondary border-secondary/20 mb-4">
               Everything You Need
@@ -101,8 +105,8 @@ const Index = () => {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <Card className="p-8 gradient-card shadow-card hover:shadow-glow transition-smooth border-border/50">
+          <div className={`grid md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 scroll-reveal ${featuresReveal.isVisible ? 'visible' : ''}`}>
+            <Card className="p-6 lg:p-8 gradient-card shadow-card hover:shadow-glow transition-smooth border-border/50 stagger-item" style={{ animationDelay: '0.1s' }}>
               <div className="w-12 h-12 rounded-xl gradient-primary flex items-center justify-center mb-6">
                 <Dumbbell className="w-6 h-6 text-white" />
               </div>
@@ -115,7 +119,7 @@ const Index = () => {
               </a>
             </Card>
 
-            <Card className="p-8 gradient-card shadow-card hover:shadow-glow transition-smooth border-border/50">
+            <Card className="p-6 lg:p-8 gradient-card shadow-card hover:shadow-glow transition-smooth border-border/50 stagger-item" style={{ animationDelay: '0.2s' }}>
               <div className="w-12 h-12 rounded-xl bg-secondary flex items-center justify-center mb-6">
                 <UtensilsCrossed className="w-6 h-6 text-white" />
               </div>
@@ -128,7 +132,7 @@ const Index = () => {
               </a>
             </Card>
 
-            <Card className="p-8 gradient-card shadow-card hover:shadow-glow transition-smooth border-border/50">
+            <Card className="p-6 lg:p-8 gradient-card shadow-card hover:shadow-glow transition-smooth border-border/50 stagger-item" style={{ animationDelay: '0.3s' }}>
               <div className="w-12 h-12 rounded-xl gradient-primary flex items-center justify-center mb-6">
                 <Brain className="w-6 h-6 text-white" />
               </div>
@@ -141,7 +145,7 @@ const Index = () => {
               </a>
             </Card>
 
-            <Card className="p-8 gradient-card shadow-card hover:shadow-glow transition-smooth border-border/50">
+            <Card className="p-6 lg:p-8 gradient-card shadow-card hover:shadow-glow transition-smooth border-border/50 stagger-item" style={{ animationDelay: '0.4s' }}>
               <div className="w-12 h-12 rounded-xl bg-secondary flex items-center justify-center mb-6">
                 <TrendingUp className="w-6 h-6 text-white" />
               </div>
@@ -154,7 +158,7 @@ const Index = () => {
               </a>
             </Card>
 
-            <Card className="p-8 gradient-card shadow-card hover:shadow-glow transition-smooth border-border/50">
+            <Card className="p-6 lg:p-8 gradient-card shadow-card hover:shadow-glow transition-smooth border-border/50 stagger-item" style={{ animationDelay: '0.5s' }}>
               <div className="w-12 h-12 rounded-xl gradient-primary flex items-center justify-center mb-6">
                 <Users className="w-6 h-6 text-white" />
               </div>
@@ -167,7 +171,7 @@ const Index = () => {
               </a>
             </Card>
 
-            <Card className="p-8 gradient-card shadow-card hover:shadow-glow transition-smooth border-border/50">
+            <Card className="p-6 lg:p-8 gradient-card shadow-card hover:shadow-glow transition-smooth border-border/50 stagger-item" style={{ animationDelay: '0.6s' }}>
               <div className="w-12 h-12 rounded-xl bg-secondary flex items-center justify-center mb-6">
                 <Sparkles className="w-6 h-6 text-white" />
               </div>
@@ -185,13 +189,13 @@ const Index = () => {
 
       {/* Workout Preview Section */}
       <section className="py-16 md:py-24">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8" ref={workoutReveal.ref}>
+          <div className={`grid lg:grid-cols-2 gap-8 lg:gap-12 items-center scroll-reveal ${workoutReveal.isVisible ? 'visible' : ''}`}>
             <div className="order-2 lg:order-1">
               <img 
                 src={workoutImage} 
                 alt="Workout session in progress" 
-                className="rounded-3xl shadow-card w-full h-auto"
+                className="rounded-2xl lg:rounded-3xl shadow-card w-full h-auto"
               />
             </div>
             <div className="order-1 lg:order-2 space-y-6">
@@ -247,8 +251,8 @@ const Index = () => {
 
       {/* Nutrition Preview Section */}
       <section className="py-16 md:py-24 bg-muted/30">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8" ref={nutritionReveal.ref}>
+          <div className={`grid lg:grid-cols-2 gap-8 lg:gap-12 items-center scroll-reveal ${nutritionReveal.isVisible ? 'visible' : ''}`}>
             <div className="space-y-6">
               <Badge className="bg-secondary/10 text-secondary border-secondary/20">
                 <UtensilsCrossed className="w-3 h-3 mr-1" />
@@ -301,7 +305,7 @@ const Index = () => {
               <img 
                 src={mealImage} 
                 alt="Delicious Nigerian healthy meal" 
-                className="rounded-3xl shadow-card w-full h-auto"
+                className="rounded-2xl lg:rounded-3xl shadow-card w-full h-auto"
               />
             </div>
           </div>
@@ -310,8 +314,8 @@ const Index = () => {
 
       {/* CTA Section */}
       <section className="py-16 md:py-24">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <Card className="gradient-hero p-12 md:p-16 text-center relative overflow-hidden shadow-glow">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8" ref={ctaReveal.ref}>
+          <Card className={`gradient-hero p-8 md:p-12 lg:p-16 text-center relative overflow-hidden shadow-glow scroll-reveal ${ctaReveal.isVisible ? 'visible' : ''}`}>
             <div className="absolute inset-0 opacity-10">
               <div className="absolute inset-0" style={{
                 backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)',
