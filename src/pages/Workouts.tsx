@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dumbbell, Clock, Zap, Play, CheckCircle2, Sparkles } from "lucide-react";
 import workoutImage from "@/assets/workout-session.jpg";
 import { AIWorkoutGenerator } from "@/components/AIWorkoutGenerator";
+import { CustomWorkoutBuilder } from "@/components/CustomWorkoutBuilder";
 import { useUserData } from "@/hooks/useUserData";
 
 const Workouts = () => {
@@ -69,9 +70,10 @@ const Workouts = () => {
       </div>
 
       <Tabs defaultValue="plans" className="w-full">
-        <TabsList className="grid w-full max-w-md grid-cols-2">
-          <TabsTrigger value="plans">Workout Plans</TabsTrigger>
-          <TabsTrigger value="exercises">Exercise Library</TabsTrigger>
+        <TabsList className="grid w-full max-w-md grid-cols-3">
+          <TabsTrigger value="plans">My Plans</TabsTrigger>
+          <TabsTrigger value="create">Create</TabsTrigger>
+          <TabsTrigger value="exercises">Library</TabsTrigger>
         </TabsList>
 
         <TabsContent value="plans" className="space-y-4 mt-6">
@@ -125,6 +127,10 @@ const Workouts = () => {
             ))}
             </div>
           )}
+        </TabsContent>
+
+        <TabsContent value="create" className="space-y-4 mt-6">
+          <CustomWorkoutBuilder onWorkoutCreated={refreshData} />
         </TabsContent>
 
         <TabsContent value="exercises" className="space-y-4 mt-6">

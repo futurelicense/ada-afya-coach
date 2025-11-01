@@ -4,6 +4,9 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { GoalSetting } from "@/components/GoalSetting";
+import { ProgressExport } from "@/components/ProgressExport";
+import { ProgressPhotos } from "@/components/ProgressPhotos";
 import { User, Edit, Target, TrendingUp, Award, Calendar, Flame, Activity } from "lucide-react";
 
 const Profile = () => {
@@ -85,8 +88,9 @@ const Profile = () => {
       </div>
 
       <Tabs defaultValue="progress" className="w-full">
-        <TabsList className="grid w-full max-w-md grid-cols-2">
+        <TabsList className="grid w-full max-w-md grid-cols-3">
           <TabsTrigger value="progress">Progress</TabsTrigger>
+          <TabsTrigger value="goals">Goals</TabsTrigger>
           <TabsTrigger value="achievements">Achievements</TabsTrigger>
         </TabsList>
 
@@ -159,6 +163,21 @@ const Profile = () => {
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="goals" className="space-y-4 mt-6">
+          <GoalSetting />
+          
+          <ProgressPhotos />
+          
+          <ProgressExport
+            stats={{
+              totalWorkouts: 124,
+              caloriesBurned: 28450,
+              currentStreak: 30,
+              goalsAchieved: 18,
+            }}
+          />
         </TabsContent>
 
         <TabsContent value="achievements" className="space-y-4 mt-6">

@@ -5,10 +5,19 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Utensils, Flame, Apple, Sparkles, Clock } from "lucide-react";
 import nigerianMeal from "@/assets/nigerian-meal.jpg";
 import { AIMealGenerator } from "@/components/AIMealGenerator";
+import { RecipeModal } from "@/components/RecipeModal";
 import { useUserData } from "@/hooks/useUserData";
+import { useState } from "react";
 
 const Nutrition = () => {
   const { todayMeals, refreshData } = useUserData();
+  const [selectedMeal, setSelectedMeal] = useState<any>(null);
+  const [isRecipeModalOpen, setIsRecipeModalOpen] = useState(false);
+
+  const openRecipe = (meal: any) => {
+    setSelectedMeal(meal);
+    setIsRecipeModalOpen(true);
+  };
 
   const totalCalories = todayMeals.reduce((sum, m) => sum + m.calories, 0);
   const totalProtein = todayMeals.reduce((sum, m) => sum + m.protein, 0);
@@ -20,9 +29,10 @@ const Nutrition = () => {
     type: meal.mealType.charAt(0).toUpperCase() + meal.mealType.slice(1),
     time: meal.mealType === 'breakfast' ? '8:00 AM' : meal.mealType === 'lunch' ? '1:00 PM' : '7:00 PM',
     calories: meal.calories,
-    protein: `${meal.protein}g`,
-    carbs: `${meal.carbs}g`,
-    fats: `${meal.fats}g`,
+    protein: meal.protein,
+    carbs: meal.carbs,
+    fats: meal.fats,
+    mealType: meal.mealType,
     image: nigerianMeal,
     description: `Delicious ${meal.mealType} with balanced macronutrients`,
   }));
@@ -148,19 +158,19 @@ const Nutrition = () => {
                       <p className="text-xs text-muted-foreground">cal</p>
                     </div>
                     <div>
-                      <p className="font-bold text-secondary">{meal.protein}</p>
+                      <p className="font-bold text-secondary">{meal.protein}g</p>
                       <p className="text-xs text-muted-foreground">protein</p>
                     </div>
                     <div>
-                      <p className="font-bold">{meal.carbs}</p>
+                      <p className="font-bold">{meal.carbs}g</p>
                       <p className="text-xs text-muted-foreground">carbs</p>
                     </div>
                     <div>
-                      <p className="font-bold">{meal.fats}</p>
+                      <p className="font-bold">{meal.fats}g</p>
                       <p className="text-xs text-muted-foreground">fats</p>
                     </div>
                   </div>
-                  <Button className="w-full">
+                  <Button className="w-full" onClick={() => openRecipe(meal)}>
                     <Utensils className="mr-2 h-4 w-4" />
                     View Recipe
                   </Button>
@@ -205,6 +215,15 @@ const Nutrition = () => {
           </div>
         </TabsContent>
       </Tabs>
+
+      {/* Recipe Modal */}
+      {selectedMeal && (
+        <RecipeModal
+          open={isRecipeModalOpen}
+          onOpenChange={setIsRecipeModalOpen}
+          meal={selectedMeal}
+        />
+      )}
     </div>
   );
 };
