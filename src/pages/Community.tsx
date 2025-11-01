@@ -1,7 +1,9 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Trophy, TrendingUp, Users, Flame, Award, Star } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Trophy, TrendingUp, Users, Flame, Award, Star, Target, Zap, Calendar } from "lucide-react";
 
 const Community = () => {
   const topUsers = [
@@ -22,11 +24,60 @@ const Community = () => {
     { icon: Award, label: "Goals Achieved", value: "9,834", color: "text-yellow-500" },
   ];
 
+  const challenges = [
+    { 
+      id: 1, 
+      name: "30-Day Fitness Challenge", 
+      participants: 3240, 
+      daysLeft: 12, 
+      progress: 60,
+      reward: "Gold Badge + 1000pts",
+      icon: Target 
+    },
+    { 
+      id: 2, 
+      name: "Burn 5000 Calories Week", 
+      participants: 1850, 
+      daysLeft: 3, 
+      progress: 75,
+      reward: "Silver Badge + 500pts",
+      icon: Flame 
+    },
+    { 
+      id: 3, 
+      name: "Morning Warriors", 
+      participants: 920, 
+      daysLeft: 5, 
+      progress: 40,
+      reward: "Bronze Badge + 250pts",
+      icon: Zap 
+    },
+  ];
+
+  const activityFeed = [
+    { user: "Chioma A.", action: "completed 30-Day Challenge", time: "2h ago", type: "achievement" },
+    { user: "Tunde O.", action: "burned 450 calories", time: "4h ago", type: "workout" },
+    { user: "Ngozi E.", action: "reached #1 on leaderboard", time: "6h ago", type: "rank" },
+    { user: "Emeka N.", action: "started Morning Warriors challenge", time: "8h ago", type: "challenge" },
+    { user: "Blessing M.", action: "achieved 25-day streak", time: "12h ago", type: "streak" },
+  ];
+
   const getRankBadge = (rank: number) => {
     if (rank === 1) return { icon: Trophy, color: "bg-yellow-500", text: "text-yellow-500" };
     if (rank === 2) return { icon: Trophy, color: "bg-gray-400", text: "text-gray-400" };
     if (rank === 3) return { icon: Trophy, color: "bg-orange-600", text: "text-orange-600" };
     return { icon: Star, color: "bg-muted", text: "text-muted-foreground" };
+  };
+
+  const getActivityIcon = (type: string) => {
+    switch(type) {
+      case "achievement": return Award;
+      case "workout": return Flame;
+      case "rank": return Trophy;
+      case "challenge": return Target;
+      case "streak": return Calendar;
+      default: return Star;
+    }
   };
 
   return (
@@ -53,61 +104,149 @@ const Community = () => {
         ))}
       </div>
 
-      {/* Leaderboard */}
-      <Card className="shadow-glow">
-        <CardHeader>
-          <CardTitle className="text-2xl flex items-center gap-2">
-            <Trophy className="h-6 w-6 text-primary" />
-            Monthly Leaderboard
-          </CardTitle>
-          <CardDescription>Top performers in your city this month</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            {topUsers.map((user) => {
-              const badge = getRankBadge(user.rank);
-              return (
-                <div
-                  key={user.rank}
-                  className={`flex items-center justify-between p-4 rounded-lg border transition-smooth hover:shadow-md ${
-                    user.rank <= 3 ? "bg-gradient-card shadow-card" : "bg-card"
-                  }`}
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="relative">
-                      <Avatar className="h-12 w-12">
-                        <AvatarFallback className="bg-primary text-primary-foreground font-bold">
-                          {user.name.substring(0, 2)}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className={`absolute -top-1 -right-1 ${badge.color} rounded-full p-1`}>
-                        <badge.icon className="h-3 w-3 text-white" />
+      <Tabs defaultValue="leaderboard" className="w-full">
+        <TabsList className="grid w-full max-w-lg grid-cols-3">
+          <TabsTrigger value="leaderboard">Leaderboard</TabsTrigger>
+          <TabsTrigger value="challenges">Challenges</TabsTrigger>
+          <TabsTrigger value="activity">Activity</TabsTrigger>
+        </TabsList>
+
+        {/* Leaderboard Tab */}
+        <TabsContent value="leaderboard" className="mt-6">
+          <Card className="shadow-glow">
+            <CardHeader>
+              <CardTitle className="text-2xl flex items-center gap-2">
+                <Trophy className="h-6 w-6 text-primary" />
+                Monthly Leaderboard
+              </CardTitle>
+              <CardDescription>Top performers in your city this month</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {topUsers.map((user) => {
+                  const badge = getRankBadge(user.rank);
+                  return (
+                    <div
+                      key={user.rank}
+                      className={`flex items-center justify-between p-4 rounded-lg border transition-smooth hover:shadow-md ${
+                        user.rank <= 3 ? "bg-gradient-card shadow-card" : "bg-card"
+                      }`}
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className="relative">
+                          <Avatar className="h-12 w-12">
+                            <AvatarFallback className="bg-primary text-primary-foreground font-bold">
+                              {user.name.substring(0, 2)}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className={`absolute -top-1 -right-1 ${badge.color} rounded-full p-1`}>
+                            <badge.icon className="h-3 w-3 text-white" />
+                          </div>
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <p className="font-bold">{user.name}</p>
+                            {user.rank <= 3 && (
+                              <Badge className={badge.text} variant="outline">
+                                #{user.rank}
+                              </Badge>
+                            )}
+                          </div>
+                          <p className="text-sm text-muted-foreground">
+                            {user.workouts} workouts • {user.streak} day streak
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-xl font-bold text-primary">{user.calories.toLocaleString()}</p>
+                        <p className="text-xs text-muted-foreground">calories burned</p>
                       </div>
                     </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <p className="font-bold">{user.name}</p>
-                        {user.rank <= 3 && (
-                          <Badge className={badge.text} variant="outline">
-                            #{user.rank}
-                          </Badge>
-                        )}
-                      </div>
-                      <p className="text-sm text-muted-foreground">
-                        {user.workouts} workouts • {user.streak} day streak
-                      </p>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Challenges Tab */}
+        <TabsContent value="challenges" className="mt-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {challenges.map((challenge) => (
+              <Card key={challenge.id} className="hover-scale shadow-card">
+                <CardHeader>
+                  <div className="flex items-start justify-between">
+                    <div className="p-2 bg-primary/10 rounded-lg">
+                      <challenge.icon className="h-6 w-6 text-primary" />
+                    </div>
+                    <Badge variant="secondary">{challenge.daysLeft}d left</Badge>
+                  </div>
+                  <CardTitle className="text-lg mt-3">{challenge.name}</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <div className="flex justify-between text-sm mb-2">
+                      <span className="text-muted-foreground">Progress</span>
+                      <span className="font-bold">{challenge.progress}%</span>
+                    </div>
+                    <div className="h-2 bg-secondary/20 rounded-full overflow-hidden">
+                      <div 
+                        className="h-full bg-secondary rounded-full transition-all"
+                        style={{ width: `${challenge.progress}%` }}
+                      />
                     </div>
                   </div>
-                  <div className="text-right">
-                    <p className="text-xl font-bold text-primary">{user.calories.toLocaleString()}</p>
-                    <p className="text-xs text-muted-foreground">calories burned</p>
+                  <div className="flex items-center justify-between pt-2 border-t">
+                    <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                      <Users className="h-4 w-4" />
+                      <span>{challenge.participants.toLocaleString()}</span>
+                    </div>
+                    <Badge variant="outline" className="text-xs">
+                      {challenge.reward}
+                    </Badge>
                   </div>
-                </div>
-              );
-            })}
+                  <Button className="w-full">Join Challenge</Button>
+                </CardContent>
+              </Card>
+            ))}
           </div>
-        </CardContent>
-      </Card>
+        </TabsContent>
+
+        {/* Activity Feed Tab */}
+        <TabsContent value="activity" className="mt-6">
+          <Card className="shadow-card">
+            <CardHeader>
+              <CardTitle className="text-2xl flex items-center gap-2">
+                <TrendingUp className="h-6 w-6 text-primary" />
+                Community Activity
+              </CardTitle>
+              <CardDescription>Recent achievements and milestones</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {activityFeed.map((activity, idx) => {
+                  const Icon = getActivityIcon(activity.type);
+                  return (
+                    <div key={idx} className="flex items-center gap-4 p-3 rounded-lg hover:bg-muted/50 transition-smooth">
+                      <div className="p-2 bg-primary/10 rounded-full">
+                        <Icon className="h-4 w-4 text-primary" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm">
+                          <span className="font-bold">{activity.user}</span>
+                          {" "}{activity.action}
+                        </p>
+                        <p className="text-xs text-muted-foreground">{activity.time}</p>
+                      </div>
+                      <Button variant="ghost" size="sm">View</Button>
+                    </div>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
 
       {/* Motivational Banner */}
       <Card className="shadow-card gradient-hero text-white">

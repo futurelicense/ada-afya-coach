@@ -37,6 +37,14 @@ const coachTips = [
   "Consistency beats intensity. Regular moderate workouts outperform sporadic intense ones.",
 ];
 
+const motivationalQuotes = [
+  "Your only limit is you. Push harder today! 💪",
+  "Success is the sum of small efforts repeated daily.",
+  "The body achieves what the mind believes.",
+  "Don't wish for it, work for it! 🔥",
+  "Train like a beast, look like a beauty!",
+];
+
 class AIService {
   generateWorkoutPlan(level: string = 'intermediate'): any {
     const numExercises = level === 'beginner' ? 4 : level === 'intermediate' ? 6 : 8;
@@ -126,6 +134,91 @@ class AIService {
     
     // Random tip
     return this.shuffleArray(coachTips)[0];
+  }
+
+  analyzeProgress(): { 
+    summary: string; 
+    recommendations: string[]; 
+    strengths: string[]; 
+    areas: string[] 
+  } {
+    const weeklyStats = userDataService.getWeeklyStats();
+    const todayStats = userDataService.getTodayStats();
+    
+    const totalWorkouts = weeklyStats.reduce((sum, day) => sum + day.workoutsCompleted, 0);
+    const totalCalories = weeklyStats.reduce((sum, day) => sum + day.caloriesBurned, 0);
+    const avgWater = weeklyStats.reduce((sum, day) => sum + day.waterIntake, 0) / (weeklyStats.length || 1);
+    
+    const recommendations = [];
+    const strengths = [];
+    const areas = [];
+    
+    // Analyze workout consistency
+    if (totalWorkouts >= 5) {
+      strengths.push("Excellent workout consistency");
+    } else if (totalWorkouts < 3) {
+      areas.push("Workout frequency");
+      recommendations.push("Try to add 2-3 more workouts this week");
+    }
+    
+    // Analyze hydration
+    if (avgWater >= 2.5) {
+      strengths.push("Great hydration habits");
+    } else if (avgWater < 2) {
+      areas.push("Daily hydration");
+      recommendations.push("Increase water intake to 2-3L daily");
+    }
+    
+    // Analyze calorie burn
+    if (totalCalories >= 2500) {
+      strengths.push("High calorie burn rate");
+    } else if (totalCalories < 1500) {
+      areas.push("Activity intensity");
+      recommendations.push("Consider adding more intense cardio sessions");
+    }
+    
+    const summary = totalWorkouts >= 5 
+      ? "Outstanding progress! You're on track to reach your goals."
+      : totalWorkouts >= 3
+      ? "Good progress! A few more sessions will boost your results."
+      : "Let's build momentum! Consistency is key to success.";
+    
+    return { summary, recommendations, strengths, areas };
+  }
+
+  getMotivationalQuote(): string {
+    return this.shuffleArray(motivationalQuotes)[0];
+  }
+
+  generatePersonalizedWorkout(userLevel: string, targetMuscles?: string[]): any {
+    let filteredExercises = [...exercises];
+    
+    if (targetMuscles && targetMuscles.length > 0) {
+      filteredExercises = exercises.filter(ex => 
+        targetMuscles.some(muscle => ex.muscles.toLowerCase().includes(muscle.toLowerCase()))
+      );
+    }
+    
+    if (filteredExercises.length === 0) filteredExercises = [...exercises];
+    
+    return this.generateWorkoutPlan(userLevel);
+  }
+
+  suggestMealAdjustments(currentCalories: number, targetCalories: number): string[] {
+    const suggestions = [];
+    const diff = targetCalories - currentCalories;
+    
+    if (diff > 200) {
+      suggestions.push("Add a healthy snack like groundnuts or banana");
+      suggestions.push("Increase portion sizes by 20-30%");
+    } else if (diff < -200) {
+      suggestions.push("Reduce portion sizes slightly");
+      suggestions.push("Replace fried options with grilled alternatives");
+    } else {
+      suggestions.push("Your calorie intake is well balanced!");
+    }
+    
+    return suggestions;
   }
 
   private generateWorkoutName(level: string): string {

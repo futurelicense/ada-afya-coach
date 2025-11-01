@@ -5,17 +5,11 @@ import { Badge } from "@/components/ui/badge";
 import { Activity, Flame, Droplets, Heart, TrendingUp, Sparkles, Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useUserData } from "@/hooks/useUserData";
-import { aiService } from "@/lib/aiService";
-import { useState, useEffect } from "react";
+import { AICoachPanel } from "@/components/AICoachPanel";
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const { todayWorkouts, todayMeals, todayStats, weeklyStats, completeExercise, markMealEaten, updateWaterIntake, refreshData } = useUserData();
-  const [coachTip, setCoachTip] = useState("");
-
-  useEffect(() => {
-    setCoachTip(aiService.getCoachTip());
-  }, [todayStats]);
 
   const weekWorkouts = weeklyStats.reduce((sum, s) => sum + s.workoutsCompleted, 0);
   
@@ -71,6 +65,9 @@ const Dashboard = () => {
           </Card>
         ))}
       </div>
+
+      {/* AI Coach Panel */}
+      <AICoachPanel />
 
       {/* Today's Workout */}
       <Card className="shadow-card">
@@ -189,21 +186,6 @@ const Dashboard = () => {
               </div>
             </>
           )}
-        </CardContent>
-      </Card>
-
-      {/* AI Coach Tip */}
-      <Card className="shadow-glow border-primary">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-primary" />
-            Coach Ada's Tip
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-muted-foreground">
-            {coachTip}
-          </p>
         </CardContent>
       </Card>
 

@@ -9,6 +9,7 @@ import Onboarding from "./pages/Onboarding";
 import Dashboard from "./pages/Dashboard";
 import Workouts from "./pages/Workouts";
 import Nutrition from "./pages/Nutrition";
+import Analytics from "./pages/Analytics";
 import Community from "./pages/Community";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
@@ -27,6 +28,7 @@ const App = () => (
           <Route path="/dashboard" element={<Layout><Dashboard /></Layout>} />
           <Route path="/workouts" element={<Layout><Workouts /></Layout>} />
           <Route path="/nutrition" element={<Layout><Nutrition /></Layout>} />
+          <Route path="/analytics" element={<Layout><Analytics /></Layout>} />
           <Route path="/community" element={<Layout><Community /></Layout>} />
           <Route path="/profile" element={<Layout><Profile /></Layout>} />
           <Route path="*" element={<NotFound />} />
