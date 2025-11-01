@@ -22,7 +22,7 @@ const Index = () => {
               <a href="#how-it-works" className="text-muted-foreground hover:text-foreground transition-smooth">How It Works</a>
               <a href="#community" className="text-muted-foreground hover:text-foreground transition-smooth">Community</a>
               <Button variant="outline" size="sm">Sign In</Button>
-              <Button size="sm" className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-glow">
+              <Button size="sm" className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-glow" onClick={() => window.location.href = '/onboarding'}>
                 Get Started
               </Button>
             </div>
@@ -49,7 +49,7 @@ const Index = () => {
                 Your AI-powered wellness companion built for Nigerian lifestyles. Personalized workouts, local meal plans, and smart health insights — all in one place.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
-                <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-glow text-lg">
+                <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-glow text-lg" onClick={() => window.location.href = '/onboarding'}>
                   Start Your Journey
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
@@ -326,7 +326,7 @@ const Index = () => {
                 Join thousands of Nigerians already training smarter with AI-powered fitness and nutrition.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-                <Button size="lg" className="bg-white text-primary hover:bg-white/90 text-lg shadow-lg">
+                <Button size="lg" className="bg-white text-primary hover:bg-white/90 text-lg shadow-lg" onClick={() => window.location.href = '/onboarding'}>
                   Get Started Free
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
