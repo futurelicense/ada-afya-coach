@@ -1,6 +1,5 @@
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "./AppSidebar";
-import { PageTransition } from "./PageTransition";
 import { ReactNode } from "react";
 
 interface LayoutProps {
@@ -17,10 +16,8 @@ export function Layout({ children }: LayoutProps) {
             <SidebarTrigger className="mr-4" />
             <h2 className="text-lg md:text-xl font-bold text-gradient">AI-Powered Wellness Coach</h2>
           </header>
-          <main className="flex-1 p-4 md:p-6 bg-background overflow-auto">
-            <PageTransition>
-              {children}
-            </PageTransition>
+          <main className="flex-1 p-4 md:p-6 bg-background overflow-auto animate-fade-in">
+            {children}
           </main>
         </div>
       </div>
