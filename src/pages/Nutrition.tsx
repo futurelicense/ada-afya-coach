@@ -4,46 +4,28 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Utensils, Flame, Apple, Sparkles, Clock } from "lucide-react";
 import nigerianMeal from "@/assets/nigerian-meal.jpg";
+import { AIMealGenerator } from "@/components/AIMealGenerator";
+import { useUserData } from "@/hooks/useUserData";
 
 const Nutrition = () => {
-  const mealPlans = [
-    {
-      id: 1,
-      name: "Moi Moi & Pap",
-      type: "Breakfast",
-      time: "8:00 AM",
-      calories: 380,
-      protein: "18g",
-      carbs: "52g",
-      fats: "8g",
-      image: nigerianMeal,
-      description: "Protein-rich steamed bean pudding with fermented corn porridge",
-    },
-    {
-      id: 2,
-      name: "Jollof Rice & Grilled Chicken",
-      type: "Lunch",
-      time: "1:00 PM",
-      calories: 520,
-      protein: "35g",
-      carbs: "68g",
-      fats: "12g",
-      image: nigerianMeal,
-      description: "Traditional Nigerian rice with lean grilled chicken breast",
-    },
-    {
-      id: 3,
-      name: "Efo Riro with Ponmo",
-      type: "Dinner",
-      time: "7:00 PM",
-      calories: 450,
-      protein: "28g",
-      carbs: "42g",
-      fats: "15g",
-      image: nigerianMeal,
-      description: "Spinach stew with cow skin and assorted proteins",
-    },
-  ];
+  const { todayMeals, refreshData } = useUserData();
+
+  const totalCalories = todayMeals.reduce((sum, m) => sum + m.calories, 0);
+  const totalProtein = todayMeals.reduce((sum, m) => sum + m.protein, 0);
+  const totalCarbs = todayMeals.reduce((sum, m) => sum + m.carbs, 0);
+  const totalFats = todayMeals.reduce((sum, m) => sum + m.fats, 0);
+  const mealPlans = todayMeals.map(meal => ({
+    id: meal.id,
+    name: meal.name,
+    type: meal.mealType.charAt(0).toUpperCase() + meal.mealType.slice(1),
+    time: meal.mealType === 'breakfast' ? '8:00 AM' : meal.mealType === 'lunch' ? '1:00 PM' : '7:00 PM',
+    calories: meal.calories,
+    protein: `${meal.protein}g`,
+    carbs: `${meal.carbs}g`,
+    fats: `${meal.fats}g`,
+    image: nigerianMeal,
+    description: `Delicious ${meal.mealType} with balanced macronutrients`,
+  }));
 
   const nigerianFoods = [
     {
@@ -113,19 +95,19 @@ const Nutrition = () => {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="text-center p-4 bg-primary/10 rounded-lg">
               <Flame className="h-8 w-8 text-primary mx-auto mb-2" />
-              <p className="text-2xl font-bold">1,350</p>
+              <p className="text-2xl font-bold">{totalCalories}</p>
               <p className="text-sm text-muted-foreground">Calories</p>
             </div>
             <div className="text-center p-4 bg-secondary/10 rounded-lg">
-              <p className="text-2xl font-bold text-secondary">81g</p>
+              <p className="text-2xl font-bold text-secondary">{totalProtein}g</p>
               <p className="text-sm text-muted-foreground">Protein</p>
             </div>
             <div className="text-center p-4 bg-accent/10 rounded-lg">
-              <p className="text-2xl font-bold">162g</p>
+              <p className="text-2xl font-bold">{totalCarbs}g</p>
               <p className="text-sm text-muted-foreground">Carbs</p>
             </div>
             <div className="text-center p-4 bg-muted rounded-lg">
-              <p className="text-2xl font-bold">35g</p>
+              <p className="text-2xl font-bold">{totalFats}g</p>
               <p className="text-sm text-muted-foreground">Fats</p>
             </div>
           </div>
@@ -139,7 +121,10 @@ const Nutrition = () => {
         </TabsList>
 
         <TabsContent value="meals" className="space-y-4 mt-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <AIMealGenerator onGenerated={refreshData} />
+          
+          {mealPlans.length > 0 && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {mealPlans.map((meal) => (
               <Card key={meal.id} className="overflow-hidden hover-scale shadow-card">
                 <div className="relative h-48">
@@ -182,7 +167,8 @@ const Nutrition = () => {
                 </CardContent>
               </Card>
             ))}
-          </div>
+            </div>
+          )}
         </TabsContent>
 
         <TabsContent value="foods" className="space-y-4 mt-6">

@@ -2,31 +2,45 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { Activity, Flame, Droplets, Heart, TrendingUp, Sparkles } from "lucide-react";
+import { Activity, Flame, Droplets, Heart, TrendingUp, Sparkles, Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useUserData } from "@/hooks/useUserData";
+import { aiService } from "@/lib/aiService";
+import { useState, useEffect } from "react";
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const { todayWorkouts, todayMeals, todayStats, weeklyStats, completeExercise, markMealEaten, updateWaterIntake, refreshData } = useUserData();
+  const [coachTip, setCoachTip] = useState("");
 
+  useEffect(() => {
+    setCoachTip(aiService.getCoachTip());
+  }, [todayStats]);
+
+  const weekWorkouts = weeklyStats.reduce((sum, s) => sum + s.workoutsCompleted, 0);
+  
   const stats = [
-    { icon: Flame, label: "Calories Burned", value: "1,240", color: "text-primary" },
-    { icon: Activity, label: "Workouts This Week", value: "4", color: "text-secondary" },
-    { icon: Droplets, label: "Water Intake", value: "2.5L", color: "text-blue-500" },
+    { icon: Flame, label: "Calories Burned", value: todayStats?.caloriesBurned.toLocaleString() || "0", color: "text-primary" },
+    { icon: Activity, label: "Workouts This Week", value: weekWorkouts.toString(), color: "text-secondary" },
+    { icon: Droplets, label: "Water Intake", value: `${todayStats?.waterIntake || 0}L`, color: "text-blue-500" },
     { icon: Heart, label: "Avg Heart Rate", value: "72 bpm", color: "text-red-500" },
   ];
 
-  const todayWorkout = [
-    { name: "Push-ups", sets: "3x12", completed: true },
-    { name: "Squats", sets: "4x15", completed: true },
-    { name: "Plank", sets: "3x45s", completed: false },
-    { name: "Jump Rope", sets: "3x2min", completed: false },
-  ];
+  const allExercises = todayWorkouts.flatMap(w => 
+    w.exercises.map(ex => ({
+      ...ex,
+      workoutId: w.id,
+      sets: `${ex.sets}x${ex.reps}`,
+    }))
+  );
 
-  const todayMeals = [
-    { name: "Moi Moi & Pap", calories: 380, time: "Breakfast", eaten: true },
-    { name: "Jollof Rice & Grilled Chicken", calories: 520, time: "Lunch", eaten: true },
-    { name: "Efo Riro with Ponmo", calories: 450, time: "Dinner", eaten: false },
-  ];
+  const workoutProgress = allExercises.length > 0 
+    ? (allExercises.filter(ex => ex.completed).length / allExercises.length) * 100 
+    : 0;
+
+  const totalCalories = todayMeals.reduce((sum, m) => sum + m.calories, 0);
+  const consumedCalories = todayMeals.filter(m => m.eaten).reduce((sum, m) => sum + m.calories, 0);
+  const mealProgress = totalCalories > 0 ? (consumedCalories / totalCalories) * 100 : 0;
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
@@ -70,38 +84,51 @@ const Dashboard = () => {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="space-y-3">
-            {todayWorkout.map((exercise) => (
-              <div
-                key={exercise.name}
-                className={`flex items-center justify-between p-4 rounded-lg border transition-smooth ${
-                  exercise.completed ? "bg-secondary/10 border-secondary" : "bg-card"
-                }`}
-              >
-                <div className="flex items-center gap-4">
-                  <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                    exercise.completed ? "bg-secondary border-secondary" : "border-muted"
-                  }`}>
-                    {exercise.completed && <span className="text-white text-xs">✓</span>}
-                  </div>
-                  <div>
-                    <p className="font-medium">{exercise.name}</p>
-                    <p className="text-sm text-muted-foreground">{exercise.sets}</p>
-                  </div>
-                </div>
-                <Badge variant={exercise.completed ? "default" : "outline"}>
-                  {exercise.completed ? "Done" : "Pending"}
-                </Badge>
-              </div>
-            ))}
-          </div>
-          <div className="mt-4">
-            <div className="flex items-center justify-between text-sm mb-2">
-              <span>Progress</span>
-              <span className="font-medium">50%</span>
+          {allExercises.length === 0 ? (
+            <div className="text-center py-8">
+              <p className="text-muted-foreground mb-4">No workouts planned for today</p>
+              <Button onClick={() => navigate("/workouts")}>
+                <Plus className="mr-2 h-4 w-4" />
+                Generate Workout
+              </Button>
             </div>
-            <Progress value={50} />
-          </div>
+          ) : (
+            <>
+              <div className="space-y-3">
+                {allExercises.slice(0, 4).map((exercise) => (
+                  <div
+                    key={`${exercise.workoutId}-${exercise.name}`}
+                    className={`flex items-center justify-between p-4 rounded-lg border transition-smooth cursor-pointer hover:shadow-md ${
+                      exercise.completed ? "bg-secondary/10 border-secondary" : "bg-card"
+                    }`}
+                    onClick={() => completeExercise(exercise.workoutId, exercise.name)}
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
+                        exercise.completed ? "bg-secondary border-secondary" : "border-muted"
+                      }`}>
+                        {exercise.completed && <span className="text-white text-xs">✓</span>}
+                      </div>
+                      <div>
+                        <p className="font-medium">{exercise.name}</p>
+                        <p className="text-sm text-muted-foreground">{exercise.sets}</p>
+                      </div>
+                    </div>
+                    <Badge variant={exercise.completed ? "default" : "outline"}>
+                      {exercise.completed ? "Done" : "Pending"}
+                    </Badge>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-4">
+                <div className="flex items-center justify-between text-sm mb-2">
+                  <span>Progress</span>
+                  <span className="font-medium">{Math.round(workoutProgress)}%</span>
+                </div>
+                <Progress value={workoutProgress} />
+              </div>
+            </>
+          )}
         </CardContent>
       </Card>
 
@@ -117,38 +144,51 @@ const Dashboard = () => {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="space-y-3">
-            {todayMeals.map((meal) => (
-              <div
-                key={meal.name}
-                className={`flex items-center justify-between p-4 rounded-lg border transition-smooth ${
-                  meal.eaten ? "bg-primary/10 border-primary" : "bg-card"
-                }`}
-              >
-                <div className="flex items-center gap-4">
-                  <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                    meal.eaten ? "bg-primary border-primary" : "border-muted"
-                  }`}>
-                    {meal.eaten && <span className="text-white text-xs">✓</span>}
-                  </div>
-                  <div>
-                    <p className="font-medium">{meal.name}</p>
-                    <p className="text-sm text-muted-foreground">{meal.time} • {meal.calories} cal</p>
-                  </div>
-                </div>
-                <Badge variant={meal.eaten ? "default" : "outline"}>
-                  {meal.eaten ? "Eaten" : "Planned"}
-                </Badge>
-              </div>
-            ))}
-          </div>
-          <div className="mt-4">
-            <div className="flex items-center justify-between text-sm mb-2">
-              <span>Daily Calories</span>
-              <span className="font-medium">900 / 1,800 cal</span>
+          {todayMeals.length === 0 ? (
+            <div className="text-center py-8">
+              <p className="text-muted-foreground mb-4">No meals planned for today</p>
+              <Button onClick={() => navigate("/nutrition")}>
+                <Plus className="mr-2 h-4 w-4" />
+                Generate Meal Plan
+              </Button>
             </div>
-            <Progress value={50} />
-          </div>
+          ) : (
+            <>
+              <div className="space-y-3">
+                {todayMeals.map((meal) => (
+                  <div
+                    key={meal.id}
+                    className={`flex items-center justify-between p-4 rounded-lg border transition-smooth cursor-pointer hover:shadow-md ${
+                      meal.eaten ? "bg-primary/10 border-primary" : "bg-card"
+                    }`}
+                    onClick={() => markMealEaten(meal.id)}
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
+                        meal.eaten ? "bg-primary border-primary" : "border-muted"
+                      }`}>
+                        {meal.eaten && <span className="text-white text-xs">✓</span>}
+                      </div>
+                      <div>
+                        <p className="font-medium">{meal.name}</p>
+                        <p className="text-sm text-muted-foreground">{meal.mealType} • {meal.calories} cal</p>
+                      </div>
+                    </div>
+                    <Badge variant={meal.eaten ? "default" : "outline"}>
+                      {meal.eaten ? "Eaten" : "Planned"}
+                    </Badge>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-4">
+                <div className="flex items-center justify-between text-sm mb-2">
+                  <span>Daily Calories</span>
+                  <span className="font-medium">{consumedCalories} / {totalCalories} cal</span>
+                </div>
+                <Progress value={mealProgress} />
+              </div>
+            </>
+          )}
         </CardContent>
       </Card>
 
@@ -162,7 +202,7 @@ const Dashboard = () => {
         </CardHeader>
         <CardContent>
           <p className="text-muted-foreground">
-            Great job staying consistent! Your body is adapting well to the routine. Consider increasing your water intake by 500ml to optimize recovery. Keep pushing! 🔥
+            {coachTip}
           </p>
         </CardContent>
       </Card>
@@ -180,23 +220,23 @@ const Dashboard = () => {
             <div>
               <div className="flex justify-between text-sm mb-2">
                 <span>Workout Completion</span>
-                <span className="font-medium">80%</span>
+                <span className="font-medium">{Math.round(workoutProgress)}%</span>
               </div>
-              <Progress value={80} />
+              <Progress value={workoutProgress} />
             </div>
             <div>
               <div className="flex justify-between text-sm mb-2">
                 <span>Nutrition Goals Met</span>
-                <span className="font-medium">75%</span>
+                <span className="font-medium">{Math.round(mealProgress)}%</span>
               </div>
-              <Progress value={75} />
+              <Progress value={mealProgress} />
             </div>
             <div>
               <div className="flex justify-between text-sm mb-2">
                 <span>Hydration Target</span>
-                <span className="font-medium">90%</span>
+                <span className="font-medium">{todayStats ? Math.round((todayStats.waterIntake / 3) * 100) : 0}%</span>
               </div>
-              <Progress value={90} />
+              <Progress value={todayStats ? (todayStats.waterIntake / 3) * 100 : 0} />
             </div>
           </div>
         </CardContent>

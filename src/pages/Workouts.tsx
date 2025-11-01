@@ -4,40 +4,21 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dumbbell, Clock, Zap, Play, CheckCircle2, Sparkles } from "lucide-react";
 import workoutImage from "@/assets/workout-session.jpg";
+import { AIWorkoutGenerator } from "@/components/AIWorkoutGenerator";
+import { useUserData } from "@/hooks/useUserData";
 
 const Workouts = () => {
-  const workoutPlans = [
-    {
-      id: 1,
-      name: "Full Body Strength",
-      duration: "45 min",
-      difficulty: "Intermediate",
-      calories: "320 cal",
-      exercises: 8,
-      completed: false,
-      image: workoutImage,
-    },
-    {
-      id: 2,
-      name: "HIIT Cardio Blast",
-      duration: "30 min",
-      difficulty: "Advanced",
-      calories: "450 cal",
-      exercises: 10,
-      completed: true,
-      image: workoutImage,
-    },
-    {
-      id: 3,
-      name: "Core & Flexibility",
-      duration: "25 min",
-      difficulty: "Beginner",
-      calories: "180 cal",
-      exercises: 6,
-      completed: false,
-      image: workoutImage,
-    },
-  ];
+  const { todayWorkouts, refreshData } = useUserData();
+  const workoutPlans = todayWorkouts.map(workout => ({
+    id: workout.id,
+    name: workout.name,
+    duration: `${workout.duration} min`,
+    difficulty: workout.difficulty.charAt(0).toUpperCase() + workout.difficulty.slice(1),
+    calories: `${workout.calories} cal`,
+    exercises: workout.exercises.length,
+    completed: workout.completed,
+    image: workoutImage,
+  }));
 
   const exercises = [
     {
@@ -94,7 +75,10 @@ const Workouts = () => {
         </TabsList>
 
         <TabsContent value="plans" className="space-y-4 mt-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <AIWorkoutGenerator onGenerated={refreshData} />
+          
+          {workoutPlans.length > 0 && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {workoutPlans.map((plan) => (
               <Card key={plan.id} className="overflow-hidden hover-scale shadow-card">
                 <div className="relative h-48">
@@ -139,7 +123,8 @@ const Workouts = () => {
                 </CardContent>
               </Card>
             ))}
-          </div>
+            </div>
+          )}
         </TabsContent>
 
         <TabsContent value="exercises" className="space-y-4 mt-6">
