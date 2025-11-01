@@ -3,6 +3,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { SocialShareButton } from "@/components/SocialShareButton";
 import { Trophy, TrendingUp, Users, Flame, Award, Star, Target, Zap, Calendar } from "lucide-react";
 
 const Community = () => {
@@ -81,16 +82,26 @@ const Community = () => {
   };
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto">
-      <div>
-        <h1 className="text-4xl font-bold">Community</h1>
-        <p className="text-muted-foreground mt-2">Connect, compete, and grow together</p>
+    <div className="space-y-6 max-w-7xl mx-auto page-enter">
+      <div className="flex items-start justify-between">
+        <div>
+          <h1 className="text-4xl font-bold">Community</h1>
+          <p className="text-muted-foreground mt-2">Connect, compete, and grow together</p>
+        </div>
+        <SocialShareButton 
+          title="Join FitNaija Community! 🇳🇬"
+          text="I'm crushing my fitness goals with FitNaija - Nigeria's AI-powered fitness app!"
+        />
       </div>
 
       {/* Community Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {communityStats.map((stat) => (
-          <Card key={stat.label} className="hover-scale shadow-card">
+        {communityStats.map((stat, idx) => (
+          <Card 
+            key={stat.label} 
+            className="hover-scale shadow-card card-enter"
+            style={{ animationDelay: `${idx * 0.1}s` }}
+          >
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>

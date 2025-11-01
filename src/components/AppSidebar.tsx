@@ -1,5 +1,6 @@
 import { Home, Dumbbell, Utensils, User, Users, Activity, BarChart3 } from "lucide-react";
 import { NavLink } from "react-router-dom";
+import { DarkModeToggle } from "./DarkModeToggle";
 import {
   Sidebar,
   SidebarContent,
@@ -8,6 +9,7 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
+  SidebarFooter,
   useSidebar,
 } from "@/components/ui/sidebar";
 
@@ -61,6 +63,12 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+      
+      <SidebarFooter>
+        <div className="flex items-center justify-center p-4">
+          <DarkModeToggle />
+        </div>
+      </SidebarFooter>
     </Sidebar>
   );
 }
