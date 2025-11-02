@@ -7,6 +7,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { GoalSetting } from "@/components/GoalSetting";
 import { ProgressExport } from "@/components/ProgressExport";
 import { ProgressPhotos } from "@/components/ProgressPhotos";
+import { ProgressPhotoComparison } from "@/components/ProgressPhotoComparison";
+import { LocalNigerianIntegration } from "@/components/LocalNigerianIntegration";
 import { User, Edit, Target, TrendingUp, Award, Calendar, Flame, Activity } from "lucide-react";
 
 const Profile = () => {
@@ -168,7 +170,12 @@ const Profile = () => {
         <TabsContent value="goals" className="space-y-4 mt-6">
           <GoalSetting />
           
-          <ProgressPhotos />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <ProgressPhotos />
+            <ProgressPhotoComparison />
+          </div>
+
+          <LocalNigerianIntegration />
           
           <ProgressExport
             stats={{

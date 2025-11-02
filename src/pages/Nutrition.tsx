@@ -7,6 +7,7 @@ import nigerianMeal from "@/assets/nigerian-meal.jpg";
 import { AIMealGenerator } from "@/components/AIMealGenerator";
 import { RecipeModal } from "@/components/RecipeModal";
 import { MealDeliverySystem } from "@/components/MealDeliverySystem";
+import { VendorMarketplace } from "@/components/VendorMarketplace";
 import { useUserData } from "@/hooks/useUserData";
 import { useState } from "react";
 
@@ -132,9 +133,12 @@ const Nutrition = () => {
         </TabsList>
 
         <TabsContent value="meals" className="space-y-4 mt-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <AIMealGenerator onGenerated={refreshData} />
-            <MealDeliverySystem />
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <AIMealGenerator onGenerated={refreshData} />
+              <MealDeliverySystem />
+            </div>
+            <VendorMarketplace />
           </div>
           
           {mealPlans.length > 0 && (
