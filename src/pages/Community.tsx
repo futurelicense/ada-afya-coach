@@ -3,9 +3,11 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Trophy, TrendingUp, Users, Flame, Award, Star, Target, Zap, Calendar } from "lucide-react";
+import { Trophy, TrendingUp, Users, Flame, Award, Star, Target, Zap, Calendar, Volume2, Camera, MapPin, ArrowRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const Community = () => {
+  const navigate = useNavigate();
   const topUsers = [
     { name: "Chioma A.", calories: 28500, workouts: 24, streak: 30, rank: 1 },
     { name: "Tunde O.", calories: 26800, workouts: 22, streak: 28, rank: 2 },
@@ -247,6 +249,71 @@ const Community = () => {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Featured Features Section */}
+      <Card className="shadow-card">
+        <CardHeader>
+          <CardTitle className="text-2xl">Explore FitNaija Features</CardTitle>
+          <CardDescription>Discover powerful tools to enhance your fitness journey</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <Card 
+              className="hover-scale cursor-pointer shadow-card bg-gradient-card"
+              onClick={() => navigate('/workouts')}
+            >
+              <CardContent className="p-6">
+                <div className="flex items-start justify-between mb-4">
+                  <div className="p-3 bg-primary/10 rounded-lg">
+                    <Volume2 className="h-6 w-6 text-primary" />
+                  </div>
+                  <ArrowRight className="h-5 w-5 text-muted-foreground" />
+                </div>
+                <h3 className="font-bold text-lg mb-2">Voice-Guided Workouts 🎙️</h3>
+                <p className="text-sm text-muted-foreground">
+                  Real-time voice coaching with form cues and timer
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card 
+              className="hover-scale cursor-pointer shadow-card bg-gradient-card"
+              onClick={() => navigate('/profile')}
+            >
+              <CardContent className="p-6">
+                <div className="flex items-start justify-between mb-4">
+                  <div className="p-3 bg-secondary/10 rounded-lg">
+                    <Camera className="h-6 w-6 text-secondary" />
+                  </div>
+                  <ArrowRight className="h-5 w-5 text-muted-foreground" />
+                </div>
+                <h3 className="font-bold text-lg mb-2">Progress Photo Comparison 📸</h3>
+                <p className="text-sm text-muted-foreground">
+                  Track visual changes with before/after photo comparison
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card 
+              className="hover-scale cursor-pointer shadow-card bg-gradient-card"
+              onClick={() => navigate('/profile')}
+            >
+              <CardContent className="p-6">
+                <div className="flex items-start justify-between mb-4">
+                  <div className="p-3 bg-blue-500/10 rounded-lg">
+                    <MapPin className="h-6 w-6 text-blue-500" />
+                  </div>
+                  <ArrowRight className="h-5 w-5 text-muted-foreground" />
+                </div>
+                <h3 className="font-bold text-lg mb-2">Local Integration 🇳🇬</h3>
+                <p className="text-sm text-muted-foreground">
+                  Find gyms, trainers, and nutrition services near you
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Motivational Banner */}
       <Card className="shadow-card gradient-hero text-white">
