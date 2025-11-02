@@ -6,6 +6,8 @@ import { Activity, Flame, Droplets, Heart, TrendingUp, Sparkles, Plus } from "lu
 import { useNavigate } from "react-router-dom";
 import { useUserData } from "@/hooks/useUserData";
 import { AICoachPanel } from "@/components/AICoachPanel";
+import { AIChatCoach } from "@/components/AIChatCoach";
+import { GamificationPanel } from "@/components/GamificationPanel";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -64,6 +66,12 @@ const Dashboard = () => {
             </CardContent>
           </Card>
         ))}
+      </div>
+
+      {/* AI Coach Chat & Gamification */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <AIChatCoach />
+        <GamificationPanel />
       </div>
 
       {/* AI Coach Panel */}
