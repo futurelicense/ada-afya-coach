@@ -13,6 +13,11 @@ import Analytics from "./pages/Analytics";
 import Community from "./pages/Community";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
+import RoleSelection from "./pages/RoleSelection";
+import VendorDashboard from "./pages/VendorDashboard";
+import TrainerDashboard from "./pages/TrainerDashboard";
+import GymOwnerDashboard from "./pages/GymOwnerDashboard";
+import InfluencerDashboard from "./pages/InfluencerDashboard";
 
 const queryClient = new QueryClient();
 
@@ -25,7 +30,12 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/onboarding" element={<Onboarding />} />
+          <Route path="/role-selection" element={<RoleSelection />} />
           <Route path="/dashboard" element={<Layout><Dashboard /></Layout>} />
+          <Route path="/vendor-dashboard" element={<Layout><VendorDashboard /></Layout>} />
+          <Route path="/trainer-dashboard" element={<Layout><TrainerDashboard /></Layout>} />
+          <Route path="/gym-owner-dashboard" element={<Layout><GymOwnerDashboard /></Layout>} />
+          <Route path="/influencer-dashboard" element={<Layout><InfluencerDashboard /></Layout>} />
           <Route path="/workouts" element={<Layout><Workouts /></Layout>} />
           <Route path="/nutrition" element={<Layout><Nutrition /></Layout>} />
           <Route path="/analytics" element={<Layout><Analytics /></Layout>} />
