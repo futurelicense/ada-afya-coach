@@ -1,4 +1,4 @@
-import { Home, Dumbbell, Utensils, User, Users, Activity, BarChart3 } from "lucide-react";
+import { Home, Dumbbell, Utensils, User, Users, Activity, BarChart3, Compass } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import {
   Sidebar,
@@ -17,6 +17,7 @@ const navItems = [
   { title: "Workouts", url: "/workouts", icon: Dumbbell },
   { title: "Nutrition", url: "/nutrition", icon: Utensils },
   { title: "Analytics", url: "/analytics", icon: BarChart3 },
+  { title: "Explore", url: "/explore", icon: Compass },
   { title: "Community", url: "/community", icon: Users },
   { title: "Profile", url: "/profile", icon: User },
 ];

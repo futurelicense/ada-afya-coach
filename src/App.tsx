@@ -11,6 +11,7 @@ import Workouts from "./pages/Workouts";
 import Nutrition from "./pages/Nutrition";
 import Analytics from "./pages/Analytics";
 import Community from "./pages/Community";
+import Explore from "./pages/Explore";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 import RoleSelection from "./pages/RoleSelection";
@@ -39,6 +40,7 @@ const App = () => (
           <Route path="/workouts" element={<Layout><Workouts /></Layout>} />
           <Route path="/nutrition" element={<Layout><Nutrition /></Layout>} />
           <Route path="/analytics" element={<Layout><Analytics /></Layout>} />
+          <Route path="/explore" element={<Layout><Explore /></Layout>} />
           <Route path="/community" element={<Layout><Community /></Layout>} />
           <Route path="/profile" element={<Layout><Profile /></Layout>} />
           <Route path="*" element={<NotFound />} />
