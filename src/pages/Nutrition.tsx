@@ -2,23 +2,33 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Utensils, Flame, Apple, Sparkles, Clock } from "lucide-react";
+import { Utensils, Flame, Apple, Sparkles, Clock, ShoppingCart } from "lucide-react";
 import nigerianMeal from "@/assets/nigerian-meal.jpg";
 import { AIMealGenerator } from "@/components/AIMealGenerator";
 import { RecipeModal } from "@/components/RecipeModal";
 import { MealDeliverySystem } from "@/components/MealDeliverySystem";
 import { VendorMarketplace } from "@/components/VendorMarketplace";
+import { SwipeableMealCarousel } from "@/components/SwipeableMealCarousel";
 import { useUserData } from "@/hooks/useUserData";
 import { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
 
 const Nutrition = () => {
   const { todayMeals, refreshData } = useUserData();
   const [selectedMeal, setSelectedMeal] = useState<any>(null);
   const [isRecipeModalOpen, setIsRecipeModalOpen] = useState(false);
+  const { toast } = useToast();
 
   const openRecipe = (meal: any) => {
     setSelectedMeal(meal);
     setIsRecipeModalOpen(true);
+  };
+
+  const handleOrderMeal = (meal: any) => {
+    toast({
+      title: "Order Placed!",
+      description: `Your order for ${meal.name} has been sent to local vendors.`,
+    });
   };
 
   const totalCalories = todayMeals.reduce((sum, m) => sum + m.calories, 0);
@@ -86,40 +96,43 @@ const Nutrition = () => {
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-4xl font-bold">Nutrition Plans</h1>
+          <h1 className="text-3xl lg:text-4xl font-bold text-gradient">Nutrition Plans</h1>
           <p className="text-muted-foreground mt-2">Nigerian cuisine meets healthy eating</p>
         </div>
-        <Badge className="bg-secondary text-secondary-foreground gap-2">
+        <Badge className="bg-primary/10 text-primary border-primary/20 gap-2 w-fit">
           <Sparkles className="h-4 w-4" />
           AI Optimized
         </Badge>
       </div>
 
       {/* Daily Summary */}
-      <Card className="shadow-glow border-primary">
+      <Card className="glass shadow-premium border-0">
         <CardHeader>
-          <CardTitle>Today's Nutrition Summary</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <Flame className="h-5 w-5 text-primary" />
+            Today's Nutrition Summary
+          </CardTitle>
           <CardDescription>Your daily macronutrient breakdown</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="text-center p-4 bg-primary/10 rounded-lg">
-              <Flame className="h-8 w-8 text-primary mx-auto mb-2" />
+            <div className="text-center p-4 glass rounded-xl group hover:shadow-elevated transition-all duration-300">
+              <Flame className="h-8 w-8 text-primary mx-auto mb-2 group-hover:scale-110 transition-transform" />
               <p className="text-2xl font-bold">{totalCalories}</p>
               <p className="text-sm text-muted-foreground">Calories</p>
             </div>
-            <div className="text-center p-4 bg-secondary/10 rounded-lg">
-              <p className="text-2xl font-bold text-secondary">{totalProtein}g</p>
+            <div className="text-center p-4 glass rounded-xl group hover:shadow-elevated transition-all duration-300">
+              <p className="text-2xl font-bold text-secondary group-hover:scale-110 transition-transform inline-block">{totalProtein}g</p>
               <p className="text-sm text-muted-foreground">Protein</p>
             </div>
-            <div className="text-center p-4 bg-accent/10 rounded-lg">
-              <p className="text-2xl font-bold">{totalCarbs}g</p>
+            <div className="text-center p-4 glass rounded-xl group hover:shadow-elevated transition-all duration-300">
+              <p className="text-2xl font-bold text-primary group-hover:scale-110 transition-transform inline-block">{totalCarbs}g</p>
               <p className="text-sm text-muted-foreground">Carbs</p>
             </div>
-            <div className="text-center p-4 bg-muted rounded-lg">
-              <p className="text-2xl font-bold">{totalFats}g</p>
+            <div className="text-center p-4 glass rounded-xl group hover:shadow-elevated transition-all duration-300">
+              <p className="text-2xl font-bold group-hover:scale-110 transition-transform inline-block">{totalFats}g</p>
               <p className="text-sm text-muted-foreground">Fats</p>
             </div>
           </div>
@@ -132,86 +145,51 @@ const Nutrition = () => {
           <TabsTrigger value="foods">Food Library</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="meals" className="space-y-4 mt-6">
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <AIMealGenerator onGenerated={refreshData} />
-              <MealDeliverySystem />
-            </div>
-            <VendorMarketplace />
+        <TabsContent value="meals" className="space-y-6 mt-6">
+          {/* AI Generator and Delivery System */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <AIMealGenerator onGenerated={refreshData} />
+            <MealDeliverySystem />
           </div>
           
+          {/* Swipeable Meal Cards */}
           {mealPlans.length > 0 && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {mealPlans.map((meal) => (
-              <Card key={meal.id} className="overflow-hidden hover-scale shadow-card">
-                <div className="relative h-48">
-                  <img src={meal.image} alt={meal.name} className="w-full h-full object-cover" />
-                  <div className="absolute top-4 left-4">
-                    <Badge className="bg-primary text-primary-foreground">{meal.type}</Badge>
-                  </div>
-                </div>
-                <CardHeader>
-                  <CardTitle>{meal.name}</CardTitle>
-                  <CardDescription className="flex items-center gap-2">
-                    <Clock className="h-4 w-4" />
-                    {meal.time}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <p className="text-sm text-muted-foreground">{meal.description}</p>
-                  <div className="grid grid-cols-4 gap-2 text-center text-sm">
-                    <div>
-                      <p className="font-bold text-primary">{meal.calories}</p>
-                      <p className="text-xs text-muted-foreground">cal</p>
-                    </div>
-                    <div>
-                      <p className="font-bold text-secondary">{meal.protein}g</p>
-                      <p className="text-xs text-muted-foreground">protein</p>
-                    </div>
-                    <div>
-                      <p className="font-bold">{meal.carbs}g</p>
-                      <p className="text-xs text-muted-foreground">carbs</p>
-                    </div>
-                    <div>
-                      <p className="font-bold">{meal.fats}g</p>
-                      <p className="text-xs text-muted-foreground">fats</p>
-                    </div>
-                  </div>
-                  <Button className="w-full" onClick={() => openRecipe(meal)}>
-                    <Utensils className="mr-2 h-4 w-4" />
-                    View Recipe
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
-            </div>
+            <SwipeableMealCarousel 
+              meals={mealPlans}
+              onViewRecipe={openRecipe}
+              onOrderMeal={handleOrderMeal}
+            />
           )}
+
+          {/* Vendor Marketplace */}
+          <VendorMarketplace />
         </TabsContent>
 
         <TabsContent value="foods" className="space-y-4 mt-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {nigerianFoods.map((food, index) => (
-              <Card key={index} className="shadow-card hover-scale">
+              <Card key={index} className="glass shadow-card hover:shadow-premium transition-all duration-300 border-0 group">
                 <CardHeader>
                   <div className="flex items-start justify-between">
-                    <CardTitle className="flex items-center gap-2">
-                      <Apple className="h-5 w-5 text-secondary" />
+                    <CardTitle className="flex items-center gap-2 group-hover:text-gradient transition-all duration-300">
+                      <div className="p-2 rounded-xl bg-secondary/10 group-hover:scale-110 transition-transform">
+                        <Apple className="h-5 w-5 text-secondary" />
+                      </div>
                       {food.name}
                     </CardTitle>
-                    <Badge variant="outline">{food.category}</Badge>
+                    <Badge variant="outline" className="glass">{food.category}</Badge>
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <div className="flex items-center justify-between text-sm">
+                  <div className="flex items-center justify-between text-sm p-3 rounded-xl glass">
                     <span className="text-muted-foreground">Calories</span>
                     <span className="font-bold text-primary">{food.calories}</span>
                   </div>
-                  <div className="flex items-center justify-between text-sm">
+                  <div className="flex items-center justify-between text-sm p-3 rounded-xl glass">
                     <span className="text-muted-foreground">Protein</span>
                     <span className="font-bold text-secondary">{food.protein}</span>
                   </div>
-                  <div className="bg-secondary/10 border border-secondary/20 p-3 rounded-lg">
+                  <div className="glass p-3 rounded-xl border border-secondary/20">
                     <p className="text-sm flex items-start gap-2">
                       <Sparkles className="h-4 w-4 text-secondary flex-shrink-0 mt-0.5" />
                       <span className="text-muted-foreground">{food.benefits}</span>
