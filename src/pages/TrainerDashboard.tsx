@@ -6,60 +6,78 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 
 const TrainerDashboard = () => {
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-gradient mb-2">Trainer Dashboard</h1>
-        <p className="text-muted-foreground">Manage your clients and training sessions</p>
+    <div className="space-y-6 animate-fade-in">
+      <div className="relative">
+        <div className="absolute inset-0 gradient-primary opacity-5 rounded-2xl blur-3xl"></div>
+        <div className="relative">
+          <h1 className="text-4xl md:text-5xl font-bold text-gradient mb-3">Trainer Dashboard</h1>
+          <p className="text-muted-foreground text-lg">Manage your clients and training sessions</p>
+        </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-4">
-        <Card>
+      <div className="grid gap-4 md:grid-cols-4 stagger-item">
+        <Card className="hover-lift overflow-hidden relative group">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Active Clients</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
+            <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+              <Users className="h-5 w-5 text-primary" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">24</div>
-            <p className="text-xs text-muted-foreground">+3 this month</p>
+            <div className="text-3xl font-bold bg-gradient-to-br from-foreground to-foreground/70 bg-clip-text text-transparent">24</div>
+            <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+              <TrendingUp className="h-3 w-3 text-green-500" />
+              +3 this month
+            </p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="hover-lift overflow-hidden relative group">
+          <div className="absolute inset-0 bg-gradient-to-br from-secondary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">This Week</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
+            <div className="h-10 w-10 rounded-full bg-secondary/10 flex items-center justify-center">
+              <Calendar className="h-5 w-5 text-secondary" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">18 Sessions</div>
-            <p className="text-xs text-muted-foreground">5 today</p>
+            <div className="text-3xl font-bold bg-gradient-to-br from-foreground to-foreground/70 bg-clip-text text-transparent">18 Sessions</div>
+            <p className="text-xs text-muted-foreground mt-1">5 today</p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="hover-lift overflow-hidden relative group">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Hours</CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
+            <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+              <Clock className="h-5 w-5 text-primary" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">156</div>
-            <p className="text-xs text-muted-foreground">This month</p>
+            <div className="text-3xl font-bold bg-gradient-to-br from-foreground to-foreground/70 bg-clip-text text-transparent">156</div>
+            <p className="text-xs text-muted-foreground mt-1">This month</p>
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <Card className="hover-lift overflow-hidden relative group shimmer">
+          <div className="absolute inset-0 gradient-premium opacity-10"></div>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
             <CardTitle className="text-sm font-medium">Rating</CardTitle>
-            <Star className="h-4 w-4 text-muted-foreground" />
+            <div className="h-10 w-10 rounded-full bg-yellow-500/10 flex items-center justify-center">
+              <Star className="h-5 w-5 text-yellow-500 fill-yellow-500" />
+            </div>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">4.9</div>
-            <p className="text-xs text-muted-foreground">Based on 45 reviews</p>
+          <CardContent className="relative z-10">
+            <div className="text-3xl font-bold text-gradient">4.9</div>
+            <p className="text-xs text-muted-foreground mt-1">Based on 45 reviews</p>
           </CardContent>
         </Card>
       </div>
 
       <Tabs defaultValue="clients" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="clients">Clients</TabsTrigger>
-          <TabsTrigger value="schedule">Schedule</TabsTrigger>
-          <TabsTrigger value="programs">Training Programs</TabsTrigger>
+        <TabsList className="bg-muted/50 p-1">
+          <TabsTrigger value="clients" className="data-[state=active]:bg-card data-[state=active]:shadow-sm">Clients</TabsTrigger>
+          <TabsTrigger value="schedule" className="data-[state=active]:bg-card data-[state=active]:shadow-sm">Schedule</TabsTrigger>
+          <TabsTrigger value="programs" className="data-[state=active]:bg-card data-[state=active]:shadow-sm">Training Programs</TabsTrigger>
         </TabsList>
         
         <TabsContent value="clients" className="space-y-4">

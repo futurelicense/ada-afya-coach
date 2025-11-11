@@ -6,61 +6,82 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 
 const GymOwnerDashboard = () => {
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-gradient mb-2">Gym Owner Dashboard</h1>
-        <p className="text-muted-foreground">Manage your facility and memberships</p>
+    <div className="space-y-6 animate-fade-in">
+      <div className="relative">
+        <div className="absolute inset-0 gradient-primary opacity-5 rounded-2xl blur-3xl"></div>
+        <div className="relative">
+          <h1 className="text-4xl md:text-5xl font-bold text-gradient mb-3">Gym Owner Dashboard</h1>
+          <p className="text-muted-foreground text-lg">Manage your facility and memberships</p>
+        </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-4">
-        <Card>
+      <div className="grid gap-4 md:grid-cols-4 stagger-item">
+        <Card className="hover-lift overflow-hidden relative group">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Active Members</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
+            <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+              <Users className="h-5 w-5 text-primary" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">342</div>
-            <p className="text-xs text-muted-foreground">+18 this month</p>
+            <div className="text-3xl font-bold bg-gradient-to-br from-foreground to-foreground/70 bg-clip-text text-transparent">342</div>
+            <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+              <TrendingUp className="h-3 w-3 text-green-500" />
+              +18 this month
+            </p>
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <Card className="hover-lift overflow-hidden relative group shimmer">
+          <div className="absolute inset-0 gradient-premium opacity-10"></div>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
             <CardTitle className="text-sm font-medium">Monthly Revenue</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
+            <div className="h-10 w-10 rounded-full bg-secondary/10 flex items-center justify-center">
+              <DollarSign className="h-5 w-5 text-secondary" />
+            </div>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">₦1.2M</div>
-            <p className="text-xs text-muted-foreground">+12% from last month</p>
+          <CardContent className="relative z-10">
+            <div className="text-3xl font-bold text-gradient">₦1.2M</div>
+            <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+              <TrendingUp className="h-3 w-3 text-green-500" />
+              +12% from last month
+            </p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="hover-lift overflow-hidden relative group">
+          <div className="absolute inset-0 bg-gradient-to-br from-secondary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Occupancy</CardTitle>
-            <Dumbbell className="h-4 w-4 text-muted-foreground" />
+            <div className="h-10 w-10 rounded-full bg-secondary/10 flex items-center justify-center">
+              <Dumbbell className="h-5 w-5 text-secondary" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">78%</div>
-            <p className="text-xs text-muted-foreground">Current capacity</p>
+            <div className="text-3xl font-bold bg-gradient-to-br from-foreground to-foreground/70 bg-clip-text text-transparent">78%</div>
+            <p className="text-xs text-muted-foreground mt-1">Current capacity</p>
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <Card className="hover-lift overflow-hidden relative group border-destructive/20">
+          <div className="absolute inset-0 bg-gradient-to-br from-destructive/5 to-transparent opacity-50"></div>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
             <CardTitle className="text-sm font-medium">Expiring Soon</CardTitle>
-            <AlertCircle className="h-4 w-4 text-muted-foreground" />
+            <div className="h-10 w-10 rounded-full bg-destructive/10 flex items-center justify-center">
+              <AlertCircle className="h-5 w-5 text-destructive" />
+            </div>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">23</div>
-            <p className="text-xs text-muted-foreground">Memberships this week</p>
+          <CardContent className="relative z-10">
+            <div className="text-3xl font-bold text-destructive">23</div>
+            <p className="text-xs text-muted-foreground mt-1">Memberships this week</p>
           </CardContent>
         </Card>
       </div>
 
       <Tabs defaultValue="members" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="members">Members</TabsTrigger>
-          <TabsTrigger value="staff">Staff</TabsTrigger>
-          <TabsTrigger value="equipment">Equipment</TabsTrigger>
-          <TabsTrigger value="classes">Classes</TabsTrigger>
+        <TabsList className="bg-muted/50 p-1">
+          <TabsTrigger value="members" className="data-[state=active]:bg-card data-[state=active]:shadow-sm">Members</TabsTrigger>
+          <TabsTrigger value="staff" className="data-[state=active]:bg-card data-[state=active]:shadow-sm">Staff</TabsTrigger>
+          <TabsTrigger value="equipment" className="data-[state=active]:bg-card data-[state=active]:shadow-sm">Equipment</TabsTrigger>
+          <TabsTrigger value="classes" className="data-[state=active]:bg-card data-[state=active]:shadow-sm">Classes</TabsTrigger>
         </TabsList>
         
         <TabsContent value="members" className="space-y-4">

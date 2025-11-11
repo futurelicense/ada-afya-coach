@@ -12,8 +12,8 @@ export function Layout({ children }: LayoutProps) {
       <div className="min-h-screen flex w-full smooth-scroll">
         <AppSidebar />
         <div className="flex-1 flex flex-col">
-          <header className="h-14 md:h-16 border-b bg-card flex items-center px-3 md:px-6 sticky top-0 z-10 backdrop-blur-sm bg-card/95 transition-smooth">
-            <SidebarTrigger className="mr-2 md:mr-4" />
+          <header className="h-14 md:h-16 border-b bg-card/80 flex items-center px-3 md:px-6 sticky top-0 z-10 backdrop-blur-md shadow-sm transition-smooth">
+            <SidebarTrigger className="mr-2 md:mr-4 hover-scale" />
             <h2 className="text-base md:text-lg lg:text-xl font-bold text-gradient truncate">AI-Powered Wellness Coach</h2>
           </header>
           <main className="flex-1 p-3 sm:p-4 md:p-6 bg-background overflow-auto animate-fade-in">
