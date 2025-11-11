@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Layout } from "./components/Layout";
+import { FloatingAIChat } from "./components/FloatingAIChat";
 import Index from "./pages/Index";
 import Onboarding from "./pages/Onboarding";
 import Dashboard from "./pages/Dashboard";
@@ -45,6 +46,7 @@ const App = () => (
           <Route path="/profile" element={<Layout><Profile /></Layout>} />
           <Route path="*" element={<NotFound />} />
         </Routes>
+        <FloatingAIChat />
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
