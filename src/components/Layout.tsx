@@ -1,5 +1,6 @@
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "./AppSidebar";
+import { BottomNavigation } from "./BottomNavigation";
 import { ReactNode } from "react";
 
 interface LayoutProps {
@@ -12,13 +13,14 @@ export function Layout({ children }: LayoutProps) {
       <div className="min-h-screen flex w-full smooth-scroll">
         <AppSidebar />
         <div className="flex-1 flex flex-col">
-          <header className="h-14 md:h-16 border-b bg-card/80 flex items-center px-3 md:px-6 sticky top-0 z-10 backdrop-blur-md shadow-sm transition-smooth">
+          <header className="h-14 md:h-16 border-b glass flex items-center px-3 md:px-6 sticky top-0 z-10 shadow-sm transition-smooth">
             <SidebarTrigger className="mr-2 md:mr-4 hover-scale" />
-            <h2 className="text-base md:text-lg lg:text-xl font-bold text-gradient truncate">AI-Powered Wellness Coach</h2>
+            <h2 className="text-base md:text-lg lg:text-xl font-bold text-gradient truncate">FitNaija Coach</h2>
           </header>
-          <main className="flex-1 p-3 sm:p-4 md:p-6 bg-background overflow-auto animate-fade-in">
+          <main className="flex-1 p-3 sm:p-4 md:p-6 bg-background overflow-auto animate-fade-in pb-20 md:pb-6">
             {children}
           </main>
+          <BottomNavigation />
         </div>
       </div>
     </SidebarProvider>

@@ -38,7 +38,9 @@ const Index = () => {
 
       {/* Hero Section */}
       <section className="relative pt-24 pb-16 md:pt-32 md:pb-24 overflow-hidden">
-        <div className="absolute inset-0 gradient-hero opacity-10"></div>
+        <div className="absolute inset-0 gradient-mesh opacity-30"></div>
+        <div className="absolute top-20 right-10 w-72 h-72 bg-primary/20 rounded-full blur-[120px] float"></div>
+        <div className="absolute bottom-10 left-10 w-96 h-96 bg-secondary/20 rounded-full blur-[150px] float" style={{ animationDelay: '2s' }}></div>
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative">
           <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
             <div className="space-y-6 lg:space-y-8 animate-fade-in">
@@ -79,12 +81,15 @@ const Index = () => {
               </div>
             </div>
             <div className="relative animate-slide-up" style={{ animationDelay: '0.2s' }}>
-              <div className="absolute inset-0 gradient-primary opacity-20 blur-3xl rounded-full"></div>
-              <img 
-                src={heroImage} 
-                alt="African woman exercising with confidence" 
-                className="relative rounded-2xl lg:rounded-3xl shadow-card w-full h-auto"
-              />
+              <div className="absolute -inset-4 gradient-primary opacity-30 blur-3xl rounded-full"></div>
+              <div className="relative overflow-hidden rounded-3xl shadow-premium card-3d">
+                <img 
+                  src={heroImage} 
+                  alt="African woman exercising with confidence" 
+                  className="w-full h-auto relative z-10"
+                />
+                <div className="absolute inset-0 bg-gradient-to-tr from-primary/20 via-transparent to-secondary/20"></div>
+              </div>
             </div>
           </div>
         </div>
@@ -106,80 +111,86 @@ const Index = () => {
           </div>
 
           <div className={`grid md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 scroll-reveal ${featuresReveal.isVisible ? 'visible' : ''}`}>
-            <Card className="p-6 lg:p-8 gradient-card shadow-card hover:shadow-glow transition-smooth border-border/50 stagger-item" style={{ animationDelay: '0.1s' }}>
-              <div className="w-12 h-12 rounded-xl gradient-primary flex items-center justify-center mb-6">
+            <Card className="p-6 lg:p-8 glass shadow-card hover:shadow-premium transition-smooth border-border/50 stagger-item group overflow-hidden" style={{ animationDelay: '0.1s' }}>
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <div className="w-12 h-12 rounded-xl gradient-primary flex items-center justify-center mb-6 relative z-10 shadow-glow group-hover:scale-110 transition-transform duration-300">
                 <Dumbbell className="w-6 h-6 text-white" />
               </div>
-              <h3 className="font-display text-xl mb-3">AI Workout Plans</h3>
-              <p className="text-muted-foreground mb-4">
+              <h3 className="font-display text-xl mb-3 relative z-10">AI Workout Plans</h3>
+              <p className="text-muted-foreground mb-4 relative z-10">
                 Customized exercise routines based on your fitness level, goals, and available equipment. Every rep counts.
               </p>
-              <a href="#" className="text-primary font-medium inline-flex items-center hover:gap-2 transition-all">
+              <a href="#" className="text-primary font-medium inline-flex items-center hover:gap-2 transition-all relative z-10">
                 Explore workouts <ArrowRight className="w-4 h-4 ml-1" />
               </a>
             </Card>
 
-            <Card className="p-6 lg:p-8 gradient-card shadow-card hover:shadow-glow transition-smooth border-border/50 stagger-item" style={{ animationDelay: '0.2s' }}>
-              <div className="w-12 h-12 rounded-xl bg-secondary flex items-center justify-center mb-6">
+            <Card className="p-6 lg:p-8 glass shadow-card hover:shadow-premium transition-smooth border-border/50 stagger-item group overflow-hidden" style={{ animationDelay: '0.2s' }}>
+              <div className="absolute inset-0 bg-gradient-to-br from-secondary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <div className="w-12 h-12 rounded-xl bg-secondary flex items-center justify-center mb-6 relative z-10 shadow-glow group-hover:scale-110 transition-transform duration-300">
                 <UtensilsCrossed className="w-6 h-6 text-white" />
               </div>
-              <h3 className="font-display text-xl mb-3">Nigerian Meal Plans</h3>
-              <p className="text-muted-foreground mb-4">
+              <h3 className="font-display text-xl mb-3 relative z-10">Nigerian Meal Plans</h3>
+              <p className="text-muted-foreground mb-4 relative z-10">
                 Delicious, balanced meal recommendations featuring local dishes. From jollof to efo riro — healthy and tasty.
               </p>
-              <a href="#" className="text-secondary font-medium inline-flex items-center hover:gap-2 transition-all">
+              <a href="#" className="text-secondary font-medium inline-flex items-center hover:gap-2 transition-all relative z-10">
                 View meal plans <ArrowRight className="w-4 h-4 ml-1" />
               </a>
             </Card>
 
-            <Card className="p-6 lg:p-8 gradient-card shadow-card hover:shadow-glow transition-smooth border-border/50 stagger-item" style={{ animationDelay: '0.3s' }}>
-              <div className="w-12 h-12 rounded-xl gradient-primary flex items-center justify-center mb-6">
+            <Card className="p-6 lg:p-8 glass shadow-card hover:shadow-premium transition-smooth border-border/50 stagger-item group overflow-hidden" style={{ animationDelay: '0.3s' }}>
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <div className="w-12 h-12 rounded-xl gradient-primary flex items-center justify-center mb-6 relative z-10 shadow-glow group-hover:scale-110 transition-transform duration-300">
                 <Brain className="w-6 h-6 text-white" />
               </div>
-              <h3 className="font-display text-xl mb-3">Coach Ada AI</h3>
-              <p className="text-muted-foreground mb-4">
+              <h3 className="font-display text-xl mb-3 relative z-10">Coach Ada AI</h3>
+              <p className="text-muted-foreground mb-4 relative z-10">
                 Your 24/7 AI wellness coach. Ask questions, get motivation, and receive personalized tips in real-time.
               </p>
-              <a href="#" className="text-primary font-medium inline-flex items-center hover:gap-2 transition-all">
+              <a href="#" className="text-primary font-medium inline-flex items-center hover:gap-2 transition-all relative z-10">
                 Chat with Ada <ArrowRight className="w-4 h-4 ml-1" />
               </a>
             </Card>
 
-            <Card className="p-6 lg:p-8 gradient-card shadow-card hover:shadow-glow transition-smooth border-border/50 stagger-item" style={{ animationDelay: '0.4s' }}>
-              <div className="w-12 h-12 rounded-xl bg-secondary flex items-center justify-center mb-6">
+            <Card className="p-6 lg:p-8 glass shadow-card hover:shadow-premium transition-smooth border-border/50 stagger-item group overflow-hidden" style={{ animationDelay: '0.4s' }}>
+              <div className="absolute inset-0 bg-gradient-to-br from-secondary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <div className="w-12 h-12 rounded-xl bg-secondary flex items-center justify-center mb-6 relative z-10 shadow-glow group-hover:scale-110 transition-transform duration-300">
                 <TrendingUp className="w-6 h-6 text-white" />
               </div>
-              <h3 className="font-display text-xl mb-3">Smart Analytics</h3>
-              <p className="text-muted-foreground mb-4">
+              <h3 className="font-display text-xl mb-3 relative z-10">Smart Analytics</h3>
+              <p className="text-muted-foreground mb-4 relative z-10">
                 Track your progress with detailed insights. AI predicts plateaus and suggests adjustments to keep you moving.
               </p>
-              <a href="#" className="text-secondary font-medium inline-flex items-center hover:gap-2 transition-all">
+              <a href="#" className="text-secondary font-medium inline-flex items-center hover:gap-2 transition-all relative z-10">
                 See your stats <ArrowRight className="w-4 h-4 ml-1" />
               </a>
             </Card>
 
-            <Card className="p-6 lg:p-8 gradient-card shadow-card hover:shadow-glow transition-smooth border-border/50 stagger-item" style={{ animationDelay: '0.5s' }}>
-              <div className="w-12 h-12 rounded-xl gradient-primary flex items-center justify-center mb-6">
+            <Card className="p-6 lg:p-8 glass shadow-card hover:shadow-premium transition-smooth border-border/50 stagger-item group overflow-hidden" style={{ animationDelay: '0.5s' }}>
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <div className="w-12 h-12 rounded-xl gradient-primary flex items-center justify-center mb-6 relative z-10 shadow-glow group-hover:scale-110 transition-transform duration-300">
                 <Users className="w-6 h-6 text-white" />
               </div>
-              <h3 className="font-display text-xl mb-3">Community Power</h3>
-              <p className="text-muted-foreground mb-4">
+              <h3 className="font-display text-xl mb-3 relative z-10">Community Power</h3>
+              <p className="text-muted-foreground mb-4 relative z-10">
                 Join thousands of Nigerians on the same journey. Share progress, compete, and stay motivated together.
               </p>
-              <a href="#" className="text-primary font-medium inline-flex items-center hover:gap-2 transition-all">
+              <a href="#" className="text-primary font-medium inline-flex items-center hover:gap-2 transition-all relative z-10">
                 Join community <ArrowRight className="w-4 h-4 ml-1" />
               </a>
             </Card>
 
-            <Card className="p-6 lg:p-8 gradient-card shadow-card hover:shadow-glow transition-smooth border-border/50 stagger-item" style={{ animationDelay: '0.6s' }}>
-              <div className="w-12 h-12 rounded-xl bg-secondary flex items-center justify-center mb-6">
+            <Card className="p-6 lg:p-8 glass shadow-card hover:shadow-premium transition-smooth border-border/50 stagger-item group overflow-hidden" style={{ animationDelay: '0.6s' }}>
+              <div className="absolute inset-0 bg-gradient-to-br from-secondary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <div className="w-12 h-12 rounded-xl bg-secondary flex items-center justify-center mb-6 relative z-10 shadow-glow group-hover:scale-110 transition-transform duration-300">
                 <Sparkles className="w-6 h-6 text-white" />
               </div>
-              <h3 className="font-display text-xl mb-3">Culturally Yours</h3>
-              <p className="text-muted-foreground mb-4">
+              <h3 className="font-display text-xl mb-3 relative z-10">Culturally Yours</h3>
+              <p className="text-muted-foreground mb-4 relative z-10">
                 AI trained on Nigerian lifestyles, foods, and fitness culture. This isn't generic — it's built for you.
               </p>
-              <a href="#" className="text-secondary font-medium inline-flex items-center hover:gap-2 transition-all">
+              <a href="#" className="text-secondary font-medium inline-flex items-center hover:gap-2 transition-all relative z-10">
                 Learn more <ArrowRight className="w-4 h-4 ml-1" />
               </a>
             </Card>
