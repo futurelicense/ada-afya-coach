@@ -2,7 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Dumbbell, Clock, Zap, Play, CheckCircle2, Sparkles } from "lucide-react";
+import { Dumbbell, Clock, Zap, Play, CheckCircle2, Sparkles, Flame, Target, TrendingUp, Check } from "lucide-react";
 import workoutImage from "@/assets/workout-session.jpg";
 import { AIWorkoutGenerator } from "@/components/AIWorkoutGenerator";
 import { CustomWorkoutBuilder } from "@/components/CustomWorkoutBuilder";
@@ -58,72 +58,101 @@ const Workouts = () => {
   ];
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-4xl font-bold">Workout Plans</h1>
-          <p className="text-muted-foreground mt-2">AI-powered exercises tailored for you</p>
-        </div>
-        <Badge className="bg-secondary text-secondary-foreground gap-2">
-          <Sparkles className="h-4 w-4" />
-          AI Generated
-        </Badge>
+    <div className="container mx-auto p-6 space-y-8">
+      <div className="text-center space-y-3 mb-12">
+        <h1 className="text-5xl font-bold gradient-text">Workouts</h1>
+        <p className="text-muted-foreground text-lg">Transform your body with personalized plans</p>
       </div>
 
       <Tabs defaultValue="plans" className="w-full">
-        <TabsList className="grid w-full max-w-md grid-cols-3">
-          <TabsTrigger value="plans">My Plans</TabsTrigger>
-          <TabsTrigger value="create">Create</TabsTrigger>
-          <TabsTrigger value="exercises">Library</TabsTrigger>
+        <TabsList className="glass mb-8 p-1 h-auto">
+          <TabsTrigger value="plans" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+            My Plans
+          </TabsTrigger>
+          <TabsTrigger value="create" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+            Create
+          </TabsTrigger>
+          <TabsTrigger value="exercises" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+            Library
+          </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="plans" className="space-y-4 mt-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <TabsContent value="plans" className="space-y-8">
+          <div className="grid gap-6 md:grid-cols-2">
             <AIWorkoutGenerator onGenerated={refreshData} />
             <VoiceGuidedWorkout />
           </div>
           
           {workoutPlans.length > 0 && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {workoutPlans.map((plan) => (
-              <Card key={plan.id} className="overflow-hidden hover-scale shadow-card">
-                <div className="relative h-48">
-                  <img src={plan.image} alt={plan.name} className="w-full h-full object-cover" />
-                  {plan.completed && (
-                    <div className="absolute top-4 right-4 bg-secondary text-secondary-foreground rounded-full p-2">
-                      <CheckCircle2 className="h-5 w-5" />
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {workoutPlans.map((plan, index) => (
+              <Card 
+                key={plan.id} 
+                className="group overflow-hidden glass shadow-elevated hover:shadow-premium transition-all duration-500 hover:scale-[1.02] border-border/50 animate-fade-in"
+                style={{ animationDelay: `${index * 100}ms` }}
+              >
+                <div className="absolute inset-0 bg-gradient-shine opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <CardHeader className="space-y-2 relative z-10">
+                  <div className="flex items-start justify-between">
+                    <div className="p-3 rounded-xl bg-primary/10 ring-1 ring-primary/20">
+                      <Dumbbell className="h-6 w-6 text-primary" />
                     </div>
-                  )}
-                </div>
-                <CardHeader>
-                  <CardTitle>{plan.name}</CardTitle>
-                  <CardDescription>{plan.exercises} exercises</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                    <span className="flex items-center gap-1">
-                      <Clock className="h-4 w-4" />
-                      {plan.duration}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Zap className="h-4 w-4" />
-                      {plan.calories}
-                    </span>
+                    {plan.completed && (
+                      <div className="p-2 rounded-full bg-green-500/10 ring-1 ring-green-500/20">
+                        <Check className="h-4 w-4 text-green-500" />
+                      </div>
+                    )}
                   </div>
-                  <Badge variant={plan.difficulty === "Beginner" ? "outline" : plan.difficulty === "Intermediate" ? "secondary" : "default"}>
-                    {plan.difficulty}
-                  </Badge>
-                  <Button className="w-full" disabled={plan.completed}>
-                    {plan.completed ? (
-                      <>
-                        <CheckCircle2 className="mr-2 h-4 w-4" />
-                        Completed
-                      </>
-                    ) : (
-                      <>
-                        <Play className="mr-2 h-4 w-4" />
-                        Start Workout
-                      </>
+                  <CardTitle className="text-xl group-hover:text-primary transition-colors">
+                    {plan.name}
+                  </CardTitle>
+                  <CardDescription className="text-sm">{plan.exercises} exercises included</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6 relative z-10">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="p-3 rounded-lg bg-muted/50 space-y-1">
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        <Clock className="h-3.5 w-3.5" />
+                        <span className="text-xs font-medium">Duration</span>
+                      </div>
+                      <p className="text-sm font-semibold">{plan.duration}</p>
+                    </div>
+                    <div className="p-3 rounded-lg bg-muted/50 space-y-1">
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        <TrendingUp className="h-3.5 w-3.5" />
+                        <span className="text-xs font-medium">Level</span>
+                      </div>
+                      <p className="text-sm font-semibold">{plan.difficulty}</p>
+                    </div>
+                    <div className="p-3 rounded-lg bg-muted/50 space-y-1 col-span-2">
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        <Flame className="h-3.5 w-3.5" />
+                        <span className="text-xs font-medium">Calories Burned</span>
+                      </div>
+                      <p className="text-sm font-semibold">{plan.calories}</p>
+                    </div>
+                  </div>
+                  <Button 
+                    className="w-full relative overflow-hidden group/btn shadow-lg"
+                    variant={plan.completed ? "outline" : "default"}
+                    disabled={plan.completed}
+                    size="lg"
+                  >
+                    <span className="relative z-10 flex items-center justify-center gap-2">
+                      {plan.completed ? (
+                        <>
+                          <Check className="h-4 w-4" />
+                          Completed
+                        </>
+                      ) : (
+                        <>
+                          <Play className="h-4 w-4" />
+                          Start Workout
+                        </>
+                      )}
+                    </span>
+                    {!plan.completed && (
+                      <div className="absolute inset-0 bg-gradient-to-r from-primary to-primary/50 translate-x-[-100%] group-hover/btn:translate-x-0 transition-transform duration-500" />
                     )}
                   </Button>
                 </CardContent>
@@ -137,34 +166,54 @@ const Workouts = () => {
           <CustomWorkoutBuilder onWorkoutCreated={refreshData} />
         </TabsContent>
 
-        <TabsContent value="exercises" className="space-y-4 mt-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <TabsContent value="exercises" className="space-y-6">
+          <div className="glass p-6 rounded-xl shadow-elevated">
+            <h2 className="text-2xl font-bold mb-2">Exercise Library</h2>
+            <p className="text-muted-foreground">Browse our collection of effective exercises</p>
+          </div>
+          
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {exercises.map((exercise, index) => (
-              <Card key={index} className="shadow-card hover-scale">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Dumbbell className="h-5 w-5 text-primary" />
-                    {exercise.name}
-                  </CardTitle>
-                  <CardDescription>{exercise.muscles}</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <div className="grid grid-cols-3 gap-2 text-sm">
-                    <div className="p-2 bg-muted rounded-lg text-center">
-                      <p className="font-medium">{exercise.sets}</p>
+              <Card 
+                key={index} 
+                className="group overflow-hidden glass shadow-elevated hover:shadow-premium transition-all duration-500 hover:scale-[1.02] border-border/50 animate-fade-in"
+                style={{ animationDelay: `${index * 100}ms` }}
+              >
+                <div className="absolute inset-0 bg-gradient-shine opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <CardHeader className="relative z-10">
+                  <div className="flex items-start gap-3">
+                    <div className="p-2.5 rounded-lg bg-primary/10 ring-1 ring-primary/20">
+                      <Dumbbell className="h-5 w-5 text-primary" />
                     </div>
-                    <div className="p-2 bg-muted rounded-lg text-center">
-                      <p className="font-medium">{exercise.reps}</p>
-                    </div>
-                    <div className="p-2 bg-muted rounded-lg text-center">
-                      <p className="font-medium">{exercise.rest}</p>
+                    <div className="space-y-1">
+                      <CardTitle className="text-lg group-hover:text-primary transition-colors">
+                        {exercise.name}
+                      </CardTitle>
+                      <CardDescription className="text-xs">{exercise.muscles}</CardDescription>
                     </div>
                   </div>
-                  <div className="bg-primary/10 border border-primary/20 p-3 rounded-lg">
-                    <p className="text-sm flex items-start gap-2">
-                      <Sparkles className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
-                      <span className="text-muted-foreground">AI Tip: {exercise.tip}</span>
-                    </p>
+                </CardHeader>
+                <CardContent className="space-y-4 relative z-10">
+                  <div className="grid grid-cols-3 gap-2">
+                    <div className="text-center p-3 rounded-lg bg-muted/50 space-y-1">
+                      <p className="text-xs text-muted-foreground font-medium">Sets</p>
+                      <p className="text-base font-bold">{exercise.sets.split(' ')[0]}</p>
+                    </div>
+                    <div className="text-center p-3 rounded-lg bg-muted/50 space-y-1">
+                      <p className="text-xs text-muted-foreground font-medium">Reps</p>
+                      <p className="text-base font-bold">{exercise.reps.split(' ')[0]}</p>
+                    </div>
+                    <div className="text-center p-3 rounded-lg bg-muted/50 space-y-1">
+                      <p className="text-xs text-muted-foreground font-medium">Rest</p>
+                      <p className="text-base font-bold">{exercise.rest.split(' ')[0]}</p>
+                    </div>
+                  </div>
+                  <div className="p-3 rounded-lg bg-muted/30 space-y-2">
+                    <div className="flex items-center gap-2">
+                      <Sparkles className="h-4 w-4 text-primary" />
+                      <p className="text-xs font-semibold text-primary">Pro Tip</p>
+                    </div>
+                    <p className="text-sm leading-relaxed text-muted-foreground">{exercise.tip}</p>
                   </div>
                 </CardContent>
               </Card>
