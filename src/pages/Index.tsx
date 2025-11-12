@@ -27,7 +27,7 @@ const Index = () => {
               <a href="#features" className="text-muted-foreground hover:text-foreground transition-smooth">Features</a>
               <a href="#how-it-works" className="text-muted-foreground hover:text-foreground transition-smooth">How It Works</a>
               <a href="#community" className="text-muted-foreground hover:text-foreground transition-smooth">Community</a>
-              <Button variant="outline" size="sm">Sign In</Button>
+              <Button variant="outline" size="sm" onClick={() => window.location.href = '/auth'}>Sign In</Button>
               <Button size="sm" className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-glow" onClick={() => window.location.href = '/onboarding'}>
                 Get Started
               </Button>

@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Layout } from "./components/Layout";
 import { FloatingAIChat } from "./components/FloatingAIChat";
 import Index from "./pages/Index";
+import Auth from "./pages/Auth";
 import Onboarding from "./pages/Onboarding";
 import Dashboard from "./pages/Dashboard";
 import Workouts from "./pages/Workouts";
@@ -29,10 +30,11 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/onboarding" element={<Onboarding />} />
-          <Route path="/role-selection" element={<RoleSelection />} />
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/onboarding" element={<Onboarding />} />
+            <Route path="/role-selection" element={<RoleSelection />} />
           <Route path="/dashboard" element={<Layout><Dashboard /></Layout>} />
           <Route path="/vendor-dashboard" element={<Layout><VendorDashboard /></Layout>} />
           <Route path="/trainer-dashboard" element={<Layout><TrainerDashboard /></Layout>} />
