@@ -198,6 +198,191 @@ const Index = () => {
         </div>
       </section>
 
+      {/* Complete Platform Pitch */}
+      <section id="how-it-works" className="py-16 md:py-24 bg-gradient-to-b from-background to-muted/30">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12 md:mb-16 animate-fade-in">
+            <Badge className="bg-primary/10 text-primary border-primary/20 mb-4">
+              <Sparkles className="w-3 h-3 mr-1" />
+              Complete Ecosystem
+            </Badge>
+            <h2 className="font-display text-3xl md:text-5xl mb-4">
+              Nigeria's First <span className="text-gradient">All-In-One</span>
+              <br />Fitness & Wellness Platform
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
+              From AI-powered training to local meal delivery, community connections to business growth — 
+              FitNaijaCoach brings together everything you need in one seamless experience.
+            </p>
+          </div>
+
+          {/* User Journey Flow */}
+          <div className="mb-16">
+            <h3 className="font-display text-2xl md:text-3xl text-center mb-8">
+              Your Complete <span className="text-primary">Fitness Journey</span>
+            </h3>
+            <div className="grid md:grid-cols-5 gap-4 md:gap-2">
+              {[
+                { step: "1", title: "Discover", desc: "Find local gyms, trainers & resources", icon: Users },
+                { step: "2", title: "Train", desc: "AI-generated workouts tailored to you", icon: Dumbbell },
+                { step: "3", title: "Eat Right", desc: "Nigerian meal plans & local delivery", icon: UtensilsCrossed },
+                { step: "4", title: "Track Progress", desc: "Smart analytics & gamification", icon: TrendingUp },
+                { step: "5", title: "Connect", desc: "Join challenges & build community", icon: Users }
+              ].map((item, i) => (
+                <Card key={i} className="p-6 hover-lift glass" style={{ animationDelay: `${i * 0.1}s` }}>
+                  <div className="flex flex-col items-center text-center space-y-3">
+                    <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                      <item.icon className="w-6 h-6 text-primary" />
+                    </div>
+                    <div className="text-2xl font-bold text-primary">Step {item.step}</div>
+                    <div className="font-semibold">{item.title}</div>
+                    <div className="text-sm text-muted-foreground">{item.desc}</div>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          </div>
+
+          {/* Core Features Grid */}
+          <div className="mb-16">
+            <h3 className="font-display text-2xl md:text-3xl text-center mb-8">
+              Everything You Need, <span className="text-primary">One Platform</span>
+            </h3>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[
+                {
+                  title: "AI Workout Generator",
+                  desc: "Personalized training plans that adapt to your progress, equipment, and schedule",
+                  features: ["Adaptive difficulty", "Video demonstrations", "Progress tracking"]
+                },
+                {
+                  title: "Nigerian Meal Plans",
+                  desc: "Authentic local cuisine optimized for your fitness goals with macro tracking",
+                  features: ["Jollof rice, Moi moi, Egusi", "Local vendors & delivery", "Calorie & macro balance"]
+                },
+                {
+                  title: "AI Coach Ada",
+                  desc: "24/7 intelligent fitness assistant for workouts, nutrition, and motivation",
+                  features: ["Real-time guidance", "Context-aware advice", "Progress insights"]
+                },
+                {
+                  title: "Local Business Network",
+                  desc: "Connect with Nigerian gyms, trainers, nutritionists, and equipment stores",
+                  features: ["Book sessions", "Compare prices (₦)", "Read reviews"]
+                },
+                {
+                  title: "Meal Delivery System",
+                  desc: "Order healthy Nigerian meals from local vendors with scheduled delivery",
+                  features: ["Real vendor integration", "Track deliveries", "Save favorites"]
+                },
+                {
+                  title: "Gamification & Community",
+                  desc: "Earn badges, level up, join challenges, and connect with fitness enthusiasts",
+                  features: ["XP & achievements", "Leaderboards", "Social challenges"]
+                }
+              ].map((feature, i) => (
+                <Card key={i} className="p-6 hover-lift glass" style={{ animationDelay: `${i * 0.1}s` }}>
+                  <h4 className="font-semibold text-lg mb-2">{feature.title}</h4>
+                  <p className="text-sm text-muted-foreground mb-4">{feature.desc}</p>
+                  <ul className="space-y-2">
+                    {feature.features.map((f, j) => (
+                      <li key={j} className="flex items-center gap-2 text-sm">
+                        <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
+                        <span>{f}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </Card>
+              ))}
+            </div>
+          </div>
+
+          {/* Business Ecosystem */}
+          <div className="mb-16">
+            <h3 className="font-display text-2xl md:text-3xl text-center mb-4">
+              Built for <span className="text-primary">Every Stakeholder</span>
+            </h3>
+            <p className="text-center text-muted-foreground mb-8 max-w-2xl mx-auto">
+              FitNaijaCoach isn't just for fitness enthusiasts — it's a complete ecosystem connecting 
+              users, businesses, and wellness professionals across Nigeria.
+            </p>
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {[
+                {
+                  role: "Meal Vendors",
+                  desc: "Manage menu, receive orders, track deliveries, grow your healthy food business",
+                  benefits: ["Digital storefront", "Order management", "Delivery scheduling"]
+                },
+                {
+                  role: "Personal Trainers",
+                  desc: "Manage clients, create programs, handle bookings, expand your reach",
+                  benefits: ["Client dashboard", "Booking system", "Program builder"]
+                },
+                {
+                  role: "Gym Owners",
+                  desc: "Manage memberships, facilities, classes, and connect with more members",
+                  benefits: ["Member management", "Class scheduling", "Facility showcase"]
+                },
+                {
+                  role: "Fitness Influencers",
+                  desc: "Create content, manage partnerships, track analytics, monetize your influence",
+                  benefits: ["Content management", "Brand deals", "Analytics dashboard"]
+                }
+              ].map((business, i) => (
+                <Card key={i} className="p-6 hover-lift glass border-primary/20" style={{ animationDelay: `${i * 0.1}s` }}>
+                  <div className="text-primary font-semibold mb-2">{business.role}</div>
+                  <p className="text-sm text-muted-foreground mb-4">{business.desc}</p>
+                  <div className="space-y-2">
+                    {business.benefits.map((benefit, j) => (
+                      <div key={j} className="flex items-center gap-2 text-xs">
+                        <div className="w-1 h-1 rounded-full bg-primary"></div>
+                        <span>{benefit}</span>
+                      </div>
+                    ))}
+                  </div>
+                </Card>
+              ))}
+            </div>
+          </div>
+
+          {/* Nigerian-Specific Value */}
+          <div className="text-center">
+            <Card className="p-8 md:p-12 glass border-primary/20">
+              <h3 className="font-display text-2xl md:text-3xl mb-4">
+                Why FitNaijaCoach is <span className="text-gradient">Different</span>
+              </h3>
+              <div className="grid md:grid-cols-3 gap-8 mt-8">
+                <div>
+                  <div className="text-3xl font-bold text-primary mb-2">100%</div>
+                  <div className="font-semibold mb-2">Nigerian-Focused</div>
+                  <div className="text-sm text-muted-foreground">
+                    From Jollof rice to Naira pricing, everything is built for Nigerian lifestyles
+                  </div>
+                </div>
+                <div>
+                  <div className="text-3xl font-bold text-primary mb-2">AI + Local</div>
+                  <div className="font-semibold mb-2">Best of Both Worlds</div>
+                  <div className="text-sm text-muted-foreground">
+                    Cutting-edge AI technology meets authentic local food and fitness culture
+                  </div>
+                </div>
+                <div>
+                  <div className="text-3xl font-bold text-primary mb-2">All-In-One</div>
+                  <div className="font-semibold mb-2">Complete Ecosystem</div>
+                  <div className="text-sm text-muted-foreground">
+                    No more juggling multiple apps — training, nutrition, delivery, and community in one place
+                  </div>
+                </div>
+              </div>
+              <Button size="lg" className="mt-8 bg-primary hover:bg-primary/90 text-primary-foreground shadow-glow" onClick={() => window.location.href = '/onboarding'}>
+                Experience the Complete Platform
+                <ArrowRight className="ml-2 w-5 h-5" />
+              </Button>
+            </Card>
+          </div>
+        </div>
+      </section>
+
       {/* Workout Preview Section */}
       <section className="py-16 md:py-24">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8" ref={workoutReveal.ref}>
