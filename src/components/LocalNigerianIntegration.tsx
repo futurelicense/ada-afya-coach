@@ -9,6 +9,8 @@ import { Dumbbell, User, Utensils, ShoppingBag, Calendar, TreePine, ExternalLink
 import { useToast } from "@/hooks/use-toast";
 import { CategoryCarousel } from "@/components/CategoryCarousel";
 import { EnhancedCard } from "@/components/EnhancedCard";
+import { GymPaymentDialog } from "@/components/GymPaymentDialog";
+import { TrainerBookingDialog } from "@/components/TrainerBookingDialog";
 
 interface Gym {
   id: string;
@@ -330,7 +332,7 @@ export const LocalNigerianIntegration = () => {
   const [selectedStore, setSelectedStore] = useState<Store | null>(null);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
 
-  const [gymDialog, setGymDialog] = useState(false);
+  const [gymPaymentDialog, setGymPaymentDialog] = useState(false);
   const [trainerDialog, setTrainerDialog] = useState(false);
   const [nutritionistDialog, setNutritionistDialog] = useState(false);
   const [storeDialog, setStoreDialog] = useState(false);
@@ -345,7 +347,7 @@ export const LocalNigerianIntegration = () => {
 
   const handleGymVisit = (gym: Gym) => {
     setSelectedGym(gym);
-    setGymDialog(true);
+    setGymPaymentDialog(true);
   };
 
   const handleTrainerBook = (trainer: Trainer) => {
@@ -569,76 +571,18 @@ export const LocalNigerianIntegration = () => {
       </CategoryCarousel>
 
       {/* Dialogs */}
-      <Dialog open={gymDialog} onOpenChange={setGymDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{selectedGym?.name}</DialogTitle>
-            <DialogDescription>Visit this gym's website for more information</DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <MapPin className="h-4 w-4" />
-              <span>{selectedGym?.location}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Phone className="h-4 w-4" />
-              <span>{selectedGym?.phone}</span>
-            </div>
-            <div className="text-sm text-muted-foreground">
-              {selectedGym?.priceRange}
-            </div>
-          </div>
-          <DialogFooter>
-            <Button onClick={() => {
-              toast({ title: "Opening Website", description: "Redirecting to gym website..." });
-              setGymDialog(false);
-            }}>
-              Visit Website
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <GymPaymentDialog 
+        gym={selectedGym} 
+        open={gymPaymentDialog} 
+        onClose={() => setGymPaymentDialog(false)} 
+      />
 
-      <Dialog open={trainerDialog} onOpenChange={setTrainerDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Book Session with {selectedTrainer?.name}</DialogTitle>
-            <DialogDescription>Fill in your details to book a training session</DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="date">Preferred Date</Label>
-              <Input
-                id="date"
-                type="date"
-                value={bookingDate}
-                onChange={(e) => setBookingDate(e.target.value)}
-              />
-            </div>
-            <div>
-              <Label htmlFor="time">Preferred Time</Label>
-              <Input
-                id="time"
-                type="time"
-                value={bookingTime}
-                onChange={(e) => setBookingTime(e.target.value)}
-              />
-            </div>
-            <div>
-              <Label htmlFor="notes">Additional Notes</Label>
-              <Textarea
-                id="notes"
-                value={bookingNotes}
-                onChange={(e) => setBookingNotes(e.target.value)}
-                placeholder="Any specific goals or requirements..."
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button onClick={handleBookingSubmit}>Confirm Booking</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <TrainerBookingDialog
+        trainer={selectedTrainer}
+        open={trainerDialog}
+        onClose={() => setTrainerDialog(false)}
+        gyms={gyms}
+      />
 
       <Dialog open={nutritionistDialog} onOpenChange={setNutritionistDialog}>
         <DialogContent>

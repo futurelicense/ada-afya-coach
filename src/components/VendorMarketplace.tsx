@@ -15,7 +15,14 @@ export const VendorMarketplace = () => {
   const [selectedVendor, setSelectedVendor] = useState<Vendor | null>(null);
   const [scheduledDate, setScheduledDate] = useState('');
   const [scheduledTime, setScheduledTime] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
   const { todayMeals } = useUserData();
+
+  const filteredVendors = vendors.filter(vendor => 
+    vendor.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    vendor.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    vendor.cuisine.some(c => c.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
 
   const toggleFavorite = (vendorId: string) => {
     const isFav = vendorService.toggleFavorite(vendorId);
@@ -71,15 +78,23 @@ export const VendorMarketplace = () => {
         </CardTitle>
       </CardHeader>
       <CardContent>
+        <div className="mb-4">
+          <Input
+            placeholder="Search vendors by name, location, or cuisine..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full"
+          />
+        </div>
         <Tabs defaultValue="all" className="w-full">
           <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="all">All Vendors ({vendors.length})</TabsTrigger>
+            <TabsTrigger value="all">All Vendors ({filteredVendors.length})</TabsTrigger>
             <TabsTrigger value="favorites">Favorites ({favoriteVendors.length})</TabsTrigger>
             <TabsTrigger value="scheduled">Scheduled ({upcomingDeliveries.length})</TabsTrigger>
           </TabsList>
 
           <TabsContent value="all" className="space-y-3 mt-4">
-            {vendors.map((vendor) => (
+            {filteredVendors.map((vendor) => (
               <Card key={vendor.id} className="hover-scale cursor-pointer">
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between mb-3">

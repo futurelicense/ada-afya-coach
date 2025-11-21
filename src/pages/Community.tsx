@@ -5,9 +5,17 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Trophy, TrendingUp, Users, Flame, Award, Star, Target, Zap, Calendar, Volume2, Camera, MapPin, ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { ChallengeJoinDialog } from "@/components/ChallengeJoinDialog";
+import { ActivityViewDialog } from "@/components/ActivityViewDialog";
+import { useState } from "react";
 
 const Community = () => {
   const navigate = useNavigate();
+  const [selectedChallenge, setSelectedChallenge] = useState<typeof challenges[0] | null>(null);
+  const [selectedActivity, setSelectedActivity] = useState<typeof activityFeed[0] | null>(null);
+  const [challengeDialogOpen, setChallengeDialogOpen] = useState(false);
+  const [activityDialogOpen, setActivityDialogOpen] = useState(false);
+  
   const topUsers = [
     { name: "Chioma A.", calories: 28500, workouts: 24, streak: 30, rank: 1 },
     { name: "Tunde O.", calories: 26800, workouts: 22, streak: 28, rank: 2 },
@@ -207,7 +215,10 @@ const Community = () => {
                       {challenge.reward}
                     </Badge>
                   </div>
-                  <Button className="w-full">Join Challenge</Button>
+                  <Button className="w-full" onClick={() => {
+                    setSelectedChallenge(challenge);
+                    setChallengeDialogOpen(true);
+                  }}>Join Challenge</Button>
                 </CardContent>
               </Card>
             ))}
@@ -240,7 +251,10 @@ const Community = () => {
                         </p>
                         <p className="text-xs text-muted-foreground">{activity.time}</p>
                       </div>
-                      <Button variant="ghost" size="sm">View</Button>
+                      <Button variant="ghost" size="sm" onClick={() => {
+                        setSelectedActivity(activity);
+                        setActivityDialogOpen(true);
+                      }}>View</Button>
                     </div>
                   );
                 })}
@@ -338,6 +352,19 @@ const Community = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Dialogs */}
+      <ChallengeJoinDialog
+        challenge={selectedChallenge}
+        open={challengeDialogOpen}
+        onClose={() => setChallengeDialogOpen(false)}
+      />
+      
+      <ActivityViewDialog
+        activity={selectedActivity}
+        open={activityDialogOpen}
+        onClose={() => setActivityDialogOpen(false)}
+      />
     </div>
   );
 };
