@@ -9,6 +9,7 @@ import { AICoachPanel } from "@/components/AICoachPanel";
 import { AIChatCoach } from "@/components/AIChatCoach";
 import { GamificationPanel } from "@/components/GamificationPanel";
 import { CircularProgress } from "@/components/CircularProgress";
+import { DataUpdatePrompt } from "@/components/DataUpdatePrompt";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 
@@ -81,6 +82,8 @@ const Dashboard = () => {
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto animate-fade-in">
+      <DataUpdatePrompt />
+      
       {/* Personalized Greeting */}
       <div className="glass rounded-3xl p-6 lg:p-8 relative overflow-hidden shadow-premium">
         <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-[100px] float"></div>
