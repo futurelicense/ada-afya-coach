@@ -80,7 +80,7 @@ export const GymPaymentDialog = ({ gym, open, onClose }: GymPaymentDialogProps) 
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
         {step === 'plan' && (
           <>
             <DialogHeader>
@@ -90,24 +90,24 @@ export const GymPaymentDialog = ({ gym, open, onClose }: GymPaymentDialogProps) 
             
             <RadioGroup value={selectedPlan} onValueChange={setSelectedPlan} className="space-y-3">
               {plans.map(plan => (
-                <div key={plan.id} className="flex items-center space-x-3 p-4 border rounded-lg hover:bg-muted/50 cursor-pointer">
+                <div key={plan.id} className="flex items-center space-x-2 sm:space-x-3 p-3 sm:p-4 border rounded-lg hover:bg-muted/50 cursor-pointer">
                   <RadioGroupItem value={plan.id} id={plan.id} />
                   <Label htmlFor={plan.id} className="flex-1 cursor-pointer">
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-0">
                       <div>
-                        <p className="font-semibold">{plan.name}</p>
+                        <p className="font-semibold text-sm sm:text-base">{plan.name}</p>
                         {plan.savings && <p className="text-xs text-primary">{plan.savings}</p>}
                       </div>
-                      <p className="font-bold text-lg">{plan.price}</p>
+                      <p className="font-bold text-base sm:text-lg">{plan.price}</p>
                     </div>
                   </Label>
                 </div>
               ))}
             </RadioGroup>
 
-            <DialogFooter>
-              <Button variant="outline" onClick={handleClose}>Cancel</Button>
-              <Button onClick={() => setStep('payment')}>Continue to Payment</Button>
+            <DialogFooter className="flex-col sm:flex-row gap-2">
+              <Button variant="outline" onClick={handleClose} className="w-full sm:w-auto">Cancel</Button>
+              <Button onClick={() => setStep('payment')} className="w-full sm:w-auto">Continue to Payment</Button>
             </DialogFooter>
           </>
         )}
@@ -124,24 +124,24 @@ export const GymPaymentDialog = ({ gym, open, onClose }: GymPaymentDialogProps) 
             <div className="space-y-4">
               <div>
                 <Label className="mb-2 block">Payment Method</Label>
-                <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod}>
-                  <div className="flex items-center space-x-3 p-3 border rounded-lg">
+                <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod} className="space-y-2">
+                  <div className="flex items-center space-x-2 sm:space-x-3 p-2 sm:p-3 border rounded-lg">
                     <RadioGroupItem value="card" id="card" />
-                    <Label htmlFor="card" className="flex items-center gap-2 cursor-pointer flex-1">
+                    <Label htmlFor="card" className="flex items-center gap-2 cursor-pointer flex-1 text-sm">
                       <CreditCard className="h-4 w-4" />
                       Debit/Credit Card
                     </Label>
                   </div>
-                  <div className="flex items-center space-x-3 p-3 border rounded-lg">
+                  <div className="flex items-center space-x-2 sm:space-x-3 p-2 sm:p-3 border rounded-lg">
                     <RadioGroupItem value="transfer" id="transfer" />
-                    <Label htmlFor="transfer" className="flex items-center gap-2 cursor-pointer flex-1">
+                    <Label htmlFor="transfer" className="flex items-center gap-2 cursor-pointer flex-1 text-sm">
                       <Building2 className="h-4 w-4" />
                       Bank Transfer
                     </Label>
                   </div>
-                  <div className="flex items-center space-x-3 p-3 border rounded-lg">
+                  <div className="flex items-center space-x-2 sm:space-x-3 p-2 sm:p-3 border rounded-lg">
                     <RadioGroupItem value="ussd" id="ussd" />
-                    <Label htmlFor="ussd" className="flex items-center gap-2 cursor-pointer flex-1">
+                    <Label htmlFor="ussd" className="flex items-center gap-2 cursor-pointer flex-1 text-sm">
                       <Smartphone className="h-4 w-4" />
                       USSD
                     </Label>
@@ -206,9 +206,9 @@ export const GymPaymentDialog = ({ gym, open, onClose }: GymPaymentDialogProps) 
               )}
             </div>
 
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setStep('plan')}>Back</Button>
-              <Button onClick={handlePayment} disabled={processing}>
+            <DialogFooter className="flex-col sm:flex-row gap-2">
+              <Button variant="outline" onClick={() => setStep('plan')} className="w-full sm:w-auto">Back</Button>
+              <Button onClick={handlePayment} disabled={processing} className="w-full sm:w-auto">
                 {processing ? "Processing..." : "Pay Now"}
               </Button>
             </DialogFooter>

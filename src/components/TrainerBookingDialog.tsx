@@ -82,7 +82,7 @@ export const TrainerBookingDialog = ({ trainer, open, onClose, gyms }: TrainerBo
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Book Training Session</DialogTitle>
           <DialogDescription>
@@ -130,9 +130,9 @@ export const TrainerBookingDialog = ({ trainer, open, onClose, gyms }: TrainerBo
             )}
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="date" className="flex items-center gap-2">
+              <Label htmlFor="date" className="flex items-center gap-2 text-sm">
                 <Calendar className="h-4 w-4" />
                 Date
               </Label>
@@ -145,7 +145,7 @@ export const TrainerBookingDialog = ({ trainer, open, onClose, gyms }: TrainerBo
               />
             </div>
             <div>
-              <Label htmlFor="time" className="flex items-center gap-2">
+              <Label htmlFor="time" className="flex items-center gap-2 text-sm">
                 <Clock className="h-4 w-4" />
                 Time
               </Label>
@@ -183,9 +183,9 @@ export const TrainerBookingDialog = ({ trainer, open, onClose, gyms }: TrainerBo
           </div>
         </div>
 
-        <DialogFooter>
-          <Button variant="outline" onClick={onClose}>Cancel</Button>
-          <Button onClick={handleBookingSubmit}>Confirm Booking</Button>
+        <DialogFooter className="flex-col sm:flex-row gap-2">
+          <Button variant="outline" onClick={onClose} className="w-full sm:w-auto">Cancel</Button>
+          <Button onClick={handleBookingSubmit} className="w-full sm:w-auto">Confirm Booking</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

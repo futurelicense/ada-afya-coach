@@ -134,7 +134,7 @@ export const ActivityViewDialog = ({ activity, open, onClose }: ActivityViewDial
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <div className="flex items-center gap-3 mb-2">
             <Avatar className="h-12 w-12">
@@ -179,23 +179,23 @@ export const ActivityViewDialog = ({ activity, open, onClose }: ActivityViewDial
 
           <Separator />
 
-          <div className="flex items-center justify-around py-2">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-around gap-2 sm:gap-0 py-2">
             <Button
               variant="ghost"
               size="sm"
-              className={liked ? "text-primary" : ""}
+              className={`flex-1 sm:flex-none ${liked ? "text-primary" : ""}`}
               onClick={handleLike}
             >
               <ThumbsUp className={`h-4 w-4 mr-2 ${liked ? 'fill-current' : ''}`} />
-              {likes} Likes
+              <span className="text-xs sm:text-sm">{likes} Likes</span>
             </Button>
-            <Button variant="ghost" size="sm" onClick={handleComment}>
+            <Button variant="ghost" size="sm" className="flex-1 sm:flex-none" onClick={handleComment}>
               <MessageCircle className="h-4 w-4 mr-2" />
-              Comment
+              <span className="text-xs sm:text-sm">Comment</span>
             </Button>
-            <Button variant="ghost" size="sm" onClick={handleShare}>
+            <Button variant="ghost" size="sm" className="flex-1 sm:flex-none" onClick={handleShare}>
               <Share2 className="h-4 w-4 mr-2" />
-              Share
+              <span className="text-xs sm:text-sm">Share</span>
             </Button>
           </div>
 
