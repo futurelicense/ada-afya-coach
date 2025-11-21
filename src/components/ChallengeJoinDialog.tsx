@@ -76,14 +76,14 @@ export const ChallengeJoinDialog = ({ challenge, open, onClose }: ChallengeJoinD
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-2xl flex items-center gap-2">
-            <Target className="h-6 w-6 text-primary" />
+          <DialogTitle className="text-xl sm:text-2xl flex items-center gap-2">
+            <Target className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
             {challenge.name}
           </DialogTitle>
           <DialogDescription className="space-y-2">
-            <div className="flex gap-4 text-sm">
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 text-sm">
               <span className="flex items-center gap-1">
                 <Users className="h-4 w-4" />
                 {challenge.participants.toLocaleString()} participants
@@ -155,10 +155,10 @@ export const ChallengeJoinDialog = ({ challenge, open, onClose }: ChallengeJoinD
             </>
           ) : (
             <Tabs defaultValue="progress" className="w-full">
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="progress">Progress</TabsTrigger>
-                <TabsTrigger value="leaderboard">Leaderboard</TabsTrigger>
-                <TabsTrigger value="chat">Chat</TabsTrigger>
+              <TabsList className="grid w-full grid-cols-3 h-auto">
+                <TabsTrigger value="progress" className="text-xs sm:text-sm">Progress</TabsTrigger>
+                <TabsTrigger value="leaderboard" className="text-xs sm:text-sm">Leaderboard</TabsTrigger>
+                <TabsTrigger value="chat" className="text-xs sm:text-sm">Chat</TabsTrigger>
               </TabsList>
 
               <TabsContent value="progress" className="space-y-4 mt-4">
@@ -255,11 +255,11 @@ export const ChallengeJoinDialog = ({ challenge, open, onClose }: ChallengeJoinD
           )}
         </div>
 
-        <DialogFooter>
+        <DialogFooter className="flex-col sm:flex-row gap-2">
           {!joined ? (
             <>
-              <Button variant="outline" onClick={onClose}>Cancel</Button>
-              <Button onClick={handleJoin}>
+              <Button variant="outline" onClick={onClose} className="w-full sm:w-auto">Cancel</Button>
+              <Button onClick={handleJoin} className="w-full sm:w-auto">
                 <Users className="mr-2 h-4 w-4" />
                 Join Challenge
               </Button>

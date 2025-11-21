@@ -74,13 +74,13 @@ export const DataUpdatePrompt = () => {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
-            <TrendingUp className="h-8 w-8 text-primary" />
+          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+            <TrendingUp className="h-7 w-7 sm:h-8 sm:w-8 text-primary" />
           </div>
-          <DialogTitle className="text-center text-2xl">Update Your Stats</DialogTitle>
-          <DialogDescription className="text-center">
+          <DialogTitle className="text-center text-xl sm:text-2xl">Update Your Stats</DialogTitle>
+          <DialogDescription className="text-center text-sm">
             Keep your progress tracking accurate by updating your current measurements
           </DialogDescription>
         </DialogHeader>
@@ -137,11 +137,11 @@ export const DataUpdatePrompt = () => {
           </div>
         </div>
 
-        <DialogFooter className="flex gap-2">
-          <Button variant="outline" onClick={handleSkip} className="flex-1">
+        <DialogFooter className="flex flex-col sm:flex-row gap-2">
+          <Button variant="outline" onClick={handleSkip} className="flex-1 w-full">
             Skip for Now
           </Button>
-          <Button onClick={handleUpdate} className="flex-1">
+          <Button onClick={handleUpdate} className="flex-1 w-full">
             Update Stats
           </Button>
         </DialogFooter>
