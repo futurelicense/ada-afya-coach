@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -34,37 +34,79 @@ export const FoodScanner = ({ open, onOpenChange, onFoodSelected }: FoodScannerP
   const [searchResults, setSearchResults] = useState<FoodItem[]>([]);
   const [recognizedFoods, setRecognizedFoods] = useState<FoodItem[]>([]);
   const [recognitionConfidence, setRecognitionConfidence] = useState<'high' | 'medium' | 'low'>('medium');
+  const [cameraError, setCameraError] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
   const [isCameraActive, setIsCameraActive] = useState(false);
   const { toast } = useToast();
 
   const startCamera = useCallback(async () => {
+    setCameraError(null);
     try {
+      // Stop any existing stream first
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
+      }
+      
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }
       });
+      
+      streamRef.current = stream;
+      
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
+        await videoRef.current.play();
         setIsCameraActive(true);
       }
-    } catch (error) {
+    } catch (error: any) {
+      console.error('Camera error:', error);
+      let errorMessage = "Unable to access camera. ";
+      if (error.name === 'NotAllowedError') {
+        errorMessage += "Please allow camera permissions in your browser settings.";
+      } else if (error.name === 'NotFoundError') {
+        errorMessage += "No camera found on this device.";
+      } else if (error.name === 'NotReadableError') {
+        errorMessage += "Camera is in use by another application.";
+      } else {
+        errorMessage += "Please use the upload option instead.";
+      }
+      setCameraError(errorMessage);
       toast({
         title: "Camera Error",
-        description: "Unable to access camera. Please check permissions or use file upload.",
+        description: errorMessage,
         variant: "destructive",
       });
     }
   }, [toast]);
 
-  const stopCamera = useCallback(() => {
-    if (videoRef.current?.srcObject) {
-      const stream = videoRef.current.srcObject as MediaStream;
-      stream.getTracks().forEach(track => track.stop());
-      videoRef.current.srcObject = null;
-      setIsCameraActive(false);
+  // Auto-start camera when dialog opens and tab is a camera tab
+  useEffect(() => {
+    if (open && (activeTab === 'photo' || activeTab === 'barcode' || activeTab === 'label') && !capturedImage) {
+      startCamera();
     }
+    
+    // Cleanup on close
+    return () => {
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
+        streamRef.current = null;
+      }
+      setIsCameraActive(false);
+    };
+  }, [open, activeTab, capturedImage, startCamera]);
+
+  const stopCamera = useCallback(() => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current = null;
+    }
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
+    }
+    setIsCameraActive(false);
   }, []);
 
   const capturePhoto = useCallback(() => {
