@@ -261,18 +261,16 @@ export const FoodScanner = ({ open, onOpenChange, onFoodSelected }: FoodScannerP
               {!capturedImage ? (
                 <div className="space-y-4">
                   <div className="relative aspect-[4/3] bg-muted rounded-xl overflow-hidden">
+                    <video
+                      ref={videoRef}
+                      autoPlay
+                      playsInline
+                      className="w-full h-full object-cover"
+                    />
                     {isCameraActive ? (
-                      <>
-                        <video
-                          ref={videoRef}
-                          autoPlay
-                          playsInline
-                          className="w-full h-full object-cover"
-                        />
-                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                          <div className="w-48 h-48 sm:w-64 sm:h-64 border-2 border-primary/50 rounded-xl" />
-                        </div>
-                      </>
+                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                        <div className="w-48 h-48 sm:w-64 sm:h-64 border-2 border-primary/50 rounded-xl" />
+                      </div>
                     ) : (
                       <div className="absolute inset-0 flex flex-col items-center justify-center gap-4">
                         <Camera className="h-12 w-12 text-muted-foreground" />
@@ -374,18 +372,16 @@ export const FoodScanner = ({ open, onOpenChange, onFoodSelected }: FoodScannerP
               </p>
               
               <div className="relative aspect-[4/3] bg-muted rounded-xl overflow-hidden">
+                <video
+                  ref={videoRef}
+                  autoPlay
+                  playsInline
+                  className="w-full h-full object-cover"
+                />
                 {isCameraActive ? (
-                  <>
-                    <video
-                      ref={videoRef}
-                      autoPlay
-                      playsInline
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                      <div className="w-64 h-24 border-2 border-primary/50 rounded-lg" />
-                    </div>
-                  </>
+                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                    <div className="w-64 h-24 border-2 border-primary/50 rounded-lg" />
+                  </div>
                 ) : (
                   <div className="absolute inset-0 flex flex-col items-center justify-center gap-4">
                     <Barcode className="h-12 w-12 text-muted-foreground" />
@@ -422,18 +418,16 @@ export const FoodScanner = ({ open, onOpenChange, onFoodSelected }: FoodScannerP
               {!capturedImage ? (
                 <>
                   <div className="relative aspect-[4/3] bg-muted rounded-xl overflow-hidden">
+                    <video
+                      ref={videoRef}
+                      autoPlay
+                      playsInline
+                      className="w-full h-full object-cover"
+                    />
                     {isCameraActive ? (
-                      <>
-                        <video
-                          ref={videoRef}
-                          autoPlay
-                          playsInline
-                          className="w-full h-full object-cover"
-                        />
-                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                          <div className="w-48 h-64 border-2 border-primary/50 rounded-lg" />
-                        </div>
-                      </>
+                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                        <div className="w-48 h-64 border-2 border-primary/50 rounded-lg" />
+                      </div>
                     ) : (
                       <div className="absolute inset-0 flex flex-col items-center justify-center gap-4">
                         <FileText className="h-12 w-12 text-muted-foreground" />
