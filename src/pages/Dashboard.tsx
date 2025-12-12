@@ -2,7 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { Activity, Flame, Droplets, Heart, TrendingUp, Sparkles, Plus, Zap, Target, Award } from "lucide-react";
+import { Activity, Flame, Droplets, Heart, TrendingUp, Sparkles, Plus, Zap, Target, Award, Scan } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useUserData } from "@/hooks/useUserData";
 import { AICoachPanel } from "@/components/AICoachPanel";
@@ -10,6 +10,7 @@ import { AIChatCoach } from "@/components/AIChatCoach";
 import { GamificationPanel } from "@/components/GamificationPanel";
 import { CircularProgress } from "@/components/CircularProgress";
 import { DataUpdatePrompt } from "@/components/DataUpdatePrompt";
+import { ScanFoodButton } from "@/components/ScanFoodButton";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 
@@ -104,6 +105,7 @@ const Dashboard = () => {
               <Target className="h-4 w-4" />
               Start Workout
             </Button>
+            <ScanFoodButton variant="secondary" className="shadow-card" />
             <Button variant="outline" onClick={() => navigate("/nutrition")} className="gap-2">
               View Meal Plan
             </Button>

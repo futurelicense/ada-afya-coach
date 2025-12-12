@@ -2,13 +2,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Utensils, Flame, Apple, Sparkles, Clock, ShoppingCart } from "lucide-react";
+import { Utensils, Flame, Apple, Sparkles, Clock, ShoppingCart, Scan } from "lucide-react";
 import nigerianMeal from "@/assets/nigerian-meal.jpg";
 import { AIMealGenerator } from "@/components/AIMealGenerator";
 import { RecipeModal } from "@/components/RecipeModal";
 import { MealDeliverySystem } from "@/components/MealDeliverySystem";
 import { VendorMarketplace } from "@/components/VendorMarketplace";
 import { SwipeableMealCarousel } from "@/components/SwipeableMealCarousel";
+import { ScanFoodButton } from "@/components/ScanFoodButton";
 import { useUserData } from "@/hooks/useUserData";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
@@ -101,10 +102,13 @@ const Nutrition = () => {
           <h1 className="text-3xl lg:text-4xl font-bold text-gradient">Nutrition Plans</h1>
           <p className="text-muted-foreground mt-2">Nigerian cuisine meets healthy eating</p>
         </div>
-        <Badge className="bg-primary/10 text-primary border-primary/20 gap-2 w-fit">
-          <Sparkles className="h-4 w-4" />
-          AI Optimized
-        </Badge>
+        <div className="flex items-center gap-3">
+          <ScanFoodButton className="shadow-glow" />
+          <Badge className="bg-primary/10 text-primary border-primary/20 gap-2 w-fit">
+            <Sparkles className="h-4 w-4" />
+            AI Optimized
+          </Badge>
+        </div>
       </div>
 
       {/* Daily Summary */}
