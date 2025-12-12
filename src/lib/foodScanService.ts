@@ -701,13 +701,71 @@ export const foodScanService = {
     };
   },
 
-  // Simulate barcode lookup
+  // Real barcode lookup using Open Food Facts API (free, no API key needed)
   async lookupBarcode(barcode: string): Promise<FoodItem | null> {
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // Mock: Most Nigerian foods don't have barcodes, return null to trigger label scan
-    // In a real app, this would query a product database
-    return null;
+    try {
+      const response = await fetch(
+        `https://world.openfoodfacts.org/api/v2/product/${barcode}.json`
+      );
+      
+      if (!response.ok) {
+        console.log('Barcode not found in Open Food Facts');
+        return null;
+      }
+      
+      const data = await response.json();
+      
+      if (data.status !== 1 || !data.product) {
+        console.log('Product not found');
+        return null;
+      }
+      
+      const product = data.product;
+      const nutriments = product.nutriments || {};
+      
+      // Convert Open Food Facts data to our FoodItem format
+      const foodItem: FoodItem = {
+        id: `off-${barcode}`,
+        name: product.product_name || product.product_name_en || 'Unknown Product',
+        localName: product.product_name,
+        category: 'packaged',
+        origin: 'international',
+        calories: Math.round(nutriments['energy-kcal_100g'] || nutriments.energy_value || 0),
+        protein: Math.round(nutriments.proteins_100g || 0),
+        carbs: Math.round(nutriments.carbohydrates_100g || 0),
+        fats: Math.round(nutriments.fat_100g || 0),
+        fiber: Math.round(nutriments.fiber_100g || 0),
+        sugar: Math.round(nutriments.sugars_100g || 0),
+        sodium: Math.round((nutriments.sodium_100g || 0) * 1000), // Convert g to mg
+        saturatedFat: Math.round(nutriments['saturated-fat_100g'] || 0),
+        ingredients: product.ingredients_text 
+          ? product.ingredients_text.split(',').map((i: string) => i.trim().toLowerCase())
+          : [],
+        allergens: product.allergens_tags 
+          ? product.allergens_tags.map((a: string) => a.replace('en:', ''))
+          : [],
+        commonPreparations: [],
+        healthFlags: this.generateHealthFlags(nutriments),
+        portionSize: product.serving_size || 'Per 100g',
+        image: product.image_url,
+      };
+      
+      return foodItem;
+    } catch (error) {
+      console.error('Error fetching from Open Food Facts:', error);
+      return null;
+    }
+  },
+
+  // Generate health flags from nutriments
+  generateHealthFlags(nutriments: Record<string, number>): string[] {
+    const flags: string[] = [];
+    if ((nutriments.sugars_100g || 0) > 15) flags.push('high-sugar');
+    if ((nutriments['saturated-fat_100g'] || 0) > 5) flags.push('high-saturated-fat');
+    if ((nutriments.sodium_100g || 0) > 0.6) flags.push('high-sodium');
+    if ((nutriments.fiber_100g || 0) > 6) flags.push('high-fiber');
+    if ((nutriments.proteins_100g || 0) > 20) flags.push('high-protein');
+    return flags;
   },
 
   // Simulate nutrition label OCR
