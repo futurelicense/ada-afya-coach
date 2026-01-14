@@ -1,8 +1,17 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Package, TrendingUp, Users, Calendar, DollarSign, Star } from "lucide-react";
+import { Package, TrendingUp, Users, DollarSign, Star } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import ScheduleCalendar from "@/components/ScheduleCalendar";
+
+const vendorEventTypes = [
+  { value: "delivery", label: "Scheduled Delivery", color: "bg-primary/20 text-primary" },
+  { value: "bulk-order", label: "Bulk Order", color: "bg-secondary/20 text-secondary" },
+  { value: "catering", label: "Catering Event", color: "bg-purple-500/20 text-purple-600" },
+  { value: "pickup", label: "Pickup Order", color: "bg-blue-500/20 text-blue-600" },
+  { value: "prep", label: "Meal Prep", color: "bg-yellow-500/20 text-yellow-600" }
+];
 
 const VendorDashboard = () => {
   return (
@@ -150,26 +159,15 @@ const VendorDashboard = () => {
         </TabsContent>
 
         <TabsContent value="schedule" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Delivery Schedule</CardTitle>
-              <CardDescription>Manage your delivery times and availability</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 border rounded-lg">
-                  <div className="flex items-center gap-4">
-                    <Calendar className="h-5 w-5 text-muted-foreground" />
-                    <div>
-                      <h4 className="font-semibold">Today</h4>
-                      <p className="text-sm text-muted-foreground">12 scheduled deliveries</p>
-                    </div>
-                  </div>
-                  <Button variant="outline">View Details</Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <ScheduleCalendar
+            title="Delivery & Order Schedule"
+            description="Manage deliveries, catering events, and meal prep schedules"
+            eventTypes={vendorEventTypes}
+            storageKey="vendor-schedule-events"
+            clientLabel="Customer"
+            showClient={true}
+            showLocation={true}
+          />
         </TabsContent>
       </Tabs>
     </div>

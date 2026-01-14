@@ -1,8 +1,17 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Users, Calendar, TrendingUp, Video, Clock, Star } from "lucide-react";
+import { Users, Calendar, TrendingUp, Clock, Star } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import ScheduleCalendar from "@/components/ScheduleCalendar";
+
+const trainerEventTypes = [
+  { value: "one-on-one", label: "1-on-1 Session", color: "bg-primary/20 text-primary" },
+  { value: "group", label: "Group Session", color: "bg-secondary/20 text-secondary" },
+  { value: "assessment", label: "Assessment", color: "bg-blue-500/20 text-blue-600" },
+  { value: "consultation", label: "Consultation", color: "bg-purple-500/20 text-purple-600" },
+  { value: "progress-check", label: "Progress Check", color: "bg-yellow-500/20 text-yellow-600" }
+];
 
 const TrainerDashboard = () => {
   return (
@@ -119,32 +128,15 @@ const TrainerDashboard = () => {
         </TabsContent>
 
         <TabsContent value="schedule" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Today's Schedule</CardTitle>
-              <CardDescription>Your upcoming training sessions</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {[
-                  { time: "9:00 AM", client: "John Doe", type: "1-on-1 Training" },
-                  { time: "11:00 AM", client: "Jane Smith", type: "Group Session" },
-                  { time: "3:00 PM", client: "Tunde Adeyemi", type: "Progress Check" }
-                ].map((session) => (
-                  <div key={session.time} className="flex items-center justify-between p-4 border rounded-lg">
-                    <div className="flex items-center gap-4">
-                      <Clock className="h-5 w-5 text-muted-foreground" />
-                      <div>
-                        <h4 className="font-semibold">{session.time}</h4>
-                        <p className="text-sm text-muted-foreground">{session.client} - {session.type}</p>
-                      </div>
-                    </div>
-                    <Button variant="outline" size="sm">Start Session</Button>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+          <ScheduleCalendar
+            title="Training Schedule"
+            description="Manage your client sessions and appointments"
+            eventTypes={trainerEventTypes}
+            storageKey="trainer-schedule-events"
+            clientLabel="Client"
+            showClient={true}
+            showLocation={true}
+          />
         </TabsContent>
 
         <TabsContent value="programs" className="space-y-4">
