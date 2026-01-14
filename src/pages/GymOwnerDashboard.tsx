@@ -1,8 +1,17 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Users, DollarSign, TrendingUp, Dumbbell, Calendar, AlertCircle } from "lucide-react";
+import { Users, DollarSign, TrendingUp, Dumbbell, AlertCircle } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import ScheduleCalendar from "@/components/ScheduleCalendar";
+
+const gymEventTypes = [
+  { value: "group-class", label: "Group Class", color: "bg-primary/20 text-primary" },
+  { value: "personal-training", label: "Personal Training", color: "bg-secondary/20 text-secondary" },
+  { value: "maintenance", label: "Maintenance", color: "bg-yellow-500/20 text-yellow-600" },
+  { value: "special-event", label: "Special Event", color: "bg-purple-500/20 text-purple-600" },
+  { value: "private-booking", label: "Private Booking", color: "bg-blue-500/20 text-blue-600" }
+];
 
 const GymOwnerDashboard = () => {
   return (
@@ -178,32 +187,15 @@ const GymOwnerDashboard = () => {
         </TabsContent>
 
         <TabsContent value="classes" className="space-y-4">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <div>
-                <CardTitle>Class Schedule</CardTitle>
-                <CardDescription>Manage group fitness classes</CardDescription>
-              </div>
-              <Button>Add Class</Button>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {[
-                  { name: "Morning Yoga", time: "6:00 AM", instructor: "Sarah", capacity: "15/20" },
-                  { name: "HIIT Bootcamp", time: "6:00 PM", instructor: "Mike", capacity: "20/20" },
-                  { name: "Spin Class", time: "7:00 PM", instructor: "David", capacity: "12/15" }
-                ].map((cls) => (
-                  <div key={cls.name} className="flex items-center justify-between p-4 border rounded-lg">
-                    <div>
-                      <h4 className="font-semibold">{cls.name}</h4>
-                      <p className="text-sm text-muted-foreground">{cls.time} • {cls.instructor} • {cls.capacity}</p>
-                    </div>
-                    <Button variant="outline" size="sm">Edit</Button>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+          <ScheduleCalendar
+            title="Class & Facility Schedule"
+            description="Manage group classes, private bookings, and facility events"
+            eventTypes={gymEventTypes}
+            storageKey="gym-schedule-events"
+            clientLabel="Instructor/Member"
+            showClient={true}
+            showLocation={true}
+          />
         </TabsContent>
       </Tabs>
     </div>
