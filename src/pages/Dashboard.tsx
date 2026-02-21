@@ -2,7 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { Activity, Flame, Droplets, Heart, TrendingUp, Sparkles, Plus, Zap, Target, Award, Scan } from "lucide-react";
+import { Activity, Flame, Droplets, Heart, TrendingUp, Sparkles, Plus, Zap, Target, Award, Scan, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useUserData } from "@/hooks/useUserData";
 import { AICoachPanel } from "@/components/AICoachPanel";
@@ -13,12 +13,16 @@ import { DataUpdatePrompt } from "@/components/DataUpdatePrompt";
 import { ScanFoodButton } from "@/components/ScanFoodButton";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
+import { userDataService } from "@/lib/userDataService";
+import { useToast } from "@/hooks/use-toast";
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const { todayWorkouts, todayMeals, todayStats, weeklyStats, completeExercise, markMealEaten, updateWaterIntake, refreshData } = useUserData();
   const [greeting, setGreeting] = useState("");
   const [mounted, setMounted] = useState(false);
+  const [streak, setStreak] = useState(0);
+  const { toast } = useToast();
 
   useEffect(() => {
     setMounted(true);
@@ -26,56 +30,41 @@ const Dashboard = () => {
     if (hour < 12) setGreeting("Good Morning");
     else if (hour < 17) setGreeting("Good Afternoon");
     else setGreeting("Good Evening");
+    setStreak(userDataService.getCurrentStreak());
   }, []);
 
   const weekWorkouts = weeklyStats.reduce((sum, s) => sum + s.workoutsCompleted, 0);
   
+  const handleAddWater = (amount: number) => {
+    updateWaterIntake(amount);
+    toast({ title: `+${amount}L water added 💧`, description: `Total: ${((todayStats?.waterIntake || 0) + amount).toFixed(1)}L` });
+  };
+
+  const handleDeleteWorkout = (id: string) => {
+    userDataService.deleteWorkout(id);
+    refreshData();
+    toast({ title: "Workout removed", description: "Workout has been deleted" });
+  };
+
+  const handleDeleteMeal = (id: string) => {
+    userDataService.deleteMeal(id);
+    refreshData();
+    toast({ title: "Meal removed", description: "Meal has been deleted" });
+  };
+  
   const stats = [
-    { 
-      icon: Flame, 
-      label: "Calories Burned", 
-      value: todayStats?.caloriesBurned.toLocaleString() || "0", 
-      color: "text-primary",
-      bgGradient: "from-primary/10 to-primary/5",
-      iconBg: "bg-primary/10"
-    },
-    { 
-      icon: Activity, 
-      label: "Workouts This Week", 
-      value: weekWorkouts.toString(), 
-      color: "text-secondary",
-      bgGradient: "from-secondary/10 to-secondary/5",
-      iconBg: "bg-secondary/10"
-    },
-    { 
-      icon: Droplets, 
-      label: "Water Intake", 
-      value: `${todayStats?.waterIntake || 0}L`, 
-      color: "text-blue-500",
-      bgGradient: "from-blue-500/10 to-blue-500/5",
-      iconBg: "bg-blue-500/10"
-    },
-    { 
-      icon: Zap, 
-      label: "Current Streak", 
-      value: "5 days", 
-      color: "text-orange-500",
-      bgGradient: "from-orange-500/10 to-orange-500/5",
-      iconBg: "bg-orange-500/10"
-    },
+    { icon: Flame, label: "Calories Burned", value: todayStats?.caloriesBurned.toLocaleString() || "0", color: "text-primary", bgGradient: "from-primary/10 to-primary/5", iconBg: "bg-primary/10" },
+    { icon: Activity, label: "Workouts This Week", value: weekWorkouts.toString(), color: "text-secondary", bgGradient: "from-secondary/10 to-secondary/5", iconBg: "bg-secondary/10" },
+    { icon: Droplets, label: "Water Intake", value: `${todayStats?.waterIntake?.toFixed(1) || 0}L`, color: "text-blue-500", bgGradient: "from-blue-500/10 to-blue-500/5", iconBg: "bg-blue-500/10" },
+    { icon: Zap, label: "Current Streak", value: `${streak} days`, color: "text-orange-500", bgGradient: "from-orange-500/10 to-orange-500/5", iconBg: "bg-orange-500/10" },
   ];
 
   const allExercises = todayWorkouts.flatMap(w => 
-    w.exercises.map(ex => ({
-      ...ex,
-      workoutId: w.id,
-      sets: `${ex.sets}x${ex.reps}`,
-    }))
+    w.exercises.map(ex => ({ ...ex, workoutId: w.id, sets: `${ex.sets}x${ex.reps}` }))
   );
 
   const workoutProgress = allExercises.length > 0 
-    ? (allExercises.filter(ex => ex.completed).length / allExercises.length) * 100 
-    : 0;
+    ? (allExercises.filter(ex => ex.completed).length / allExercises.length) * 100 : 0;
 
   const totalCalories = todayMeals.reduce((sum, m) => sum + m.calories, 0);
   const consumedCalories = todayMeals.filter(m => m.eaten).reduce((sum, m) => sum + m.calories, 0);
@@ -85,7 +74,7 @@ const Dashboard = () => {
     <div className="space-y-6 max-w-7xl mx-auto animate-fade-in">
       <DataUpdatePrompt />
       
-      {/* Personalized Greeting */}
+      {/* Greeting */}
       <div className="glass rounded-3xl p-6 lg:p-8 relative overflow-hidden shadow-premium">
         <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-[100px] float"></div>
         <div className="absolute bottom-0 left-0 w-64 h-64 bg-secondary/10 rounded-full blur-[100px] float" style={{ animationDelay: '2s' }}></div>
@@ -102,13 +91,10 @@ const Dashboard = () => {
           </div>
           <div className="flex flex-wrap gap-3">
             <Button onClick={() => navigate("/workouts")} className="shadow-glow gap-2">
-              <Target className="h-4 w-4" />
-              Start Workout
+              <Target className="h-4 w-4" />Start Workout
             </Button>
             <ScanFoodButton variant="secondary" className="shadow-card" />
-            <Button variant="outline" onClick={() => navigate("/nutrition")} className="gap-2">
-              View Meal Plan
-            </Button>
+            <Button variant="outline" onClick={() => navigate("/nutrition")} className="gap-2">View Meal Plan</Button>
           </div>
         </div>
       </div>
@@ -116,14 +102,7 @@ const Dashboard = () => {
       {/* Stats Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
         {stats.map((stat, idx) => (
-          <Card 
-            key={stat.label} 
-            className={cn(
-              "glass hover:shadow-premium transition-all duration-300 stagger-item group overflow-hidden relative border-0",
-              mounted && "animate-scale-in"
-            )}
-            style={{ animationDelay: `${idx * 0.1}s` }}
-          >
+          <Card key={stat.label} className={cn("glass hover:shadow-premium transition-all duration-300 stagger-item group overflow-hidden relative border-0", mounted && "animate-scale-in")} style={{ animationDelay: `${idx * 0.1}s` }}>
             <div className={cn("absolute inset-0 bg-gradient-to-br opacity-50", stat.bgGradient)}></div>
             <CardContent className="p-4 lg:p-6 relative z-10">
               <div className="flex flex-col gap-3">
@@ -140,7 +119,7 @@ const Dashboard = () => {
         ))}
       </div>
 
-      {/* Progress Overview with Circular Progress */}
+      {/* Progress + Water Intake */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <Card className="glass shadow-card hover:shadow-premium transition-all duration-300 border-0">
           <CardContent className="p-6 flex flex-col items-center gap-4">
@@ -176,19 +155,23 @@ const Dashboard = () => {
             </div>
             <CircularProgress value={todayStats ? (todayStats.waterIntake / 3) * 100 : 0} />
             <p className="text-sm text-muted-foreground text-center">
-              {todayStats?.waterIntake || 0}L of 3L daily goal
+              {todayStats?.waterIntake?.toFixed(1) || 0}L of 3L daily goal
             </p>
+            <div className="flex gap-2 w-full">
+              <Button size="sm" variant="outline" className="flex-1 text-xs" onClick={() => handleAddWater(0.25)}>+0.25L</Button>
+              <Button size="sm" variant="outline" className="flex-1 text-xs" onClick={() => handleAddWater(0.5)}>+0.5L</Button>
+              <Button size="sm" className="flex-1 text-xs" onClick={() => handleAddWater(1)}>+1L</Button>
+            </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* AI Coach Chat & Gamification */}
+      {/* AI Coach & Gamification */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <AIChatCoach />
         <GamificationPanel />
       </div>
 
-      {/* AI Coach Panel */}
       <AICoachPanel />
 
       {/* Today's Workout */}
@@ -196,9 +179,7 @@ const Dashboard = () => {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-xl bg-primary/10">
-                <Activity className="h-5 w-5 text-primary" />
-              </div>
+              <div className="p-2 rounded-xl bg-primary/10"><Activity className="h-5 w-5 text-primary" /></div>
               <div>
                 <CardTitle className="text-2xl">Today's Workout Plan</CardTitle>
                 <CardDescription>AI-generated based on your goals</CardDescription>
@@ -215,8 +196,7 @@ const Dashboard = () => {
               </div>
               <p className="text-muted-foreground mb-4">No workouts planned for today</p>
               <Button onClick={() => navigate("/workouts")} className="shadow-glow">
-                <Plus className="mr-2 h-4 w-4" />
-                Generate Workout
+                <Plus className="mr-2 h-4 w-4" />Generate Workout
               </Button>
             </div>
           ) : (
@@ -226,38 +206,28 @@ const Dashboard = () => {
                   <div
                     key={`${exercise.workoutId}-${exercise.name}`}
                     className={cn(
-                      "flex items-center justify-between p-4 rounded-xl border transition-all duration-300 cursor-pointer group stagger-item",
-                      exercise.completed 
-                        ? "glass bg-secondary/5 border-secondary/30 shadow-card" 
-                        : "glass hover:shadow-elevated hover:border-primary/30"
+                      "flex items-center justify-between p-4 rounded-xl border transition-all duration-300 group stagger-item",
+                      exercise.completed ? "glass bg-secondary/5 border-secondary/30 shadow-card" : "glass hover:shadow-elevated hover:border-primary/30"
                     )}
                     style={{ animationDelay: `${idx * 0.05}s` }}
-                    onClick={() => completeExercise(exercise.workoutId, exercise.name)}
                   >
-                    <div className="flex items-center gap-4">
-                      <div className={cn(
-                        "w-10 h-10 rounded-full border-2 flex items-center justify-center transition-all duration-300",
-                        exercise.completed 
-                          ? "bg-secondary border-secondary shadow-glow" 
-                          : "border-muted group-hover:border-primary group-hover:scale-110"
-                      )}>
-                        {exercise.completed ? (
-                          <span className="text-white text-sm font-bold">✓</span>
-                        ) : (
-                          <span className="text-muted-foreground text-xl group-hover:scale-110 transition-transform">•</span>
-                        )}
+                    <div className="flex items-center gap-4 cursor-pointer flex-1" onClick={() => completeExercise(exercise.workoutId, exercise.name)}>
+                      <div className={cn("w-10 h-10 rounded-full border-2 flex items-center justify-center transition-all duration-300", exercise.completed ? "bg-secondary border-secondary shadow-glow" : "border-muted group-hover:border-primary group-hover:scale-110")}>
+                        {exercise.completed ? <span className="text-white text-sm font-bold">✓</span> : <span className="text-muted-foreground text-xl group-hover:scale-110 transition-transform">•</span>}
                       </div>
                       <div>
                         <p className="font-semibold">{exercise.name}</p>
                         <p className="text-sm text-muted-foreground">{exercise.sets}</p>
                       </div>
                     </div>
-                    <Badge 
-                      variant={exercise.completed ? "default" : "outline"}
-                      className={exercise.completed ? "shadow-glow" : ""}
-                    >
-                      {exercise.completed ? "Done" : "Pending"}
-                    </Badge>
+                    <div className="flex items-center gap-2">
+                      <Badge variant={exercise.completed ? "default" : "outline"} className={exercise.completed ? "shadow-glow" : ""}>
+                        {exercise.completed ? "Done" : "Pending"}
+                      </Badge>
+                      <Button size="sm" variant="ghost" className="h-8 w-8 p-0" onClick={() => handleDeleteWorkout(exercise.workoutId)}>
+                        <Trash2 className="h-3 w-3 text-muted-foreground" />
+                      </Button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -278,9 +248,7 @@ const Dashboard = () => {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-xl bg-secondary/10">
-                <Flame className="h-5 w-5 text-secondary" />
-              </div>
+              <div className="p-2 rounded-xl bg-secondary/10"><Flame className="h-5 w-5 text-secondary" /></div>
               <div>
                 <CardTitle className="text-2xl">Today's Meal Plan</CardTitle>
                 <CardDescription>Nigerian-inspired nutrition</CardDescription>
@@ -297,8 +265,7 @@ const Dashboard = () => {
               </div>
               <p className="text-muted-foreground mb-4">No meals planned for today</p>
               <Button onClick={() => navigate("/nutrition")} className="shadow-glow">
-                <Plus className="mr-2 h-4 w-4" />
-                Generate Meal Plan
+                <Plus className="mr-2 h-4 w-4" />Generate Meal Plan
               </Button>
             </div>
           ) : (
@@ -308,38 +275,28 @@ const Dashboard = () => {
                   <div
                     key={meal.id}
                     className={cn(
-                      "flex items-center justify-between p-4 rounded-xl border transition-all duration-300 cursor-pointer group stagger-item",
-                      meal.eaten 
-                        ? "glass bg-primary/5 border-primary/30 shadow-card" 
-                        : "glass hover:shadow-elevated hover:border-secondary/30"
+                      "flex items-center justify-between p-4 rounded-xl border transition-all duration-300 group stagger-item",
+                      meal.eaten ? "glass bg-primary/5 border-primary/30 shadow-card" : "glass hover:shadow-elevated hover:border-secondary/30"
                     )}
                     style={{ animationDelay: `${idx * 0.05}s` }}
-                    onClick={() => markMealEaten(meal.id)}
                   >
-                    <div className="flex items-center gap-4">
-                      <div className={cn(
-                        "w-10 h-10 rounded-full border-2 flex items-center justify-center transition-all duration-300",
-                        meal.eaten 
-                          ? "bg-primary border-primary shadow-glow" 
-                          : "border-muted group-hover:border-secondary group-hover:scale-110"
-                      )}>
-                        {meal.eaten ? (
-                          <span className="text-white text-sm font-bold">✓</span>
-                        ) : (
-                          <span className="text-muted-foreground text-xl group-hover:scale-110 transition-transform">•</span>
-                        )}
+                    <div className="flex items-center gap-4 cursor-pointer flex-1" onClick={() => markMealEaten(meal.id)}>
+                      <div className={cn("w-10 h-10 rounded-full border-2 flex items-center justify-center transition-all duration-300", meal.eaten ? "bg-primary border-primary shadow-glow" : "border-muted group-hover:border-secondary group-hover:scale-110")}>
+                        {meal.eaten ? <span className="text-white text-sm font-bold">✓</span> : <span className="text-muted-foreground text-xl group-hover:scale-110 transition-transform">•</span>}
                       </div>
                       <div>
                         <p className="font-semibold">{meal.name}</p>
                         <p className="text-sm text-muted-foreground">{meal.mealType} • {meal.calories} cal</p>
                       </div>
                     </div>
-                    <Badge 
-                      variant={meal.eaten ? "default" : "outline"}
-                      className={meal.eaten ? "shadow-glow" : ""}
-                    >
-                      {meal.eaten ? "Eaten" : "Planned"}
-                    </Badge>
+                    <div className="flex items-center gap-2">
+                      <Badge variant={meal.eaten ? "default" : "outline"} className={meal.eaten ? "shadow-glow" : ""}>
+                        {meal.eaten ? "Eaten" : "Planned"}
+                      </Badge>
+                      <Button size="sm" variant="ghost" className="h-8 w-8 p-0" onClick={() => handleDeleteMeal(meal.id)}>
+                        <Trash2 className="h-3 w-3 text-muted-foreground" />
+                      </Button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -359,33 +316,22 @@ const Dashboard = () => {
       <Card className="glass shadow-card hover:shadow-premium transition-all duration-300 border-0">
         <CardHeader>
           <CardTitle className="flex items-center gap-3">
-            <div className="p-2 rounded-xl bg-secondary/10">
-              <TrendingUp className="h-5 w-5 text-secondary" />
-            </div>
+            <div className="p-2 rounded-xl bg-secondary/10"><TrendingUp className="h-5 w-5 text-secondary" /></div>
             Weekly Summary
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
             <div>
-              <div className="flex justify-between text-sm mb-2">
-                <span>Workout Completion</span>
-                <span className="font-medium">{Math.round(workoutProgress)}%</span>
-              </div>
+              <div className="flex justify-between text-sm mb-2"><span>Workout Completion</span><span className="font-medium">{Math.round(workoutProgress)}%</span></div>
               <Progress value={workoutProgress} />
             </div>
             <div>
-              <div className="flex justify-between text-sm mb-2">
-                <span>Nutrition Goals Met</span>
-                <span className="font-medium">{Math.round(mealProgress)}%</span>
-              </div>
+              <div className="flex justify-between text-sm mb-2"><span>Nutrition Goals Met</span><span className="font-medium">{Math.round(mealProgress)}%</span></div>
               <Progress value={mealProgress} />
             </div>
             <div>
-              <div className="flex justify-between text-sm mb-2">
-                <span>Hydration Target</span>
-                <span className="font-medium">{todayStats ? Math.round((todayStats.waterIntake / 3) * 100) : 0}%</span>
-              </div>
+              <div className="flex justify-between text-sm mb-2"><span>Hydration Target</span><span className="font-medium">{todayStats ? Math.round((todayStats.waterIntake / 3) * 100) : 0}%</span></div>
               <Progress value={todayStats ? (todayStats.waterIntake / 3) * 100 : 0} />
             </div>
           </div>
