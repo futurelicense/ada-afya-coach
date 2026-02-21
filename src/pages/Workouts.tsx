@@ -58,33 +58,33 @@ const Workouts = () => {
   ];
 
   return (
-    <div className="container mx-auto p-6 space-y-8">
-      <div className="text-center space-y-3 mb-12">
-        <h1 className="text-5xl font-bold gradient-text">Workouts</h1>
-        <p className="text-muted-foreground text-lg">Transform your body with personalized plans</p>
+    <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 py-4 md:py-6 space-y-5 md:space-y-8 pb-24 md:pb-8">
+      <div className="text-center space-y-2 md:space-y-3 mb-6 md:mb-12">
+        <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold gradient-text">Workouts</h1>
+        <p className="text-muted-foreground text-sm md:text-lg">Transform your body with personalized plans</p>
       </div>
 
       <Tabs defaultValue="plans" className="w-full">
-        <TabsList className="glass mb-8 p-1 h-auto">
-          <TabsTrigger value="plans" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+        <TabsList className="glass mb-4 md:mb-8 p-1 h-auto w-full">
+          <TabsTrigger value="plans" className="flex-1 text-xs sm:text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
             My Plans
           </TabsTrigger>
-          <TabsTrigger value="create" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+          <TabsTrigger value="create" className="flex-1 text-xs sm:text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
             Create
           </TabsTrigger>
-          <TabsTrigger value="exercises" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+          <TabsTrigger value="exercises" className="flex-1 text-xs sm:text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
             Library
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="plans" className="space-y-8">
-          <div className="grid gap-6 md:grid-cols-2">
+        <TabsContent value="plans" className="space-y-5 md:space-y-8">
+          <div className="grid gap-4 md:gap-6 md:grid-cols-2">
             <AIWorkoutGenerator onGenerated={refreshData} />
             <VoiceGuidedWorkout />
           </div>
           
           {workoutPlans.length > 0 && (
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-4 md:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             {workoutPlans.map((plan, index) => (
               <Card 
                 key={plan.id} 
@@ -162,17 +162,17 @@ const Workouts = () => {
           )}
         </TabsContent>
 
-        <TabsContent value="create" className="space-y-4 mt-6">
+        <TabsContent value="create" className="space-y-4 mt-4 md:mt-6">
           <CustomWorkoutBuilder onWorkoutCreated={refreshData} />
         </TabsContent>
 
         <TabsContent value="exercises" className="space-y-6">
-          <div className="glass p-6 rounded-xl shadow-elevated">
-            <h2 className="text-2xl font-bold mb-2">Exercise Library</h2>
+          <div className="glass p-4 md:p-6 rounded-xl shadow-elevated">
+            <h2 className="text-xl md:text-2xl font-bold mb-2">Exercise Library</h2>
             <p className="text-muted-foreground">Browse our collection of effective exercises</p>
           </div>
           
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 md:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             {exercises.map((exercise, index) => (
               <Card 
                 key={index} 

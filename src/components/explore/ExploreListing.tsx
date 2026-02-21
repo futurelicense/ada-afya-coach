@@ -496,7 +496,7 @@ export const ExploreListing = ({ searchQuery }: ExploreListingProps) => {
           <h2 className="text-xl font-semibold">{title}</h2>
           <Badge variant="outline">{items.length} results</Badge>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
           {items.map(renderCard)}
         </div>
       </div>
