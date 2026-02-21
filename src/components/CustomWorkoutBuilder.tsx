@@ -105,14 +105,14 @@ export const CustomWorkoutBuilder = ({ onWorkoutCreated }: { onWorkoutCreated?: 
   };
 
   return (
-    <Card className="shadow-glow">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Dumbbell className="h-5 w-5 text-primary" />
+    <Card className="shadow-glow overflow-hidden">
+      <CardHeader className="p-4 sm:p-6">
+        <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+          <Dumbbell className="h-4 w-4 sm:h-5 sm:w-5 text-primary flex-shrink-0" />
           Custom Workout Builder
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-4 p-4 sm:p-6 pt-0 sm:pt-0">
         {/* Workout Name */}
         <div>
           <Label htmlFor="workout-name">Workout Name</Label>
@@ -139,7 +139,7 @@ export const CustomWorkoutBuilder = ({ onWorkoutCreated }: { onWorkoutCreated?: 
           </div>
 
           {showExerciseList && (
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mb-4 p-4 border rounded-lg bg-muted/50">
+            <div className="grid grid-cols-2 gap-2 mb-4 p-3 sm:p-4 border rounded-lg bg-muted/50 max-h-48 overflow-y-auto">
               {availableExercises.map((ex, idx) => (
                 <Button
                   key={idx}
@@ -164,32 +164,32 @@ export const CustomWorkoutBuilder = ({ onWorkoutCreated }: { onWorkoutCreated?: 
               </div>
             ) : (
               selectedExercises.map((exercise, idx) => (
-                <div key={idx} className="flex items-center gap-3 p-3 border rounded-lg bg-card">
-                  <div className="flex-1">
-                    <p className="font-medium">{exercise.name}</p>
+                <div key={idx} className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 border rounded-lg bg-card">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-sm sm:text-base truncate">{exercise.name}</p>
                     <p className="text-xs text-muted-foreground">{exercise.muscles}</p>
                   </div>
                   
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
                     <div className="flex flex-col items-center">
-                      <Label className="text-xs text-muted-foreground mb-1">Sets</Label>
+                      <Label className="text-[10px] sm:text-xs text-muted-foreground mb-1">Sets</Label>
                       <Input
                         type="number"
                         min="1"
                         max="10"
-                        className="w-16 h-8 text-center"
+                        className="w-12 sm:w-16 h-8 text-center text-sm"
                         value={exercise.sets}
                         onChange={(e) => updateExercise(idx, 'sets', parseInt(e.target.value) || 1)}
                       />
                     </div>
                     
                     <div className="flex flex-col items-center">
-                      <Label className="text-xs text-muted-foreground mb-1">Reps</Label>
+                      <Label className="text-[10px] sm:text-xs text-muted-foreground mb-1">Reps</Label>
                       <Input
                         type="number"
                         min="1"
                         max="50"
-                        className="w-16 h-8 text-center"
+                        className="w-12 sm:w-16 h-8 text-center text-sm"
                         value={exercise.reps}
                         onChange={(e) => updateExercise(idx, 'reps', parseInt(e.target.value) || 1)}
                       />

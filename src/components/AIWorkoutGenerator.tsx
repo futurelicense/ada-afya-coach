@@ -34,19 +34,19 @@ export const AIWorkoutGenerator = ({ onGenerated }: { onGenerated?: () => void }
   };
 
   return (
-    <Card className="shadow-glow border-primary">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Sparkles className="h-5 w-5 text-primary" />
+    <Card className="shadow-glow border-primary overflow-hidden">
+      <CardHeader className="p-4 sm:p-6">
+        <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+          <Sparkles className="h-4 w-4 sm:h-5 sm:w-5 text-primary flex-shrink-0" />
           AI Workout Generator
         </CardTitle>
-        <CardDescription>
+        <CardDescription className="text-xs sm:text-sm">
           Get a personalized workout plan tailored to your fitness level
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="bg-secondary/10 border border-secondary/20 p-4 rounded-lg">
-          <p className="text-sm text-muted-foreground">
+      <CardContent className="space-y-3 sm:space-y-4 p-4 sm:p-6 pt-0 sm:pt-0">
+        <div className="bg-secondary/10 border border-secondary/20 p-3 sm:p-4 rounded-lg">
+          <p className="text-xs sm:text-sm text-muted-foreground">
             Our AI analyzes your fitness level, goals, and progress to create the perfect workout routine for you.
           </p>
         </div>
