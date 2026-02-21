@@ -47,7 +47,7 @@ const Onboarding = () => {
     <div className="min-h-screen flex items-center justify-center p-4 gradient-hero">
       <Card className="w-full max-w-2xl shadow-glow">
         <CardHeader>
-          <CardTitle className="text-3xl text-gradient">Welcome to FitNaijaCoach</CardTitle>
+          <CardTitle className="text-3xl text-gradient">Welcome to WeFit</CardTitle>
           <CardDescription>Let's personalize your wellness journey</CardDescription>
           <Progress value={progress} className="mt-4" />
         </CardHeader>

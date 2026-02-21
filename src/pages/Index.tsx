@@ -5,6 +5,7 @@ import { ArrowRight, Dumbbell, UtensilsCrossed, Brain, TrendingUp, Users, Sparkl
 import heroImage from "@/assets/hero-fitness.jpg";
 import workoutImage from "@/assets/workout-session.jpg";
 import mealImage from "@/assets/nigerian-meal.jpg";
+import wefitLogo from "@/assets/wefit-logo.png";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 
 const Index = () => {
@@ -20,8 +21,8 @@ const Index = () => {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-2">
-              <Sparkles className="w-6 h-6 text-primary" />
-              <span className="font-display text-xl font-bold">FitNaija<span className="text-primary">Coach</span></span>
+              <img src={wefitLogo} alt="WeFit" className="w-8 h-8" />
+              <span className="font-display text-xl font-bold text-gradient">WeFit</span>
             </div>
             <div className="hidden md:flex items-center gap-6">
               <a href="#features" className="text-muted-foreground hover:text-foreground transition-smooth">Features</a>
@@ -220,7 +221,7 @@ const Index = () => {
                 <span className="text-gradient">Designed by AI</span>
               </h2>
               <p className="text-lg text-muted-foreground">
-                Whether you're at home, in the gym, or outdoors, FitNaijaCoach generates workouts tailored to your equipment, space, and goals. No guesswork — just results.
+                Whether you're at home, in the gym, or outdoors, WeFit generates workouts tailored to your equipment, space, and goals. No guesswork — just results.
               </p>
               <ul className="space-y-4">
                 <li className="flex items-start gap-3">
@@ -360,8 +361,8 @@ const Index = () => {
           <div className="grid md:grid-cols-4 gap-8 mb-8">
             <div>
               <div className="flex items-center gap-2 mb-4">
-                <Sparkles className="w-6 h-6 text-primary" />
-                <span className="font-display text-xl font-bold">FitNaija<span className="text-primary">Coach</span></span>
+                <img src={wefitLogo} alt="WeFit" className="w-8 h-8" />
+                <span className="font-display text-xl font-bold text-gradient">WeFit</span>
               </div>
               <p className="text-sm text-muted-foreground">
                 AI-powered wellness for Nigerian lifestyles.
@@ -393,7 +394,7 @@ const Index = () => {
             </div>
           </div>
           <div className="pt-8 border-t border-border text-center text-sm text-muted-foreground">
-            <p>© 2025 FitNaijaCoach. Built with AI and Nigerian pride. 🇳🇬</p>
+            <p>© 2025 WeFit — Health Fitness Movement. 💚</p>
           </div>
         </div>
       </footer>

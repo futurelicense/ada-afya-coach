@@ -62,7 +62,7 @@ const Auth = () => {
       
       toast({
         title: "Account created successfully!",
-        description: "Welcome to FitNaija!",
+        description: "Welcome to WeFit!",
       });
       
       navigate("/onboarding");
@@ -128,8 +128,8 @@ const Auth = () => {
 
       <Card className="w-full max-w-md p-8 glass shadow-premium relative z-10 animate-fade-in">
         <div className="flex items-center justify-center gap-2 mb-8">
-          <Sparkles className="w-8 h-8 text-primary" />
-          <span className="font-display text-2xl font-bold">FitNaija<span className="text-primary">Coach</span></span>
+          <img src="/wefit-logo.png" alt="WeFit" className="w-8 h-8" />
+          <span className="font-display text-2xl font-bold text-gradient">WeFit</span>
         </div>
 
         <div className="text-center mb-8">

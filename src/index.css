@@ -8,111 +8,111 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* FitNaija Design System - Wellness meets Nigerian culture */
-    --background: 0 0% 98%;
-    --foreground: 0 0% 11%;
+    /* WeFit Design System - Health Fitness Movement */
+    --background: 150 20% 97%;
+    --foreground: 160 30% 8%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 11%;
+    --card: 150 15% 100%;
+    --card-foreground: 160 30% 8%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 11%;
+    --popover-foreground: 160 30% 8%;
 
-    /* Energy Orange - Primary actions & motivation */
-    --primary: 29 100% 50%;
+    /* Deep Teal - Primary brand from logo shield */
+    --primary: 160 80% 27%;
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 29 100% 65%;
+    --primary-glow: 155 65% 40%;
 
-    /* Deep Green - Wellness & balance */
-    --secondary: 160 100% 32%;
+    /* Vibrant Green - Secondary accent from logo leaf/barbell */
+    --secondary: 140 55% 42%;
     --secondary-foreground: 0 0% 100%;
-    --secondary-light: 160 60% 45%;
+    --secondary-light: 128 50% 55%;
 
-    --muted: 0 0% 92%;
-    --muted-foreground: 0 0% 40%;
+    --muted: 150 10% 92%;
+    --muted-foreground: 160 10% 40%;
 
-    /* Slate Gray - Sophisticated contrast */
-    --accent: 0 0% 11%;
-    --accent-foreground: 0 0% 98%;
+    /* Dark Teal - Sophisticated contrast */
+    --accent: 160 40% 12%;
+    --accent-foreground: 150 15% 97%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 88%;
-    --input: 0 0% 88%;
-    --ring: 29 100% 50%;
+    --border: 150 12% 88%;
+    --input: 150 12% 88%;
+    --ring: 160 80% 27%;
 
     --radius: 1rem;
 
-    /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(29 100% 50%) 0%, hsl(160 100% 32%) 100%);
-    --gradient-hero: linear-gradient(135deg, hsl(29 100% 50% / 0.95) 0%, hsl(160 100% 32% / 0.9) 100%);
-    --gradient-card: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(0 0% 98%) 100%);
-    --gradient-premium: linear-gradient(135deg, hsl(29 100% 55%) 0%, hsl(29 100% 45%) 100%);
-    --gradient-shine: linear-gradient(110deg, transparent 30%, hsl(0 0% 100% / 0.1) 50%, transparent 70%);
-    --gradient-mesh: radial-gradient(at 40% 20%, hsl(29 100% 95%) 0px, transparent 50%), radial-gradient(at 80% 0%, hsl(160 100% 95%) 0px, transparent 50%), radial-gradient(at 0% 50%, hsl(29 100% 92%) 0px, transparent 50%);
+    /* Gradients - Teal to Green blend */
+    --gradient-primary: linear-gradient(135deg, hsl(160 80% 27%) 0%, hsl(140 55% 42%) 100%);
+    --gradient-hero: linear-gradient(135deg, hsl(160 80% 27% / 0.95) 0%, hsl(128 50% 55% / 0.9) 100%);
+    --gradient-card: linear-gradient(180deg, hsl(150 15% 100%) 0%, hsl(150 20% 97%) 100%);
+    --gradient-premium: linear-gradient(135deg, hsl(160 80% 32%) 0%, hsl(140 55% 38%) 100%);
+    --gradient-shine: linear-gradient(110deg, transparent 30%, hsl(0 0% 100% / 0.15) 50%, transparent 70%);
+    --gradient-mesh: radial-gradient(at 40% 20%, hsl(160 60% 92%) 0px, transparent 50%), radial-gradient(at 80% 0%, hsl(140 50% 92%) 0px, transparent 50%), radial-gradient(at 0% 50%, hsl(128 40% 92%) 0px, transparent 50%);
     
-    /* Shadows - Enhanced for depth */
-    --shadow-glow: 0 10px 40px -10px hsl(29 100% 50% / 0.3);
-    --shadow-card: 0 4px 24px -4px hsl(0 0% 0% / 0.08);
-    --shadow-elevated: 0 10px 40px -5px hsl(0 0% 0% / 0.12), 0 0 0 1px hsl(0 0% 0% / 0.05);
-    --shadow-premium: 0 20px 50px -15px hsl(29 100% 50% / 0.4), 0 0 0 1px hsl(29 100% 50% / 0.1);
-    --shadow-3d: 0 20px 60px -20px hsl(0 0% 0% / 0.3), 0 8px 16px -8px hsl(0 0% 0% / 0.2);
+    /* Shadows - Green-tinted for depth */
+    --shadow-glow: 0 10px 40px -10px hsl(160 80% 27% / 0.3);
+    --shadow-card: 0 4px 24px -4px hsl(160 20% 20% / 0.08);
+    --shadow-elevated: 0 10px 40px -5px hsl(160 20% 20% / 0.12), 0 0 0 1px hsl(160 20% 20% / 0.05);
+    --shadow-premium: 0 20px 50px -15px hsl(160 80% 27% / 0.4), 0 0 0 1px hsl(160 80% 27% / 0.1);
+    --shadow-3d: 0 20px 60px -20px hsl(160 20% 10% / 0.3), 0 8px 16px -8px hsl(160 20% 10% / 0.2);
     
     /* Glassmorphism */
-    --glass-bg: hsl(0 0% 100% / 0.7);
+    --glass-bg: hsl(150 15% 100% / 0.7);
     --glass-border: hsl(0 0% 100% / 0.2);
-    --glass-shadow: 0 8px 32px hsl(0 0% 0% / 0.1);
+    --glass-shadow: 0 8px 32px hsl(160 20% 10% / 0.1);
     
     /* Animations */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .dark {
-    --background: 0 0% 6%;
-    --foreground: 0 0% 96%;
+    --background: 160 20% 5%;
+    --foreground: 150 10% 96%;
 
-    --card: 0 0% 9%;
-    --card-foreground: 0 0% 96%;
+    --card: 160 15% 8%;
+    --card-foreground: 150 10% 96%;
 
-    --popover: 0 0% 9%;
-    --popover-foreground: 0 0% 96%;
+    --popover: 160 15% 8%;
+    --popover-foreground: 150 10% 96%;
 
-    --primary: 29 100% 60%;
+    --primary: 155 75% 38%;
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 29 100% 75%;
+    --primary-glow: 150 65% 50%;
 
-    --secondary: 160 85% 42%;
+    --secondary: 140 55% 48%;
     --secondary-foreground: 0 0% 100%;
-    --secondary-light: 160 70% 55%;
+    --secondary-light: 128 50% 58%;
 
-    --muted: 0 0% 15%;
-    --muted-foreground: 0 0% 65%;
+    --muted: 160 15% 14%;
+    --muted-foreground: 150 10% 65%;
 
-    --accent: 0 0% 18%;
-    --accent-foreground: 0 0% 96%;
+    --accent: 160 20% 16%;
+    --accent-foreground: 150 10% 96%;
 
     --destructive: 0 85% 58%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 16%;
-    --input: 0 0% 16%;
-    --ring: 29 100% 60%;
+    --border: 160 15% 16%;
+    --input: 160 15% 16%;
+    --ring: 155 75% 38%;
 
-    --gradient-primary: linear-gradient(135deg, hsl(29 100% 60%) 0%, hsl(160 85% 42%) 100%);
-    --gradient-hero: linear-gradient(135deg, hsl(29 100% 60% / 0.92) 0%, hsl(160 85% 42% / 0.88) 100%);
-    --gradient-card: linear-gradient(180deg, hsl(0 0% 9%) 0%, hsl(0 0% 7%) 100%);
-    --gradient-premium: linear-gradient(135deg, hsl(29 100% 65%) 0%, hsl(29 100% 50%) 100%);
+    --gradient-primary: linear-gradient(135deg, hsl(155 75% 38%) 0%, hsl(140 55% 48%) 100%);
+    --gradient-hero: linear-gradient(135deg, hsl(155 75% 38% / 0.92) 0%, hsl(128 50% 50% / 0.88) 100%);
+    --gradient-card: linear-gradient(180deg, hsl(160 15% 8%) 0%, hsl(160 20% 6%) 100%);
+    --gradient-premium: linear-gradient(135deg, hsl(155 75% 42%) 0%, hsl(140 55% 35%) 100%);
     --gradient-shine: linear-gradient(110deg, transparent 30%, hsl(0 0% 100% / 0.05) 50%, transparent 70%);
-    --gradient-mesh: radial-gradient(at 40% 20%, hsl(29 100% 20%) 0px, transparent 50%), radial-gradient(at 80% 0%, hsl(160 85% 20%) 0px, transparent 50%), radial-gradient(at 0% 50%, hsl(29 100% 15%) 0px, transparent 50%);
+    --gradient-mesh: radial-gradient(at 40% 20%, hsl(160 60% 15%) 0px, transparent 50%), radial-gradient(at 80% 0%, hsl(140 50% 15%) 0px, transparent 50%), radial-gradient(at 0% 50%, hsl(128 40% 12%) 0px, transparent 50%);
     
-    --shadow-glow: 0 12px 45px -12px hsl(29 100% 60% / 0.45);
+    --shadow-glow: 0 12px 45px -12px hsl(155 75% 38% / 0.45);
     --shadow-card: 0 6px 28px -6px hsl(0 0% 0% / 0.4);
     --shadow-elevated: 0 12px 45px -8px hsl(0 0% 0% / 0.5), 0 0 0 1px hsl(0 0% 100% / 0.05);
-    --shadow-premium: 0 20px 60px -15px hsl(29 100% 60% / 0.5), 0 0 0 1px hsl(29 100% 60% / 0.2);
+    --shadow-premium: 0 20px 60px -15px hsl(155 75% 38% / 0.5), 0 0 0 1px hsl(155 75% 38% / 0.2);
     --shadow-3d: 0 25px 70px -25px hsl(0 0% 0% / 0.5), 0 10px 20px -10px hsl(0 0% 0% / 0.3);
     
-    --glass-bg: hsl(0 0% 9% / 0.7);
+    --glass-bg: hsl(160 15% 8% / 0.7);
     --glass-border: hsl(0 0% 100% / 0.1);
     --glass-shadow: 0 8px 32px hsl(0 0% 0% / 0.3);
   }

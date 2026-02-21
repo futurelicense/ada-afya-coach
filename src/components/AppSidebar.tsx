@@ -10,6 +10,7 @@ import {
   SidebarMenuButton,
   useSidebar,
 } from "@/components/ui/sidebar";
+import wefitLogo from "@/assets/wefit-logo.png";
 
 const navItems = [
   { title: "Home", url: "/", icon: Home },
@@ -29,10 +30,11 @@ export function AppSidebar() {
   return (
     <Sidebar collapsible="icon" className="bg-slate-950 border-r border-slate-800">
       <SidebarContent className="bg-slate-950">
-        <div className="p-4">
-          <h1 className={`font-bold ${collapsed ? "text-xs" : "text-xl"} text-gradient`}>
-            {collapsed ? "FN" : "FitNaija"}
-          </h1>
+        <div className="p-4 flex items-center gap-2">
+          <img src={wefitLogo} alt="WeFit" className={`${collapsed ? "w-6 h-6" : "w-8 h-8"} object-contain`} />
+          {!collapsed && (
+            <h1 className="font-bold text-xl text-gradient">WeFit</h1>
+          )}
         </div>
         
         <SidebarGroup>
