@@ -50,7 +50,7 @@ export const ExploreCard = ({
     >
       {/* Image Header */}
       {image && (
-        <div className="relative h-40 overflow-hidden bg-gradient-to-br from-primary/10 to-secondary/10">
+        <div className="relative h-32 sm:h-40 overflow-hidden bg-gradient-to-br from-primary/10 to-secondary/10">
           <img 
             src={image} 
             alt={title}

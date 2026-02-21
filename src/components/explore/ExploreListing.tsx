@@ -506,8 +506,8 @@ export const ExploreListing = ({ searchQuery }: ExploreListingProps) => {
   const hasResults = Object.values(filteredData).some(arr => arr.length > 0);
 
   return (
-    <div className="space-y-8">
-      <ExploreFilters 
+    <div className="space-y-4 sm:space-y-6 md:space-y-8">
+      <ExploreFilters
         activeCategory={activeCategory}
         onCategoryChange={setActiveCategory}
         searchQuery={searchQuery}
@@ -520,7 +520,7 @@ export const ExploreListing = ({ searchQuery }: ExploreListingProps) => {
           <p className="text-muted-foreground">Try adjusting your search or filters</p>
         </div>
       ) : (
-        <div className="space-y-10">
+        <div className="space-y-6 sm:space-y-8 md:space-y-10">
           {/* Gyms */}
           {renderSection("Featured Gyms", filteredData.gyms, (gym, index) => (
             <ExploreCard
