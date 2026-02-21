@@ -21,25 +21,25 @@ export const ExploreMap = () => {
             <div className="p-2 rounded-lg bg-primary/10 text-primary">
               <MapPin className="h-6 w-6" />
             </div>
-            <CardTitle className="text-2xl md:text-3xl">
+            <CardTitle className="text-lg sm:text-2xl md:text-3xl">
               Explore Locations
             </CardTitle>
           </div>
         </CardHeader>
         <CardContent>
-          <div className="relative w-full h-96 rounded-xl overflow-hidden bg-muted">
+          <div className="relative w-full h-48 sm:h-64 md:h-96 rounded-lg sm:rounded-xl overflow-hidden bg-muted">
             {/* Map placeholder with gradient */}
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-secondary/20 to-accent/20 flex items-center justify-center">
-              <div className="text-center space-y-4">
-                <MapPin className="h-16 w-16 mx-auto text-primary animate-bounce" />
-                <div className="space-y-2">
-                  <p className="text-lg font-semibold">Interactive Map Coming Soon</p>
-                  <p className="text-sm text-muted-foreground max-w-md">
-                    View all fitness locations, gyms, trainers, and workout spots on an interactive map
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-secondary/20 to-accent/20 flex items-center justify-center p-4">
+              <div className="text-center space-y-2 sm:space-y-4">
+                <MapPin className="h-10 w-10 sm:h-12 md:h-16 sm:w-12 md:w-16 mx-auto text-primary animate-bounce" />
+                <div className="space-y-1 sm:space-y-2">
+                  <p className="text-sm sm:text-base md:text-lg font-semibold">Interactive Map Coming Soon</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground max-w-md">
+                    View all fitness locations on an interactive map
                   </p>
                 </div>
-                <Button className="shadow-glow">
-                  <Navigation className="h-4 w-4" />
+                <Button size="sm" className="shadow-glow text-xs sm:text-sm">
+                  <Navigation className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                   Enable Location
                 </Button>
               </div>
