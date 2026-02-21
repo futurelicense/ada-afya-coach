@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,46 +6,15 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Target, Plus, Trash2, Check } from "lucide-react";
+import { Target, Plus, Trash2, Check, Edit } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-
-interface Goal {
-  id: string;
-  title: string;
-  type: string;
-  target: number;
-  current: number;
-  unit: string;
-  deadline: string;
-  completed: boolean;
-}
+import { userDataService, Goal } from "@/lib/userDataService";
 
 export const GoalSetting = () => {
   const { toast } = useToast();
-  const [goals, setGoals] = useState<Goal[]>([
-    {
-      id: '1',
-      title: 'Lose Weight',
-      type: 'weight',
-      target: 70,
-      current: 75,
-      unit: 'kg',
-      deadline: '2025-12-31',
-      completed: false,
-    },
-    {
-      id: '2',
-      title: 'Weekly Workouts',
-      type: 'workouts',
-      target: 5,
-      current: 3,
-      unit: 'workouts',
-      deadline: '2025-12-31',
-      completed: false,
-    },
-  ]);
-
+  const [goals, setGoals] = useState<Goal[]>([]);
   const [showForm, setShowForm] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [newGoal, setNewGoal] = useState({
     title: '',
     type: 'weight',
@@ -55,52 +24,76 @@ export const GoalSetting = () => {
     deadline: '',
   });
 
+  useEffect(() => {
+    setGoals(userDataService.getGoals());
+  }, []);
+
+  const saveGoals = (updated: Goal[]) => {
+    setGoals(updated);
+  };
+
   const addGoal = () => {
     if (!newGoal.title || !newGoal.target || !newGoal.deadline) {
-      toast({
-        title: "Missing Information",
-        description: "Please fill in all goal details",
-        variant: "destructive",
-      });
+      toast({ title: "Missing Information", description: "Please fill in all goal details", variant: "destructive" });
       return;
     }
 
-    const goal: Goal = {
-      id: Date.now().toString(),
-      ...newGoal,
-      completed: false,
-    };
+    if (editingId) {
+      userDataService.updateGoal(editingId, { ...newGoal, completed: false });
+      toast({ title: "Goal Updated!", description: `"${newGoal.title}" has been updated` });
+      setEditingId(null);
+    } else {
+      const goal: Goal = {
+        id: Date.now().toString(),
+        ...newGoal,
+        completed: false,
+      };
+      userDataService.addGoal(goal);
+      toast({ title: "Goal Created!", description: `"${goal.title}" has been added to your goals` });
+    }
 
-    setGoals([...goals, goal]);
     setShowForm(false);
-    setNewGoal({
-      title: '',
-      type: 'weight',
-      target: 0,
-      current: 0,
-      unit: 'kg',
-      deadline: '',
-    });
-
-    toast({
-      title: "Goal Created!",
-      description: `"${goal.title}" has been added to your goals`,
-    });
+    setNewGoal({ title: '', type: 'weight', target: 0, current: 0, unit: 'kg', deadline: '' });
+    saveGoals(userDataService.getGoals());
   };
 
   const deleteGoal = (id: string) => {
-    setGoals(goals.filter(g => g.id !== id));
-    toast({
-      title: "Goal Removed",
-      description: "Goal has been deleted",
+    userDataService.deleteGoal(id);
+    saveGoals(userDataService.getGoals());
+    toast({ title: "Goal Removed", description: "Goal has been deleted" });
+  };
+
+  const editGoal = (goal: Goal) => {
+    setEditingId(goal.id);
+    setNewGoal({
+      title: goal.title,
+      type: goal.type,
+      target: goal.target,
+      current: goal.current,
+      unit: goal.unit,
+      deadline: goal.deadline,
     });
+    setShowForm(true);
+  };
+
+  const updateProgress = (id: string, current: number) => {
+    const goal = goals.find(g => g.id === id);
+    if (!goal) return;
+    const completed = current >= goal.target;
+    userDataService.updateGoal(id, { current, completed });
+    saveGoals(userDataService.getGoals());
+    if (completed) {
+      toast({ title: "🎉 Goal Completed!", description: `You've achieved "${goal.title}"!` });
+    }
   };
 
   const calculateProgress = (goal: Goal) => {
     if (goal.type === 'weight' && goal.current > goal.target) {
-      return ((goal.current - goal.target) / goal.current) * 100;
+      const totalToLose = goal.current;
+      const lost = goal.current - goal.target;
+      return Math.min((lost / totalToLose) * 100, 100);
     }
-    return (goal.current / goal.target) * 100;
+    return Math.min((goal.current / goal.target) * 100, 100);
   };
 
   return (
@@ -113,36 +106,27 @@ export const GoalSetting = () => {
           </h3>
           <p className="text-sm text-muted-foreground mt-1">Set and track your fitness objectives</p>
         </div>
-        <Button onClick={() => setShowForm(!showForm)}>
+        <Button onClick={() => { setShowForm(!showForm); setEditingId(null); setNewGoal({ title: '', type: 'weight', target: 0, current: 0, unit: 'kg', deadline: '' }); }}>
           <Plus className="mr-2 h-4 w-4" />
           New Goal
         </Button>
       </div>
 
-      {/* New Goal Form */}
       {showForm && (
         <Card className="border-primary">
           <CardHeader>
-            <CardTitle>Create New Goal</CardTitle>
+            <CardTitle>{editingId ? 'Edit Goal' : 'Create New Goal'}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
               <Label htmlFor="title">Goal Title</Label>
-              <Input
-                id="title"
-                placeholder="e.g., Lose 5kg"
-                value={newGoal.title}
-                onChange={(e) => setNewGoal({ ...newGoal, title: e.target.value })}
-              />
+              <Input id="title" placeholder="e.g., Lose 5kg" value={newGoal.title} onChange={(e) => setNewGoal({ ...newGoal, title: e.target.value })} />
             </div>
-
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="type">Goal Type</Label>
+                <Label>Goal Type</Label>
                 <Select value={newGoal.type} onValueChange={(v) => setNewGoal({ ...newGoal, type: v })}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="weight">Weight</SelectItem>
                     <SelectItem value="workouts">Workouts</SelectItem>
@@ -151,63 +135,37 @@ export const GoalSetting = () => {
                   </SelectContent>
                 </Select>
               </div>
-
               <div>
-                <Label htmlFor="unit">Unit</Label>
-                <Input
-                  id="unit"
-                  placeholder="kg, workouts, etc."
-                  value={newGoal.unit}
-                  onChange={(e) => setNewGoal({ ...newGoal, unit: e.target.value })}
-                />
+                <Label>Unit</Label>
+                <Input placeholder="kg, workouts, etc." value={newGoal.unit} onChange={(e) => setNewGoal({ ...newGoal, unit: e.target.value })} />
               </div>
             </div>
-
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="current">Current Value</Label>
-                <Input
-                  id="current"
-                  type="number"
-                  value={newGoal.current || ''}
-                  onChange={(e) => setNewGoal({ ...newGoal, current: parseFloat(e.target.value) })}
-                />
+                <Label>Current Value</Label>
+                <Input type="number" value={newGoal.current || ''} onChange={(e) => setNewGoal({ ...newGoal, current: parseFloat(e.target.value) || 0 })} />
               </div>
-
               <div>
-                <Label htmlFor="target">Target Value</Label>
-                <Input
-                  id="target"
-                  type="number"
-                  value={newGoal.target || ''}
-                  onChange={(e) => setNewGoal({ ...newGoal, target: parseFloat(e.target.value) })}
-                />
+                <Label>Target Value</Label>
+                <Input type="number" value={newGoal.target || ''} onChange={(e) => setNewGoal({ ...newGoal, target: parseFloat(e.target.value) || 0 })} />
               </div>
             </div>
-
             <div>
-              <Label htmlFor="deadline">Deadline</Label>
-              <Input
-                id="deadline"
-                type="date"
-                value={newGoal.deadline}
-                onChange={(e) => setNewGoal({ ...newGoal, deadline: e.target.value })}
-              />
+              <Label>Deadline</Label>
+              <Input type="date" value={newGoal.deadline} onChange={(e) => setNewGoal({ ...newGoal, deadline: e.target.value })} />
             </div>
-
             <div className="flex gap-2">
-              <Button onClick={addGoal} className="flex-1">Create Goal</Button>
-              <Button variant="outline" onClick={() => setShowForm(false)}>Cancel</Button>
+              <Button onClick={addGoal} className="flex-1">{editingId ? 'Update Goal' : 'Create Goal'}</Button>
+              <Button variant="outline" onClick={() => { setShowForm(false); setEditingId(null); }}>Cancel</Button>
             </div>
           </CardContent>
         </Card>
       )}
 
-      {/* Goals List */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {goals.map((goal) => {
           const progress = calculateProgress(goal);
-          const isCompleted = progress >= 100;
+          const isCompleted = goal.completed || progress >= 100;
 
           return (
             <Card key={goal.id} className={`hover-scale shadow-card ${isCompleted ? 'border-green-500' : ''}`}>
@@ -222,13 +180,14 @@ export const GoalSetting = () => {
                       Deadline: {new Date(goal.deadline).toLocaleDateString()}
                     </CardDescription>
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => deleteGoal(goal.id)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+                  <div className="flex gap-1">
+                    <Button variant="ghost" size="sm" onClick={() => editGoal(goal)}>
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                    <Button variant="ghost" size="sm" onClick={() => deleteGoal(goal.id)}>
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -244,6 +203,26 @@ export const GoalSetting = () => {
                     {Math.round(progress)}% complete
                   </p>
                 </div>
+
+                {!isCompleted && (
+                  <div className="flex items-center gap-2">
+                    <Input
+                      type="number"
+                      placeholder="Update progress"
+                      className="h-8 text-sm"
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          const val = parseFloat((e.target as HTMLInputElement).value);
+                          if (!isNaN(val)) {
+                            updateProgress(goal.id, val);
+                            (e.target as HTMLInputElement).value = '';
+                          }
+                        }
+                      }}
+                    />
+                    <span className="text-xs text-muted-foreground whitespace-nowrap">Press Enter</span>
+                  </div>
+                )}
 
                 <Badge variant={isCompleted ? "default" : "secondary"}>
                   {isCompleted ? "Completed! 🎉" : "In Progress"}

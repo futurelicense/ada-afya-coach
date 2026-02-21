@@ -18,11 +18,8 @@ export const useUserData = () => {
 
   useEffect(() => {
     loadData();
-
-    // Listen for storage changes (for multi-tab sync)
     const handleStorageChange = () => loadData();
     window.addEventListener('storage', handleStorageChange);
-    
     return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
@@ -40,7 +37,7 @@ export const useUserData = () => {
     if (!workout) return;
 
     const updatedExercises = workout.exercises.map(ex =>
-      ex.name === exerciseName ? { ...ex, completed: true } : ex
+      ex.name === exerciseName ? { ...ex, completed: !ex.completed } : ex
     );
 
     const allCompleted = updatedExercises.every(ex => ex.completed);
@@ -48,20 +45,32 @@ export const useUserData = () => {
     userDataService.updateWorkout(workoutId, {
       exercises: updatedExercises,
       completed: allCompleted,
-      caloriesBurned: allCompleted ? workout.caloriesBurned : 0,
+      caloriesBurned: allCompleted ? workout.calories : updatedExercises.filter(e => e.completed).length * 50,
     });
 
     loadData();
   };
 
   const markMealEaten = (mealId: string) => {
-    userDataService.updateMeal(mealId, { eaten: true });
+    const meal = todayMeals.find(m => m.id === mealId);
+    if (!meal) return;
+    userDataService.updateMeal(mealId, { eaten: !meal.eaten });
     loadData();
   };
 
   const updateWaterIntake = (amount: number) => {
     const current = todayStats?.waterIntake || 0;
     userDataService.updateTodayStats({ waterIntake: current + amount });
+    loadData();
+  };
+
+  const deleteWorkout = (id: string) => {
+    userDataService.deleteWorkout(id);
+    loadData();
+  };
+
+  const deleteMeal = (id: string) => {
+    userDataService.deleteMeal(id);
     loadData();
   };
 
@@ -75,6 +84,8 @@ export const useUserData = () => {
     completeExercise,
     markMealEaten,
     updateWaterIntake,
+    deleteWorkout,
+    deleteMeal,
     refreshData: loadData,
   };
 };

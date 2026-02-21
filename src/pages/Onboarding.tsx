@@ -8,6 +8,9 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Progress } from "@/components/ui/progress";
 import { ArrowRight, ArrowLeft } from "lucide-react";
+import { userDataService } from "@/lib/userDataService";
+
+
 
 const Onboarding = () => {
   const navigate = useNavigate();
@@ -29,8 +32,21 @@ const Onboarding = () => {
   const handleNext = () => {
     if (step < totalSteps) setStep(step + 1);
     else {
-      // Store data and navigate to dashboard
-      localStorage.setItem("userProfile", JSON.stringify(formData));
+      // Save profile to userDataService
+      const profile = {
+        name: formData.name || 'User',
+        email: '',
+        age: parseInt(formData.age) || 25,
+        fitnessLevel: (formData.fitnessLevel || 'intermediate') as 'beginner' | 'intermediate' | 'advanced',
+        goals: formData.goal ? [formData.goal] : [],
+        weight: parseFloat(formData.weight) || 70,
+        targetWeight: parseFloat(formData.weight) || 70,
+        height: parseInt(formData.height) || 170,
+        location: '',
+        joinDate: new Date().toISOString().split('T')[0],
+      };
+      userDataService.saveProfile(profile);
+      localStorage.setItem("wefit_onboarding_completed", "true");
       navigate("/dashboard");
     }
   };
