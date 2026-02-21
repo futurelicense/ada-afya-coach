@@ -184,11 +184,11 @@ export const VoiceGuidedWorkout = () => {
   };
 
   return (
-    <Card className="shadow-glow">
-      <CardHeader>
-        <CardTitle className="flex items-center justify-between">
+    <Card className="shadow-glow overflow-hidden">
+      <CardHeader className="p-4 sm:p-6">
+        <CardTitle className="flex items-center justify-between text-base sm:text-lg">
           <span className="flex items-center gap-2">
-            <Volume2 className="h-5 w-5 text-primary" />
+            <Volume2 className="h-4 w-4 sm:h-5 sm:w-5 text-primary flex-shrink-0" />
             Voice-Guided Workout
           </span>
           <Button
@@ -206,10 +206,10 @@ export const VoiceGuidedWorkout = () => {
           </Button>
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-4 sm:space-y-6 p-4 sm:p-6 pt-0 sm:pt-0">
         {/* Progress */}
         <div>
-          <div className="flex justify-between text-sm mb-2">
+          <div className="flex justify-between text-xs sm:text-sm mb-2">
             <span>Exercise {currentExerciseIndex + 1} of {totalExercises}</span>
             <span>{Math.round(progress)}%</span>
           </div>
@@ -217,15 +217,15 @@ export const VoiceGuidedWorkout = () => {
         </div>
 
         {/* Current Exercise */}
-        <div className="text-center p-6 bg-gradient-card rounded-lg">
-          <Badge className="mb-4" variant={isResting ? "secondary" : "default"}>
+        <div className="text-center p-4 sm:p-6 bg-gradient-card rounded-lg">
+          <Badge className="mb-3 sm:mb-4" variant={isResting ? "secondary" : "default"}>
             {isResting ? "Rest" : "Exercise"}
           </Badge>
-          <h3 className="text-3xl font-bold mb-2">{currentExercise.name}</h3>
-          <div className="text-6xl font-bold text-primary my-6">
+          <h3 className="text-2xl sm:text-3xl font-bold mb-2">{currentExercise.name}</h3>
+          <div className="text-4xl sm:text-6xl font-bold text-primary my-4 sm:my-6">
             {timeLeft}
           </div>
-          <p className="text-sm text-muted-foreground">seconds</p>
+          <p className="text-xs sm:text-sm text-muted-foreground">seconds</p>
         </div>
 
         {/* Form Cues */}
