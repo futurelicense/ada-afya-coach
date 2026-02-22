@@ -6,6 +6,10 @@ export function ScrollToTop() {
 
   useEffect(() => {
     window.scrollTo(0, 0);
+    // Also scroll any scrollable parent containers
+    document.querySelectorAll('main, [class*="flex-1"]').forEach(el => {
+      el.scrollTop = 0;
+    });
   }, [pathname]);
 
   return null;
