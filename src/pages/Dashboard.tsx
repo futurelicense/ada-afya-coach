@@ -5,8 +5,6 @@ import { Badge } from "@/components/ui/badge";
 import { Activity, Flame, Droplets, Heart, TrendingUp, Sparkles, Plus, Zap, Target, Award, Scan, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useUserData } from "@/hooks/useUserData";
-import { AICoachPanel } from "@/components/AICoachPanel";
-import { AIChatCoach } from "@/components/AIChatCoach";
 import { GamificationPanel } from "@/components/GamificationPanel";
 import { CircularProgress } from "@/components/CircularProgress";
 import { DataUpdatePrompt } from "@/components/DataUpdatePrompt";
@@ -166,13 +164,8 @@ const Dashboard = () => {
         </Card>
       </div>
 
-      {/* AI Coach & Gamification */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <AIChatCoach />
-        <GamificationPanel />
-      </div>
-
-      <AICoachPanel />
+      {/* Gamification */}
+      <GamificationPanel />
 
       {/* Today's Workout */}
       <Card className="glass shadow-card hover:shadow-premium transition-all duration-300 border-0">
