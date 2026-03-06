@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight, Dumbbell, UtensilsCrossed, Brain, TrendingUp, Users, Sparkles } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 import heroImage from "@/assets/hero-fitness.jpg";
 import workoutImage from "@/assets/workout-session.jpg";
 import mealImage from "@/assets/nigerian-meal.jpg";
@@ -9,6 +10,7 @@ import wefitLogo from "@/assets/wefit-logo.png";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 
 const Index = () => {
+  const navigate = useNavigate();
   const featuresReveal = useScrollReveal();
   const workoutReveal = useScrollReveal();
   const nutritionReveal = useScrollReveal();
@@ -28,8 +30,11 @@ const Index = () => {
               <a href="#features" className="text-muted-foreground hover:text-foreground transition-smooth">Features</a>
               <a href="#how-it-works" className="text-muted-foreground hover:text-foreground transition-smooth">How It Works</a>
               <a href="#community" className="text-muted-foreground hover:text-foreground transition-smooth">Community</a>
-              <Button variant="outline" size="sm" onClick={() => window.location.href = '/auth'}>Sign In</Button>
-              <Button size="sm" className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-glow" onClick={() => window.location.href = '/onboarding'}>
+              <Button variant="outline" size="sm" asChild>
+                <Link to="/dashboard">Dashboard</Link>
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => navigate("/auth")}>Sign In</Button>
+              <Button size="sm" className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-glow" onClick={() => navigate("/onboarding")}>
                 Get Started
               </Button>
             </div>
@@ -58,12 +63,12 @@ const Index = () => {
                 Your AI-powered wellness companion built for Nigerian lifestyles. Personalized workouts, local meal plans, and smart health insights — all in one place.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
-                <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-glow text-lg" onClick={() => window.location.href = '/onboarding'}>
+                <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-glow text-lg" onClick={() => navigate("/onboarding")}>
                   Start Your Journey
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
-                <Button size="lg" variant="outline" className="text-lg">
-                  Watch Demo
+                <Button size="lg" variant="outline" className="text-lg" asChild>
+                  <Link to="/dashboard">Go to Dashboard</Link>
                 </Button>
               </div>
               <div className="grid grid-cols-3 gap-4 lg:gap-8 pt-4">
@@ -121,9 +126,9 @@ const Index = () => {
               <p className="text-muted-foreground mb-4 relative z-10">
                 Customized exercise routines based on your fitness level, goals, and available equipment. Every rep counts.
               </p>
-              <a href="#" className="text-primary font-medium inline-flex items-center hover:gap-2 transition-all relative z-10">
+              <Link to="/workouts" className="text-primary font-medium inline-flex items-center hover:gap-2 transition-all relative z-10">
                 Explore workouts <ArrowRight className="w-4 h-4 ml-1" />
-              </a>
+              </Link>
             </Card>
 
             <Card className="p-6 lg:p-8 glass shadow-card hover:shadow-premium transition-smooth border-border/50 stagger-item group overflow-hidden" style={{ animationDelay: '0.2s' }}>
@@ -135,9 +140,9 @@ const Index = () => {
               <p className="text-muted-foreground mb-4 relative z-10">
                 Delicious, balanced meal recommendations featuring local dishes. From jollof to efo riro — healthy and tasty.
               </p>
-              <a href="#" className="text-secondary font-medium inline-flex items-center hover:gap-2 transition-all relative z-10">
+              <Link to="/nutrition" className="text-secondary font-medium inline-flex items-center hover:gap-2 transition-all relative z-10">
                 View meal plans <ArrowRight className="w-4 h-4 ml-1" />
-              </a>
+              </Link>
             </Card>
 
             <Card className="p-6 lg:p-8 glass shadow-card hover:shadow-premium transition-smooth border-border/50 stagger-item group overflow-hidden" style={{ animationDelay: '0.3s' }}>
@@ -149,9 +154,9 @@ const Index = () => {
               <p className="text-muted-foreground mb-4 relative z-10">
                 Your 24/7 AI wellness coach. Ask questions, get motivation, and receive personalized tips in real-time.
               </p>
-              <a href="#" className="text-primary font-medium inline-flex items-center hover:gap-2 transition-all relative z-10">
+              <Link to="/dashboard" className="text-primary font-medium inline-flex items-center hover:gap-2 transition-all relative z-10">
                 Chat with Ada <ArrowRight className="w-4 h-4 ml-1" />
-              </a>
+              </Link>
             </Card>
 
             <Card className="p-6 lg:p-8 glass shadow-card hover:shadow-premium transition-smooth border-border/50 stagger-item group overflow-hidden" style={{ animationDelay: '0.4s' }}>
@@ -163,9 +168,9 @@ const Index = () => {
               <p className="text-muted-foreground mb-4 relative z-10">
                 Track your progress with detailed insights. AI predicts plateaus and suggests adjustments to keep you moving.
               </p>
-              <a href="#" className="text-secondary font-medium inline-flex items-center hover:gap-2 transition-all relative z-10">
+              <Link to="/analytics" className="text-secondary font-medium inline-flex items-center hover:gap-2 transition-all relative z-10">
                 See your stats <ArrowRight className="w-4 h-4 ml-1" />
-              </a>
+              </Link>
             </Card>
 
             <Card className="p-6 lg:p-8 glass shadow-card hover:shadow-premium transition-smooth border-border/50 stagger-item group overflow-hidden" style={{ animationDelay: '0.5s' }}>
@@ -177,9 +182,9 @@ const Index = () => {
               <p className="text-muted-foreground mb-4 relative z-10">
                 Join thousands of Nigerians on the same journey. Share progress, compete, and stay motivated together.
               </p>
-              <a href="#" className="text-primary font-medium inline-flex items-center hover:gap-2 transition-all relative z-10">
+              <Link to="/community" className="text-primary font-medium inline-flex items-center hover:gap-2 transition-all relative z-10">
                 Join community <ArrowRight className="w-4 h-4 ml-1" />
-              </a>
+              </Link>
             </Card>
 
             <Card className="p-6 lg:p-8 glass shadow-card hover:shadow-premium transition-smooth border-border/50 stagger-item group overflow-hidden" style={{ animationDelay: '0.6s' }}>
@@ -191,9 +196,9 @@ const Index = () => {
               <p className="text-muted-foreground mb-4 relative z-10">
                 AI trained on Nigerian lifestyles, foods, and fitness culture. This isn't generic — it's built for you.
               </p>
-              <a href="#" className="text-secondary font-medium inline-flex items-center hover:gap-2 transition-all relative z-10">
+              <Link to="/onboarding" className="text-secondary font-medium inline-flex items-center hover:gap-2 transition-all relative z-10">
                 Learn more <ArrowRight className="w-4 h-4 ml-1" />
-              </a>
+              </Link>
             </Card>
           </div>
         </div>
@@ -252,7 +257,7 @@ const Index = () => {
                   </div>
                 </li>
               </ul>
-              <Button className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-glow">
+              <Button className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-glow" onClick={() => navigate("/workouts")}>
                 Try a Workout Now
                 <ArrowRight className="ml-2 w-4 h-4" />
               </Button>
@@ -308,9 +313,11 @@ const Index = () => {
                   </div>
                 </li>
               </ul>
-              <Button className="bg-secondary hover:bg-secondary/90 text-secondary-foreground">
-                Explore Meal Plans
-                <ArrowRight className="ml-2 w-4 h-4" />
+              <Button className="bg-secondary hover:bg-secondary/90 text-secondary-foreground" asChild>
+                <Link to="/nutrition">
+                  Explore Meal Plans
+                  <ArrowRight className="ml-2 w-4 h-4" />
+                </Link>
               </Button>
             </div>
             <div>
@@ -342,12 +349,12 @@ const Index = () => {
                 Join thousands of Nigerians already training smarter with AI-powered fitness and nutrition.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-                <Button size="lg" className="bg-white text-primary hover:bg-white/90 text-lg shadow-lg" onClick={() => window.location.href = '/onboarding'}>
+                <Button size="lg" className="bg-white text-primary hover:bg-white/90 text-lg shadow-lg" onClick={() => navigate("/onboarding")}>
                   Get Started Free
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
-                <Button size="lg" variant="outline" className="text-white border-white hover:bg-white/10 text-lg">
-                  Learn More
+                <Button size="lg" variant="outline" className="text-white border-white hover:bg-white/10 text-lg" asChild>
+                  <Link to="/dashboard">Go to Dashboard</Link>
                 </Button>
               </div>
             </div>
@@ -371,25 +378,25 @@ const Index = () => {
             <div>
               <h4 className="font-semibold mb-4">Product</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><a href="#" className="hover:text-foreground transition-smooth">Features</a></li>
-                <li><a href="#" className="hover:text-foreground transition-smooth">Pricing</a></li>
-                <li><a href="#" className="hover:text-foreground transition-smooth">How It Works</a></li>
+                <li><a href="#features" className="hover:text-foreground transition-smooth">Features</a></li>
+                <li><Link to="/pricing" className="hover:text-foreground transition-smooth">Pricing</Link></li>
+                <li><a href="#how-it-works" className="hover:text-foreground transition-smooth">How It Works</a></li>
               </ul>
             </div>
             <div>
               <h4 className="font-semibold mb-4">Company</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><a href="#" className="hover:text-foreground transition-smooth">About Us</a></li>
-                <li><a href="#" className="hover:text-foreground transition-smooth">Blog</a></li>
-                <li><a href="#" className="hover:text-foreground transition-smooth">Careers</a></li>
+                <li><Link to="/about" className="hover:text-foreground transition-smooth">About Us</Link></li>
+                <li><Link to="/blog" className="hover:text-foreground transition-smooth">Blog</Link></li>
+                <li><Link to="/careers" className="hover:text-foreground transition-smooth">Careers</Link></li>
               </ul>
             </div>
             <div>
               <h4 className="font-semibold mb-4">Support</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><a href="#" className="hover:text-foreground transition-smooth">Help Center</a></li>
-                <li><a href="#" className="hover:text-foreground transition-smooth">Contact</a></li>
-                <li><a href="#" className="hover:text-foreground transition-smooth">Privacy</a></li>
+                <li><Link to="/about#support" className="hover:text-foreground transition-smooth">Help Center</Link></li>
+                <li><Link to="/about#contact" className="hover:text-foreground transition-smooth">Contact</Link></li>
+                <li><Link to="/about#privacy" className="hover:text-foreground transition-smooth">Privacy</Link></li>
               </ul>
             </div>
           </div>
