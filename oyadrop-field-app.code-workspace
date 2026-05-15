@@ -1,0 +1,59 @@
+{
+	"folders": [
+		{
+			"path": "../oyadrop-field-app"
+		},
+		{
+			"path": "../Ruma"
+		},
+		{
+			"path": "../OyaDrop-Field-App-main"
+		},
+		{
+			"path": "../RF-Aware-Route-Optimization-Platform-main"
+		},
+		{
+			"path": "../SpaceCin-LiveOS-Platform-main"
+		},
+		{
+			"path": "../oyadrop-operator-field-main"
+		},
+		{
+			"path": "../WhatsApp-OyaDrop-main/operator-app"
+		},
+		{
+			"path": "../WhatsApp-OyaDrop-main/admin-dashboard"
+		},
+		{
+			"path": "../Fountain-Coop"
+		},
+		{
+			"path": "../care-navigator-main"
+		},
+		{
+			"path": "../sentinel-ai-guard-main"
+		},
+		{
+			"path": "../freight-guardian-ai-main"
+		},
+		{
+			"path": "../whatsapp"
+		},
+		{
+			"path": "../oyadrop-operator-main"
+		},
+		{
+			"path": "../Mazino-main"
+		},
+		{
+			"path": "../safe-space-handbook-main"
+		},
+		{
+			"path": "../health-defense-main"
+		},
+		{
+			"path": "."
+		}
+	],
+	"settings": {}
+}
