@@ -8,17 +8,21 @@ import { AICoachPanel } from "@/components/AICoachPanel";
 import { CircularProgress } from "@/components/CircularProgress";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } from "recharts";
 import { useState, useEffect } from "react";
-import { userDataService } from "@/lib/userDataService";
+import { userDataService, UserProfile } from "@/lib/userDataService";
+
+const EMPTY_TOTAL_STATS = { totalWorkouts: 0, totalCaloriesBurned: 0, totalMealsLogged: 0, goalsAchieved: 0, currentStreak: 0 };
 
 const Analytics = () => {
-  const [weeklyData, setWeeklyData] = useState(userDataService.getWeeklyChartData());
-  const [totalStats, setTotalStats] = useState(userDataService.getTotalStats());
-  const [profile, setProfile] = useState(userDataService.getProfile());
+  const [weeklyData, setWeeklyData] = useState<Awaited<ReturnType<typeof userDataService.getWeeklyChartData>>>([]);
+  const [totalStats, setTotalStats] = useState(EMPTY_TOTAL_STATS);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [allMeals, setAllMeals] = useState<Awaited<ReturnType<typeof userDataService.getMeals>>>([]);
 
   useEffect(() => {
-    setWeeklyData(userDataService.getWeeklyChartData());
-    setTotalStats(userDataService.getTotalStats());
-    setProfile(userDataService.getProfile());
+    userDataService.getWeeklyChartData().then(setWeeklyData);
+    userDataService.getTotalStats().then(setTotalStats);
+    userDataService.getProfile().then(setProfile);
+    userDataService.getMeals().then(meals => setAllMeals(meals.filter(m => m.eaten)));
   }, []);
 
   const monthlyStats = {
@@ -37,7 +41,6 @@ const Analytics = () => {
     { metric: "BMI", current: "—", target: "—", progress: 0, trend: "Set profile" },
   ];
 
-  const allMeals = userDataService.getMeals().filter(m => m.eaten);
   const nutritionBreakdown = {
     protein: { current: allMeals.reduce((s, m) => s + m.protein, 0), target: 150, percentage: 0 },
     carbs: { current: allMeals.reduce((s, m) => s + m.carbs, 0), target: 250, percentage: 0 },

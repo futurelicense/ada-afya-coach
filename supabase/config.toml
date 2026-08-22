@@ -5,7 +5,7 @@
 # After filling in your project ref, run:
 #   supabase link --project-ref YOUR_PROJECT_REF
 
-project_id = "clvrhogimhzxintphjwj"
+project_id = "njwbvbbsbowtfevsocnn"
 
 [api]
 enabled = true

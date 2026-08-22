@@ -6,7 +6,6 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowRight, ArrowLeft, Loader2, Dumbbell, UtensilsCrossed, Target, Sparkles, CheckCircle2 } from "lucide-react";
-import { userDataService } from "@/lib/userDataService";
 import { supabase } from "@/lib/supabase";
 import { cn } from "@/lib/utils";
 import wefitLogo from "@/assets/wefit-logo.png";
@@ -57,34 +56,21 @@ const Onboarding = () => {
     if (step < totalSteps) { setStep(s => s + 1); return; }
 
     setSaving(true);
-    const profile = {
-      name:          formData.name || "User",
-      email:         "",
-      age:           parseInt(formData.age) || 25,
-      fitnessLevel:  (formData.fitnessLevel || "intermediate") as "beginner" | "intermediate" | "advanced",
-      goals:         formData.goal ? [formData.goal] : [],
-      weight:        parseFloat(formData.weight) || 70,
-      targetWeight:  parseFloat(formData.weight) || 70,
-      height:        parseInt(formData.height) || 170,
-      location:      "",
-      joinDate:      new Date().toISOString().split("T")[0],
-    };
-    userDataService.saveProfile(profile);
-    localStorage.setItem("wefit_onboarding_completed", "true");
 
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
       await supabase.from("profiles").upsert({
         id:              user.id,
-        name:            profile.name,
-        age:             profile.age,
+        name:            formData.name || "User",
+        age:             parseInt(formData.age) || 25,
         gender:          formData.gender || null,
-        weight:          profile.weight,
-        height:          profile.height,
-        target_weight:   profile.targetWeight,
-        fitness_level:   profile.fitnessLevel,
-        goals:           profile.goals,
+        weight:          parseFloat(formData.weight) || 70,
+        height:          parseInt(formData.height) || 170,
+        target_weight:   parseFloat(formData.weight) || 70,
+        fitness_level:   (formData.fitnessLevel || "intermediate"),
+        goals:           formData.goal ? [formData.goal] : [],
         diet_preference: formData.dietPreference || null,
+        onboarding_done: true,
       }, { onConflict: "id" });
     }
 

@@ -9,17 +9,19 @@ import { CustomWorkoutBuilder } from "@/components/CustomWorkoutBuilder";
 import { VoiceGuidedWorkout } from "@/components/VoiceGuidedWorkout";
 import { LiveStreamViewer } from "@/components/LiveStreamViewer";
 import { useUserData } from "@/hooks/useUserData";
-import { userDataService } from "@/lib/userDataService";
 import { useAuth } from "@/contexts/AuthContext";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 
 const Workouts = () => {
-  const { todayWorkouts, refreshData } = useUserData();
+  const { todayWorkouts, profile, refreshData } = useUserData();
   const { session } = useAuth();
-  const profile = userDataService.getProfile();
-  const [userPlan, setUserPlan] = useState<'free'|'pro'|'elite'>(profile?.plan ?? 'free');
+  const [userPlan, setUserPlan] = useState<'free'|'pro'|'elite'>('free');
   const username = profile?.name ?? session?.user?.email?.split('@')[0] ?? 'You';
+
+  useEffect(() => {
+    if (profile?.plan) setUserPlan(profile.plan);
+  }, [profile]);
 
   // Fetch real plan from Supabase subscriptions
   useEffect(() => {

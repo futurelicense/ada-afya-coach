@@ -25,41 +25,32 @@ export const GoalSetting = () => {
   });
 
   useEffect(() => {
-    setGoals(userDataService.getGoals());
+    userDataService.getGoals().then(setGoals);
   }, []);
 
-  const saveGoals = (updated: Goal[]) => {
-    setGoals(updated);
-  };
-
-  const addGoal = () => {
+  const addGoal = async () => {
     if (!newGoal.title || !newGoal.target || !newGoal.deadline) {
       toast({ title: "Missing Information", description: "Please fill in all goal details", variant: "destructive" });
       return;
     }
 
     if (editingId) {
-      userDataService.updateGoal(editingId, { ...newGoal, completed: false });
+      await userDataService.updateGoal(editingId, { ...newGoal, completed: false });
       toast({ title: "Goal Updated!", description: `"${newGoal.title}" has been updated` });
       setEditingId(null);
     } else {
-      const goal: Goal = {
-        id: Date.now().toString(),
-        ...newGoal,
-        completed: false,
-      };
-      userDataService.addGoal(goal);
-      toast({ title: "Goal Created!", description: `"${goal.title}" has been added to your goals` });
+      await userDataService.addGoal({ ...newGoal, completed: false });
+      toast({ title: "Goal Created!", description: `"${newGoal.title}" has been added to your goals` });
     }
 
     setShowForm(false);
     setNewGoal({ title: '', type: 'weight', target: 0, current: 0, unit: 'kg', deadline: '' });
-    saveGoals(userDataService.getGoals());
+    setGoals(await userDataService.getGoals());
   };
 
-  const deleteGoal = (id: string) => {
-    userDataService.deleteGoal(id);
-    saveGoals(userDataService.getGoals());
+  const deleteGoal = async (id: string) => {
+    await userDataService.deleteGoal(id);
+    setGoals(await userDataService.getGoals());
     toast({ title: "Goal Removed", description: "Goal has been deleted" });
   };
 
@@ -76,12 +67,12 @@ export const GoalSetting = () => {
     setShowForm(true);
   };
 
-  const updateProgress = (id: string, current: number) => {
+  const updateProgress = async (id: string, current: number) => {
     const goal = goals.find(g => g.id === id);
     if (!goal) return;
     const completed = current >= goal.target;
-    userDataService.updateGoal(id, { current, completed });
-    saveGoals(userDataService.getGoals());
+    await userDataService.updateGoal(id, { current, completed });
+    setGoals(await userDataService.getGoals());
     if (completed) {
       toast({ title: "🎉 Goal Completed!", description: `You've achieved "${goal.title}"!` });
     }

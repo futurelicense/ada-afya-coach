@@ -75,8 +75,8 @@ export function FloatingAIChat() {
       return
     }
 
-    // Gather context from localStorage data service
-    const streak = userDataService.getCurrentStreak()
+    // Gather context from Supabase-backed data service
+    const streak = await userDataService.getCurrentStreak()
 
     try {
       const response = await aiService.streamChat({

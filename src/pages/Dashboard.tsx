@@ -20,7 +20,7 @@ import { NumberTicker } from "@/components/NumberTicker";
 const Dashboard = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const { todayWorkouts, todayMeals, todayStats, weeklyStats, completeExercise, markMealEaten, updateWaterIntake, refreshData } = useUserData();
+  const { todayWorkouts, todayMeals, todayStats, weeklyStats, completeExercise, markMealEaten, updateWaterIntake, deleteWorkout, deleteMeal } = useUserData();
   const [greeting, setGreeting] = useState("");
   const [mounted, setMounted] = useState(false);
   const [streak, setStreak] = useState(0);
@@ -32,8 +32,8 @@ const Dashboard = () => {
     if (hour < 12) setGreeting("Good Morning");
     else if (hour < 17) setGreeting("Good Afternoon");
     else setGreeting("Good Evening");
-    setStreak(userDataService.getCurrentStreak());
-  }, []);
+    userDataService.getCurrentStreak().then(setStreak);
+  }, [todayWorkouts]);
 
   // Verify Paystack payment when user returns from checkout
   useEffect(() => {
@@ -66,15 +66,13 @@ const Dashboard = () => {
     toast({ title: `+${amount}L water added 💧`, description: `Total: ${((todayStats?.waterIntake || 0) + amount).toFixed(1)}L` });
   };
 
-  const handleDeleteWorkout = (id: string) => {
-    userDataService.deleteWorkout(id);
-    refreshData();
+  const handleDeleteWorkout = async (id: string) => {
+    await deleteWorkout(id);
     toast({ title: "Workout removed", description: "Workout has been deleted" });
   };
 
-  const handleDeleteMeal = (id: string) => {
-    userDataService.deleteMeal(id);
-    refreshData();
+  const handleDeleteMeal = async (id: string) => {
+    await deleteMeal(id);
     toast({ title: "Meal removed", description: "Meal has been deleted" });
   };
   

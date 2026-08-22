@@ -13,7 +13,8 @@ import { ProgressPhotoComparison } from "@/components/ProgressPhotoComparison";
 import { LocalNigerianIntegration } from "@/components/LocalNigerianIntegration";
 import { User, Edit, Target, TrendingUp, Award, Calendar, Flame, Activity, Save, X, Bell, BellOff } from "lucide-react";
 import { useState, useEffect } from "react";
-import { userDataService, UserProfile } from "@/lib/userDataService";
+import { userDataService, UserProfile, Goal } from "@/lib/userDataService";
+import { gamificationService } from "@/lib/gamificationService";
 import { useToast } from "@/hooks/use-toast";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
 
@@ -24,16 +25,24 @@ const Profile = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState<UserProfile | null>(null);
   const [totalStats, setTotalStats] = useState({ totalWorkouts: 0, totalCaloriesBurned: 0, totalMealsLogged: 0, goalsAchieved: 0, currentStreak: 0 });
-  const [achievements, setAchievements] = useState(userDataService.getAchievements());
-  const [weeklyData, setWeeklyData] = useState(userDataService.getWeeklyChartData());
+  const [achievements, setAchievements] = useState<{ id: string; name: string; description: string; earned: boolean; date: string | null }[]>([]);
+  const [weeklyData, setWeeklyData] = useState<Awaited<ReturnType<typeof userDataService.getWeeklyChartData>>>([]);
+  const [goals, setGoals] = useState<Goal[]>([]);
 
   useEffect(() => {
-    const p = userDataService.getProfile();
-    setProfile(p);
-    setEditForm(p);
-    setTotalStats(userDataService.getTotalStats());
-    setAchievements(userDataService.checkAndUpdateAchievements());
-    setWeeklyData(userDataService.getWeeklyChartData());
+    userDataService.getProfile().then(p => { setProfile(p); setEditForm(p); });
+    userDataService.getTotalStats().then(setTotalStats);
+    userDataService.getWeeklyChartData().then(setWeeklyData);
+    userDataService.getGoals().then(setGoals);
+    gamificationService.getData().then(data => {
+      setAchievements(data.badges.map(b => ({
+        id: b.id,
+        name: b.name,
+        description: b.description,
+        earned: b.earned,
+        date: b.earnedDate ? b.earnedDate.toLocaleDateString() : null,
+      })));
+    });
   }, []);
 
   const startEditing = () => {
@@ -44,13 +53,13 @@ const Profile = () => {
     setIsEditing(true);
   };
 
-  const saveProfile = () => {
+  const saveProfile = async () => {
     if (!editForm) return;
     if (!editForm.name.trim()) {
       toast({ title: "Name required", variant: "destructive" });
       return;
     }
-    userDataService.saveProfile(editForm);
+    await userDataService.saveProfile(editForm);
     setProfile(editForm);
     setIsEditing(false);
     toast({ title: "Profile Updated!", description: "Your profile has been saved." });
@@ -65,7 +74,6 @@ const Profile = () => {
     { icon: Calendar, label: "Current Streak", value: `${totalStats.currentStreak} days`, change: totalStats.currentStreak >= 7 ? "🔥" : "Keep going!", color: "text-yellow-500" },
   ];
 
-  const goals = userDataService.getGoals();
   const weekWorkoutGoal = goals.find(g => g.type === 'workouts') || { current: weeklyData.filter(d => d.workouts > 0).length, target: 6 };
   const weightGoal = profile ? { current: profile.weight, target: profile.targetWeight } : { current: 0, target: 0 };
 

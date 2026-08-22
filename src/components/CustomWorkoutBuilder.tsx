@@ -58,7 +58,7 @@ export const CustomWorkoutBuilder = ({ onWorkoutCreated }: { onWorkoutCreated?: 
     setSelectedExercises(updated);
   };
 
-  const saveWorkout = () => {
+  const saveWorkout = async () => {
     if (!workoutName.trim()) {
       toast({
         title: "Missing Name",
@@ -77,8 +77,7 @@ export const CustomWorkoutBuilder = ({ onWorkoutCreated }: { onWorkoutCreated?: 
       return;
     }
 
-    const workout = {
-      id: Date.now().toString(),
+    await userDataService.addWorkout({
       name: workoutName,
       duration: selectedExercises.length * 5,
       difficulty: 'intermediate' as const,
@@ -90,9 +89,7 @@ export const CustomWorkoutBuilder = ({ onWorkoutCreated }: { onWorkoutCreated?: 
       date: new Date().toISOString().split('T')[0],
       completed: false,
       caloriesBurned: 0,
-    };
-
-    userDataService.addWorkout(workout);
+    });
 
     toast({
       title: "Workout Created! 💪",

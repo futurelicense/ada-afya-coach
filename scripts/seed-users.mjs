@@ -26,7 +26,7 @@ const supabase = createClient(SUPABASE_URL, SERVICE_KEY, {
   auth: { autoRefreshToken: false, persistSession: false },
 });
 
-const PASSWORD = "WeFit@2025";
+const PASSWORD = "OneFitness";
 
 const SEED_USERS = [
   {
@@ -283,7 +283,7 @@ async function seed() {
   else    console.log(`    ✓  ${feed.length} entries`);
 
   console.log("\n✅  Done!\n");
-  console.log("  Seed accounts (password: WeFit@2025):");
+  console.log("  Seed accounts (password: OneFitness):");
   console.log("  ─────────────────────────────────────────────────");
   for (const u of SEED_USERS) {
     console.log(`  ${u.email.padEnd(26)} → ${u.profile.role.padEnd(12)} ${u.profile.plan}`);

@@ -23,14 +23,14 @@ export const AIMealGenerator = ({ onGenerated }: { onGenerated?: () => void }) =
     setIsGenerating(true);
 
     try {
-      const profile = userDataService.getProfile();
+      const profile = await userDataService.getProfile();
       const result  = await aiService.generateMealPlan({
         dietPreference: profile ? undefined : undefined,
       });
 
       const meals = result.meals ?? [];
-      meals.forEach((meal: any) => userDataService.addMeal(meal));
-      track.aiMealGenerated(userDataService.getProfile()?.dietPreference ?? 'standard');
+      await Promise.all(meals.map((meal: any) => userDataService.addMeal(meal)));
+      track.aiMealGenerated('standard');
 
       toast({
         title: "Meal Plan Generated! 🍽️",

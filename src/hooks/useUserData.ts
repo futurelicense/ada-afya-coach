@@ -1,38 +1,46 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { userDataService, UserProfile, WorkoutSession, MealLog, DailyStats } from '@/lib/userDataService';
+import { useAuth } from '@/contexts/AuthContext';
 
 export const useUserData = () => {
+  const { user } = useAuth();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [todayWorkouts, setTodayWorkouts] = useState<WorkoutSession[]>([]);
   const [todayMeals, setTodayMeals] = useState<MealLog[]>([]);
   const [todayStats, setTodayStats] = useState<DailyStats | null>(null);
   const [weeklyStats, setWeeklyStats] = useState<DailyStats[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const loadData = () => {
-    setProfile(userDataService.getProfile());
-    setTodayWorkouts(userDataService.getTodayWorkouts());
-    setTodayMeals(userDataService.getTodayMeals());
-    setTodayStats(userDataService.getTodayStats());
-    setWeeklyStats(userDataService.getWeeklyStats());
-  };
+  const loadData = useCallback(async () => {
+    const [p, workouts, meals, stats, weekly] = await Promise.all([
+      userDataService.getProfile(),
+      userDataService.getTodayWorkouts(),
+      userDataService.getTodayMeals(),
+      userDataService.getTodayStats(),
+      userDataService.getWeeklyStats(),
+    ]);
+    setProfile(p);
+    setTodayWorkouts(workouts);
+    setTodayMeals(meals);
+    setTodayStats(stats);
+    setWeeklyStats(weekly);
+    setLoading(false);
+  }, []);
 
   useEffect(() => {
     loadData();
-    const handleStorageChange = () => loadData();
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
-  }, []);
+  }, [loadData, user?.id]);
 
-  const updateProfile = (updates: Partial<UserProfile>) => {
-    const current = userDataService.getProfile();
+  const updateProfile = async (updates: Partial<UserProfile>) => {
+    const current = profile ?? await userDataService.getProfile();
     if (current) {
       const updated = { ...current, ...updates };
-      userDataService.saveProfile(updated);
+      await userDataService.saveProfile(updated);
       setProfile(updated);
     }
   };
 
-  const completeExercise = (workoutId: string, exerciseName: string) => {
+  const completeExercise = async (workoutId: string, exerciseName: string) => {
     const workout = todayWorkouts.find(w => w.id === workoutId);
     if (!workout) return;
 
@@ -41,37 +49,37 @@ export const useUserData = () => {
     );
 
     const allCompleted = updatedExercises.every(ex => ex.completed);
-    
-    userDataService.updateWorkout(workoutId, {
+
+    await userDataService.updateWorkout(workoutId, {
       exercises: updatedExercises,
       completed: allCompleted,
       caloriesBurned: allCompleted ? workout.calories : updatedExercises.filter(e => e.completed).length * 50,
     });
 
-    loadData();
+    await loadData();
   };
 
-  const markMealEaten = (mealId: string) => {
+  const markMealEaten = async (mealId: string) => {
     const meal = todayMeals.find(m => m.id === mealId);
     if (!meal) return;
-    userDataService.updateMeal(mealId, { eaten: !meal.eaten });
-    loadData();
+    await userDataService.updateMeal(mealId, { eaten: !meal.eaten });
+    await loadData();
   };
 
-  const updateWaterIntake = (amount: number) => {
+  const updateWaterIntake = async (amount: number) => {
     const current = todayStats?.waterIntake || 0;
-    userDataService.updateTodayStats({ waterIntake: current + amount });
-    loadData();
+    await userDataService.updateTodayStats({ waterIntake: current + amount });
+    await loadData();
   };
 
-  const deleteWorkout = (id: string) => {
-    userDataService.deleteWorkout(id);
-    loadData();
+  const deleteWorkout = async (id: string) => {
+    await userDataService.deleteWorkout(id);
+    await loadData();
   };
 
-  const deleteMeal = (id: string) => {
-    userDataService.deleteMeal(id);
-    loadData();
+  const deleteMeal = async (id: string) => {
+    await userDataService.deleteMeal(id);
+    await loadData();
   };
 
   return {
@@ -80,6 +88,7 @@ export const useUserData = () => {
     todayMeals,
     todayStats,
     weeklyStats,
+    loading,
     updateProfile,
     completeExercise,
     markMealEaten,

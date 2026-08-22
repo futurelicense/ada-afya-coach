@@ -7,31 +7,42 @@ import { Trophy, Flame, Star, TrendingUp, Award, Lock } from "lucide-react";
 import { gamificationService, UserGamification } from "@/lib/gamificationService";
 import { useUserData } from "@/hooks/useUserData";
 
+const EMPTY_GAMIFICATION: UserGamification = {
+  points: 0,
+  level: 1,
+  currentStreak: 0,
+  longestStreak: 0,
+  badges: [],
+  lastActiveDate: new Date().toISOString().split('T')[0],
+};
+
 export const GamificationPanel = () => {
-  const [gamification, setGamification] = useState<UserGamification>(gamificationService.getData());
+  const [gamification, setGamification] = useState<UserGamification>(EMPTY_GAMIFICATION);
   const { todayStats, weeklyStats } = useUserData();
 
   useEffect(() => {
-    // Update gamification data based on user activity
-    const totalWorkouts = weeklyStats.reduce((sum, s) => sum + s.workoutsCompleted, 0);
-    
-    // Check badges
-    gamificationService.checkWorkoutBadges(totalWorkouts);
-    gamificationService.checkCalorieBadge(todayStats?.caloriesBurned || 0);
-    
-    // Update streak if there's activity
-    if (totalWorkouts > 0) {
-      gamificationService.updateStreak();
-    }
-    
-    setGamification(gamificationService.getData());
+    (async () => {
+      // Update gamification data based on user activity
+      const totalWorkouts = weeklyStats.reduce((sum, s) => sum + s.workoutsCompleted, 0);
+
+      // Check badges
+      await gamificationService.checkWorkoutBadges(totalWorkouts);
+      await gamificationService.checkCalorieBadge(todayStats?.caloriesBurned || 0);
+
+      // Update streak if there's activity
+      if (totalWorkouts > 0) {
+        await gamificationService.updateStreak();
+      }
+
+      setGamification(await gamificationService.getData());
+    })();
   }, [todayStats, weeklyStats]);
 
   const pointsToNextLevel = (gamification.level * 1000) - gamification.points;
   const levelProgress = ((gamification.points % 1000) / 1000) * 100;
-  
-  const earnedBadges = gamificationService.getEarnedBadges();
-  const unearnedBadges = gamificationService.getUnearnedBadges();
+
+  const earnedBadges = gamificationService.getEarnedBadges(gamification);
+  const unearnedBadges = gamificationService.getUnearnedBadges(gamification);
 
   return (
     <Card className="shadow-glow">

@@ -23,14 +23,14 @@ export const AIWorkoutGenerator = ({ onGenerated }: { onGenerated?: () => void }
     setIsGenerating(true);
 
     try {
-      const profile = userDataService.getProfile();
+      const profile = await userDataService.getProfile();
       const level   = profile?.fitnessLevel || 'intermediate';
 
       const workout = await aiService.generateWorkoutPlan({
         durationMinutes: level === 'beginner' ? 30 : level === 'advanced' ? 60 : 45,
       });
 
-      userDataService.addWorkout(workout);
+      await userDataService.addWorkout(workout);
       track.aiWorkoutGenerated(level);
 
       toast({

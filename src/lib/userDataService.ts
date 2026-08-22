@@ -1,4 +1,6 @@
-// Local storage service for user data
+// Supabase-backed user data service
+import { supabase } from '@/lib/supabase';
+
 export interface UserProfile {
   name: string;
   email: string;
@@ -62,132 +64,231 @@ export interface Goal {
   completed: boolean;
 }
 
-export interface Achievement {
-  id: string;
-  name: string;
-  description: string;
-  earned: boolean;
-  date: string | null;
+const today = () => new Date().toISOString().split('T')[0];
+
+async function currentUserId(): Promise<string | null> {
+  const { data } = await supabase.auth.getSession();
+  return data.session?.user.id ?? null;
+}
+
+// ── Row <-> interface mapping ──────────────────────────────
+function profileFromRow(row: any): UserProfile {
+  return {
+    name: row.name ?? '',
+    email: row.email ?? '',
+    age: row.age ?? 0,
+    fitnessLevel: row.fitness_level ?? 'intermediate',
+    goals: row.goals ?? [],
+    weight: row.weight ?? 0,
+    targetWeight: row.target_weight ?? 0,
+    height: row.height ?? 0,
+    location: row.location ?? '',
+    joinDate: row.join_date ?? today(),
+    plan: row.plan ?? 'free',
+  };
+}
+
+function workoutFromRow(row: any): WorkoutSession {
+  return {
+    id: row.id,
+    date: row.date,
+    name: row.name,
+    duration: row.duration,
+    difficulty: row.difficulty,
+    calories: row.calories,
+    caloriesBurned: row.calories_burned,
+    completed: row.completed,
+    exercises: row.exercises ?? [],
+  };
+}
+
+function workoutToRow(workout: Partial<WorkoutSession>) {
+  const row: Record<string, unknown> = {};
+  if (workout.date !== undefined) row.date = workout.date;
+  if (workout.name !== undefined) row.name = workout.name;
+  if (workout.duration !== undefined) row.duration = workout.duration;
+  if (workout.difficulty !== undefined) row.difficulty = workout.difficulty;
+  if (workout.calories !== undefined) row.calories = workout.calories;
+  if (workout.caloriesBurned !== undefined) row.calories_burned = workout.caloriesBurned;
+  if (workout.completed !== undefined) row.completed = workout.completed;
+  if (workout.exercises !== undefined) row.exercises = workout.exercises;
+  return row;
+}
+
+function mealFromRow(row: any): MealLog {
+  return {
+    id: row.id,
+    date: row.date,
+    mealType: row.meal_type,
+    name: row.name,
+    calories: row.calories,
+    protein: row.protein,
+    carbs: row.carbs,
+    fats: row.fats,
+    eaten: row.eaten,
+  };
+}
+
+function mealToRow(meal: Partial<MealLog>) {
+  const row: Record<string, unknown> = {};
+  if (meal.date !== undefined) row.date = meal.date;
+  if (meal.mealType !== undefined) row.meal_type = meal.mealType;
+  if (meal.name !== undefined) row.name = meal.name;
+  if (meal.calories !== undefined) row.calories = meal.calories;
+  if (meal.protein !== undefined) row.protein = meal.protein;
+  if (meal.carbs !== undefined) row.carbs = meal.carbs;
+  if (meal.fats !== undefined) row.fats = meal.fats;
+  if (meal.eaten !== undefined) row.eaten = meal.eaten;
+  return row;
+}
+
+function statsFromRow(row: any): DailyStats {
+  return {
+    date: row.date,
+    caloriesBurned: row.calories_burned ?? 0,
+    workoutsCompleted: row.workouts_completed ?? 0,
+    waterIntake: Number(row.water_intake ?? 0),
+    caloriesConsumed: row.calories_consumed ?? 0,
+  };
+}
+
+function goalFromRow(row: any): Goal {
+  return {
+    id: row.id,
+    title: row.title,
+    type: row.type,
+    target: Number(row.target),
+    current: Number(row.current),
+    unit: row.unit,
+    deadline: row.deadline,
+    completed: row.completed,
+  };
+}
+
+function goalToRow(goal: Partial<Goal>) {
+  const row: Record<string, unknown> = {};
+  if (goal.title !== undefined) row.title = goal.title;
+  if (goal.type !== undefined) row.type = goal.type;
+  if (goal.target !== undefined) row.target = goal.target;
+  if (goal.current !== undefined) row.current = goal.current;
+  if (goal.unit !== undefined) row.unit = goal.unit;
+  if (goal.deadline !== undefined) row.deadline = goal.deadline || null;
+  if (goal.completed !== undefined) row.completed = goal.completed;
+  return row;
 }
 
 class UserDataService {
-  private readonly PROFILE_KEY = 'wefit_profile';
-  private readonly WORKOUTS_KEY = 'wefit_workouts';
-  private readonly MEALS_KEY = 'wefit_meals';
-  private readonly STATS_KEY = 'wefit_stats';
-  private readonly GOALS_KEY = 'wefit_goals';
-  private readonly ACHIEVEMENTS_KEY = 'wefit_achievements';
-
-  constructor() {
-    // Migrate old keys
-    this.migrateKeys();
+  // ── Profile ──────────────────────────────────────────────
+  async getProfile(): Promise<UserProfile | null> {
+    const userId = await currentUserId();
+    if (!userId) return null;
+    const { data } = await supabase.from('profiles').select('*').eq('id', userId).maybeSingle();
+    return data ? profileFromRow(data) : null;
   }
 
-  private migrateKeys() {
-    const oldKeys = [
-      ['fitnaija_profile', this.PROFILE_KEY],
-      ['fitnaija_workouts', this.WORKOUTS_KEY],
-      ['fitnaija_meals', this.MEALS_KEY],
-      ['fitnaija_stats', this.STATS_KEY],
-    ];
-    oldKeys.forEach(([oldKey, newKey]) => {
-      const data = localStorage.getItem(oldKey);
-      if (data && !localStorage.getItem(newKey)) {
-        localStorage.setItem(newKey, data);
-      }
-    });
+  async saveProfile(profile: UserProfile): Promise<void> {
+    const userId = await currentUserId();
+    if (!userId) return;
+    await supabase.from('profiles').upsert({
+      id: userId,
+      name: profile.name,
+      email: profile.email,
+      age: profile.age,
+      fitness_level: profile.fitnessLevel,
+      goals: profile.goals,
+      weight: profile.weight,
+      target_weight: profile.targetWeight,
+      height: profile.height,
+      location: profile.location,
+      join_date: profile.joinDate,
+    }, { onConflict: 'id' });
   }
 
-  // Profile Management
-  getProfile(): UserProfile | null {
-    const data = localStorage.getItem(this.PROFILE_KEY);
-    return data ? JSON.parse(data) : null;
+  // ── Workouts ─────────────────────────────────────────────
+  async getWorkouts(): Promise<WorkoutSession[]> {
+    const userId = await currentUserId();
+    if (!userId) return [];
+    const { data } = await supabase.from('workout_sessions').select('*').eq('user_id', userId).order('date', { ascending: false });
+    return (data ?? []).map(workoutFromRow);
   }
 
-  saveProfile(profile: UserProfile): void {
-    localStorage.setItem(this.PROFILE_KEY, JSON.stringify(profile));
+  async addWorkout(workout: Omit<WorkoutSession, 'id'> & { id?: string }): Promise<void> {
+    const userId = await currentUserId();
+    if (!userId) return;
+    await supabase.from('workout_sessions').insert({ user_id: userId, ...workoutToRow(workout) });
   }
 
-  // Workout Management
-  getWorkouts(): WorkoutSession[] {
-    const data = localStorage.getItem(this.WORKOUTS_KEY);
-    return data ? JSON.parse(data) : [];
+  async updateWorkout(id: string, updates: Partial<WorkoutSession>): Promise<void> {
+    const userId = await currentUserId();
+    if (!userId) return;
+    await supabase.from('workout_sessions').update(workoutToRow(updates)).eq('id', id).eq('user_id', userId);
   }
 
-  addWorkout(workout: WorkoutSession): void {
-    const workouts = this.getWorkouts();
-    workouts.push(workout);
-    localStorage.setItem(this.WORKOUTS_KEY, JSON.stringify(workouts));
+  async deleteWorkout(id: string): Promise<void> {
+    const userId = await currentUserId();
+    if (!userId) return;
+    await supabase.from('workout_sessions').delete().eq('id', id).eq('user_id', userId);
   }
 
-  updateWorkout(id: string, updates: Partial<WorkoutSession>): void {
-    const workouts = this.getWorkouts();
-    const index = workouts.findIndex(w => w.id === id);
-    if (index !== -1) {
-      workouts[index] = { ...workouts[index], ...updates };
-      localStorage.setItem(this.WORKOUTS_KEY, JSON.stringify(workouts));
+  async getTodayWorkouts(): Promise<WorkoutSession[]> {
+    const userId = await currentUserId();
+    if (!userId) return [];
+    const { data } = await supabase.from('workout_sessions').select('*').eq('user_id', userId).eq('date', today());
+    return (data ?? []).map(workoutFromRow);
+  }
+
+  // ── Meals ────────────────────────────────────────────────
+  async getMeals(): Promise<MealLog[]> {
+    const userId = await currentUserId();
+    if (!userId) return [];
+    const { data } = await supabase.from('meal_logs').select('*').eq('user_id', userId).order('date', { ascending: false });
+    return (data ?? []).map(mealFromRow);
+  }
+
+  async addMeal(meal: Omit<MealLog, 'id'> & { id?: string }): Promise<void> {
+    const userId = await currentUserId();
+    if (!userId) return;
+    await supabase.from('meal_logs').insert({ user_id: userId, ...mealToRow(meal) });
+  }
+
+  async updateMeal(id: string, updates: Partial<MealLog>): Promise<void> {
+    const userId = await currentUserId();
+    if (!userId) return;
+    await supabase.from('meal_logs').update(mealToRow(updates)).eq('id', id).eq('user_id', userId);
+  }
+
+  async deleteMeal(id: string): Promise<void> {
+    const userId = await currentUserId();
+    if (!userId) return;
+    await supabase.from('meal_logs').delete().eq('id', id).eq('user_id', userId);
+  }
+
+  async getTodayMeals(): Promise<MealLog[]> {
+    const userId = await currentUserId();
+    if (!userId) return [];
+    const { data } = await supabase.from('meal_logs').select('*').eq('user_id', userId).eq('date', today());
+    return (data ?? []).map(mealFromRow);
+  }
+
+  // ── Stats ────────────────────────────────────────────────
+  async getStats(): Promise<DailyStats[]> {
+    const userId = await currentUserId();
+    if (!userId) return [];
+    const { data } = await supabase.from('daily_stats').select('*').eq('user_id', userId).order('date', { ascending: false });
+    return (data ?? []).map(statsFromRow);
+  }
+
+  async getTodayStats(): Promise<DailyStats> {
+    const userId = await currentUserId();
+    const date = today();
+    if (userId) {
+      const { data } = await supabase.from('daily_stats').select('*').eq('user_id', userId).eq('date', date).maybeSingle();
+      if (data) return statsFromRow(data);
     }
-  }
 
-  deleteWorkout(id: string): void {
-    const workouts = this.getWorkouts().filter(w => w.id !== id);
-    localStorage.setItem(this.WORKOUTS_KEY, JSON.stringify(workouts));
-  }
-
-  getTodayWorkouts(): WorkoutSession[] {
-    const today = new Date().toISOString().split('T')[0];
-    return this.getWorkouts().filter(w => w.date === today);
-  }
-
-  // Meal Management
-  getMeals(): MealLog[] {
-    const data = localStorage.getItem(this.MEALS_KEY);
-    return data ? JSON.parse(data) : [];
-  }
-
-  addMeal(meal: MealLog): void {
-    const meals = this.getMeals();
-    meals.push(meal);
-    localStorage.setItem(this.MEALS_KEY, JSON.stringify(meals));
-  }
-
-  updateMeal(id: string, updates: Partial<MealLog>): void {
-    const meals = this.getMeals();
-    const index = meals.findIndex(m => m.id === id);
-    if (index !== -1) {
-      meals[index] = { ...meals[index], ...updates };
-      localStorage.setItem(this.MEALS_KEY, JSON.stringify(meals));
-    }
-  }
-
-  deleteMeal(id: string): void {
-    const meals = this.getMeals().filter(m => m.id !== id);
-    localStorage.setItem(this.MEALS_KEY, JSON.stringify(meals));
-  }
-
-  getTodayMeals(): MealLog[] {
-    const today = new Date().toISOString().split('T')[0];
-    return this.getMeals().filter(m => m.date === today);
-  }
-
-  // Stats Management
-  getStats(): DailyStats[] {
-    const data = localStorage.getItem(this.STATS_KEY);
-    return data ? JSON.parse(data) : [];
-  }
-
-  getTodayStats(): DailyStats {
-    const today = new Date().toISOString().split('T')[0];
-    const stats = this.getStats();
-    const todayStats = stats.find(s => s.date === today);
-    
-    if (todayStats) return todayStats;
-
-    const workouts = this.getTodayWorkouts();
-    const meals = this.getTodayMeals();
-    
+    const [workouts, meals] = await Promise.all([this.getTodayWorkouts(), this.getTodayMeals()]);
     return {
-      date: today,
+      date,
       caloriesBurned: workouts.reduce((sum, w) => sum + (w.completed ? w.caloriesBurned : 0), 0),
       workoutsCompleted: workouts.filter(w => w.completed).length,
       waterIntake: 0,
@@ -195,42 +296,40 @@ class UserDataService {
     };
   }
 
-  updateTodayStats(updates: Partial<DailyStats>): void {
-    const today = new Date().toISOString().split('T')[0];
-    const stats = this.getStats();
-    const index = stats.findIndex(s => s.date === today);
-    
-    if (index !== -1) {
-      stats[index] = { ...stats[index], ...updates };
-    } else {
-      stats.push({ ...this.getTodayStats(), ...updates });
-    }
-    
-    localStorage.setItem(this.STATS_KEY, JSON.stringify(stats));
+  async updateTodayStats(updates: Partial<DailyStats>): Promise<void> {
+    const userId = await currentUserId();
+    if (!userId) return;
+    const current = await this.getTodayStats();
+    const merged = { ...current, ...updates };
+    await supabase.from('daily_stats').upsert({
+      user_id: userId,
+      date: today(),
+      calories_burned: merged.caloriesBurned,
+      workouts_completed: merged.workoutsCompleted,
+      water_intake: merged.waterIntake,
+      calories_consumed: merged.caloriesConsumed,
+    }, { onConflict: 'user_id,date' });
   }
 
-  getWeeklyStats(): DailyStats[] {
-    const stats = this.getStats();
-    const today = new Date();
-    const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
-    
-    return stats.filter(s => {
-      const statDate = new Date(s.date);
-      return statDate >= weekAgo && statDate <= today;
-    });
+  async getWeeklyStats(): Promise<DailyStats[]> {
+    const userId = await currentUserId();
+    if (!userId) return [];
+    const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+    const { data } = await supabase.from('daily_stats').select('*').eq('user_id', userId).gte('date', weekAgo).lte('date', today());
+    return (data ?? []).map(statsFromRow);
   }
 
-  // Streak calculation
-  getCurrentStreak(): number {
-    const allWorkouts = this.getWorkouts().filter(w => w.completed);
-    if (allWorkouts.length === 0) return 0;
+  // ── Streak ───────────────────────────────────────────────
+  async getCurrentStreak(): Promise<number> {
+    const userId = await currentUserId();
+    if (!userId) return 0;
+    const { data } = await supabase.from('workout_sessions').select('date').eq('user_id', userId).eq('completed', true);
+    const uniqueDates = [...new Set((data ?? []).map(r => r.date as string))].sort().reverse();
+    if (uniqueDates.length === 0) return 0;
 
-    const uniqueDates = [...new Set(allWorkouts.map(w => w.date))].sort().reverse();
-    const today = new Date().toISOString().split('T')[0];
+    const todayStr = today();
     const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
-
-    // Must include today or yesterday to count as active streak
-    if (uniqueDates[0] !== today && uniqueDates[0] !== yesterday) return 0;
+    if (uniqueDates[0] !== todayStr && uniqueDates[0] !== yesterday) return 0;
 
     let streak = 1;
     for (let i = 0; i < uniqueDates.length - 1; i++) {
@@ -246,118 +345,100 @@ class UserDataService {
     return streak;
   }
 
-  // Aggregate stats
-  getTotalStats() {
-    const workouts = this.getWorkouts();
-    const completed = workouts.filter(w => w.completed);
-    const totalCalories = completed.reduce((sum, w) => sum + w.caloriesBurned, 0);
-    const meals = this.getMeals();
-    const goals = this.getGoals();
-    
+  // ── Aggregate stats ──────────────────────────────────────
+  async getTotalStats() {
+    const userId = await currentUserId();
+    if (!userId) {
+      return { totalWorkouts: 0, totalCaloriesBurned: 0, totalMealsLogged: 0, goalsAchieved: 0, currentStreak: 0 };
+    }
+
+    const [{ data: workouts }, { data: meals }, { data: goals }, currentStreak] = await Promise.all([
+      supabase.from('workout_sessions').select('calories_burned').eq('user_id', userId).eq('completed', true),
+      supabase.from('meal_logs').select('id').eq('user_id', userId).eq('eaten', true),
+      supabase.from('goals').select('id').eq('user_id', userId).eq('completed', true),
+      this.getCurrentStreak(),
+    ]);
+
     return {
-      totalWorkouts: completed.length,
-      totalCaloriesBurned: totalCalories,
-      totalMealsLogged: meals.filter(m => m.eaten).length,
-      goalsAchieved: goals.filter(g => g.completed).length,
-      currentStreak: this.getCurrentStreak(),
+      totalWorkouts: workouts?.length ?? 0,
+      totalCaloriesBurned: (workouts ?? []).reduce((sum, w: any) => sum + (w.calories_burned ?? 0), 0),
+      totalMealsLogged: meals?.length ?? 0,
+      goalsAchieved: goals?.length ?? 0,
+      currentStreak,
     };
   }
 
-  // Goals Management
-  getGoals(): Goal[] {
-    const data = localStorage.getItem(this.GOALS_KEY);
-    return data ? JSON.parse(data) : [];
+  // ── Goals ────────────────────────────────────────────────
+  async getGoals(): Promise<Goal[]> {
+    const userId = await currentUserId();
+    if (!userId) return [];
+    const { data } = await supabase.from('goals').select('*').eq('user_id', userId).order('created_at', { ascending: false });
+    return (data ?? []).map(goalFromRow);
   }
 
-  addGoal(goal: Goal): void {
-    const goals = this.getGoals();
-    goals.push(goal);
-    localStorage.setItem(this.GOALS_KEY, JSON.stringify(goals));
+  async addGoal(goal: Omit<Goal, 'id'> & { id?: string }): Promise<void> {
+    const userId = await currentUserId();
+    if (!userId) return;
+    await supabase.from('goals').insert({ user_id: userId, ...goalToRow(goal) });
   }
 
-  updateGoal(id: string, updates: Partial<Goal>): void {
-    const goals = this.getGoals();
-    const index = goals.findIndex(g => g.id === id);
-    if (index !== -1) {
-      goals[index] = { ...goals[index], ...updates };
-      localStorage.setItem(this.GOALS_KEY, JSON.stringify(goals));
-    }
+  async updateGoal(id: string, updates: Partial<Goal>): Promise<void> {
+    const userId = await currentUserId();
+    if (!userId) return;
+    await supabase.from('goals').update(goalToRow(updates)).eq('id', id).eq('user_id', userId);
   }
 
-  deleteGoal(id: string): void {
-    const goals = this.getGoals().filter(g => g.id !== id);
-    localStorage.setItem(this.GOALS_KEY, JSON.stringify(goals));
+  async deleteGoal(id: string): Promise<void> {
+    const userId = await currentUserId();
+    if (!userId) return;
+    await supabase.from('goals').delete().eq('id', id).eq('user_id', userId);
   }
 
-  // Achievements
-  getAchievements(): Achievement[] {
-    const data = localStorage.getItem(this.ACHIEVEMENTS_KEY);
-    if (data) return JSON.parse(data);
-    
-    // Default achievements
-    return [
-      { id: '1', name: 'First Workout', description: 'Complete your first workout', earned: false, date: null },
-      { id: '2', name: 'Week Warrior', description: '7 consecutive days of workouts', earned: false, date: null },
-      { id: '3', name: 'Calorie Crusher', description: 'Burn 10,000 total calories', earned: false, date: null },
-      { id: '4', name: 'Meal Master', description: 'Log 50 meals', earned: false, date: null },
-      { id: '5', name: 'Hydration Hero', description: 'Hit 3L water goal 7 days', earned: false, date: null },
-      { id: '6', name: 'Goal Getter', description: 'Complete 5 goals', earned: false, date: null },
-    ];
-  }
-
-  checkAndUpdateAchievements(): Achievement[] {
-    const achievements = this.getAchievements();
-    const stats = this.getTotalStats();
-    const today = new Date().toISOString().split('T')[0];
-
-    // First Workout
-    if (!achievements[0].earned && stats.totalWorkouts >= 1) {
-      achievements[0] = { ...achievements[0], earned: true, date: today };
-    }
-    // Week Warrior
-    if (!achievements[1].earned && stats.currentStreak >= 7) {
-      achievements[1] = { ...achievements[1], earned: true, date: today };
-    }
-    // Calorie Crusher
-    if (!achievements[2].earned && stats.totalCaloriesBurned >= 10000) {
-      achievements[2] = { ...achievements[2], earned: true, date: today };
-    }
-    // Meal Master
-    if (!achievements[3].earned && stats.totalMealsLogged >= 50) {
-      achievements[3] = { ...achievements[3], earned: true, date: today };
-    }
-    // Goal Getter
-    if (!achievements[5].earned && stats.goalsAchieved >= 5) {
-      achievements[5] = { ...achievements[5], earned: true, date: today };
-    }
-
-    localStorage.setItem(this.ACHIEVEMENTS_KEY, JSON.stringify(achievements));
-    return achievements;
-  }
-
-  // Weekly activity data for charts
-  getWeeklyChartData() {
+  // ── Weekly activity data for charts ──────────────────────
+  async getWeeklyChartData() {
+    const userId = await currentUserId();
     const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-    const today = new Date();
-    const dayOfWeek = today.getDay(); // 0=Sun
+    const todayDate = new Date();
+    const dayOfWeek = todayDate.getDay(); // 0=Sun
     const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
-    
+    const monday = new Date(todayDate);
+    monday.setDate(todayDate.getDate() + mondayOffset);
+    const sunday = new Date(monday);
+    sunday.setDate(monday.getDate() + 6);
+
+    const mondayStr = monday.toISOString().split('T')[0];
+    const sundayStr = sunday.toISOString().split('T')[0];
+
+    if (!userId) {
+      return days.map((day, i) => {
+        const date = new Date(monday);
+        date.setDate(monday.getDate() + i);
+        return { day, date: date.toISOString().split('T')[0], workouts: 0, calories: 0, water: 0, caloriesConsumed: 0 };
+      });
+    }
+
+    const [{ data: workouts }, { data: meals }, { data: stats }] = await Promise.all([
+      supabase.from('workout_sessions').select('date, calories_burned, completed').eq('user_id', userId).eq('completed', true).gte('date', mondayStr).lte('date', sundayStr),
+      supabase.from('meal_logs').select('date, calories, eaten').eq('user_id', userId).eq('eaten', true).gte('date', mondayStr).lte('date', sundayStr),
+      supabase.from('daily_stats').select('date, water_intake').eq('user_id', userId).gte('date', mondayStr).lte('date', sundayStr),
+    ]);
+
     return days.map((day, i) => {
-      const date = new Date(today);
-      date.setDate(today.getDate() + mondayOffset + i);
+      const date = new Date(monday);
+      date.setDate(monday.getDate() + i);
       const dateStr = date.toISOString().split('T')[0];
-      
-      const dayWorkouts = this.getWorkouts().filter(w => w.date === dateStr && w.completed);
-      const dayMeals = this.getMeals().filter(m => m.date === dateStr && m.eaten);
-      const dayStats = this.getStats().find(s => s.date === dateStr);
-      
+
+      const dayWorkouts = (workouts ?? []).filter((w: any) => w.date === dateStr);
+      const dayMeals = (meals ?? []).filter((m: any) => m.date === dateStr);
+      const dayStat = (stats ?? []).find((s: any) => s.date === dateStr);
+
       return {
         day,
         date: dateStr,
         workouts: dayWorkouts.length,
-        calories: dayWorkouts.reduce((sum, w) => sum + w.caloriesBurned, 0),
-        water: dayStats?.waterIntake || 0,
-        caloriesConsumed: dayMeals.reduce((sum, m) => sum + m.calories, 0),
+        calories: dayWorkouts.reduce((sum: number, w: any) => sum + (w.calories_burned ?? 0), 0),
+        water: Number(dayStat?.water_intake ?? 0),
+        caloriesConsumed: dayMeals.reduce((sum: number, m: any) => sum + (m.calories ?? 0), 0),
       };
     });
   }
