@@ -19,6 +19,10 @@ export const supabase = createClient(
       autoRefreshToken: true,
       detectSessionInUrl: true,
       storageKey: 'wefit_session',
+      // Bypass the Web Locks API — it throws noisy uncaught "LockManager lock
+      // immediately failed" errors in Firefox / multi-tab / private windows.
+      // A SPA doesn't need cross-tab refresh coordination.
+      lock: (_name, _acquireTimeout, fn) => fn(),
     },
   }
 )

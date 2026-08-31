@@ -1,89 +1,75 @@
-import Anthropic from 'npm:@anthropic-ai/sdk'
 import { corsHeaders } from '../_shared/cors.ts'
 import { requireAuth } from '../_shared/auth.ts'
 import { checkAndIncrementUsage } from '../_shared/usage.ts'
+import { llmStructured, type GroqTool } from '../_shared/llm.ts'
 
-const client = new Anthropic({ apiKey: Deno.env.get('ANTHROPIC_API_KEY'), defaultHeaders: { 'anthropic-beta': 'prompt-caching-2024-07-31' } })
-
-const workoutTool: Anthropic.Tool = {
-  name: 'create_workout_plan',
-  description: 'Create a safe, structured workout plan personalised for a Nigerian user.',
-  input_schema: {
-    type: 'object',
-    required: ['name', 'description', 'duration', 'difficulty', 'exercises', 'total_calories', 'coaching_note'],
-    properties: {
-      name:        { type: 'string', description: 'Creative workout name' },
-      description: { type: 'string', description: '1-2 sentence overview of this session' },
-      duration:    { type: 'number', description: 'Total estimated minutes' },
-      difficulty:  { type: 'string', enum: ['beginner', 'intermediate', 'advanced'] },
-      warmup: {
-        type: 'array',
-        description: '2-3 warm-up movements',
-        items: {
-          type: 'object',
-          required: ['name', 'duration_seconds', 'instruction'],
-          properties: {
-            name:             { type: 'string' },
-            duration_seconds: { type: 'number' },
-            instruction:      { type: 'string' },
+const workoutTool: GroqTool = {
+  type: 'function',
+  function: {
+    name: 'create_workout_plan',
+    description: 'Create a safe, structured workout plan personalised for a Nigerian user.',
+    parameters: {
+      type: 'object',
+      required: ['name', 'description', 'duration', 'difficulty', 'exercises', 'total_calories', 'coaching_note'],
+      properties: {
+        name:        { type: 'string', description: 'Creative workout name' },
+        description: { type: 'string', description: '1-2 sentence overview of this session' },
+        duration:    { type: 'number', description: 'Total estimated minutes' },
+        difficulty:  { type: 'string', enum: ['beginner', 'intermediate', 'advanced'] },
+        warmup: {
+          type: 'array',
+          description: '2-3 warm-up movements',
+          items: {
+            type: 'object',
+            required: ['name', 'duration_seconds', 'instruction'],
+            properties: {
+              name:             { type: 'string' },
+              duration_seconds: { type: 'number' },
+              instruction:      { type: 'string' },
+            },
           },
         },
-      },
-      exercises: {
-        type: 'array',
-        minItems: 4,
-        maxItems: 10,
-        items: {
-          type: 'object',
-          required: ['name', 'sets', 'reps', 'rest_seconds', 'target_muscles', 'form_tip', 'calories_estimate'],
-          properties: {
-            name:                { type: 'string' },
-            sets:                { type: 'number' },
-            reps:                { type: 'number', description: 'Reps per set. Use seconds for timed holds.' },
-            rest_seconds:        { type: 'number' },
-            target_muscles:      { type: 'array', items: { type: 'string' } },
-            form_tip:            { type: 'string', description: 'Most critical form cue for this exercise' },
-            calories_estimate:   { type: 'number', description: 'Calories for all sets combined' },
-            modification_easier: { type: 'string', description: 'Easier regression' },
-            modification_harder: { type: 'string', description: 'Harder progression' },
+        exercises: {
+          type: 'array',
+          minItems: 4,
+          maxItems: 10,
+          items: {
+            type: 'object',
+            required: ['name', 'sets', 'reps', 'rest_seconds', 'target_muscles', 'form_tip', 'calories_estimate'],
+            properties: {
+              name:                { type: 'string' },
+              sets:                { type: 'number' },
+              reps:                { type: 'number', description: 'Reps per set. Use seconds for timed holds.' },
+              rest_seconds:        { type: 'number' },
+              target_muscles:      { type: 'array', items: { type: 'string' } },
+              form_tip:            { type: 'string', description: 'Most critical form cue for this exercise' },
+              calories_estimate:   { type: 'number', description: 'Calories for all sets combined' },
+              modification_easier: { type: 'string', description: 'Easier regression' },
+              modification_harder: { type: 'string', description: 'Harder progression' },
+            },
           },
         },
-      },
-      cooldown: {
-        type: 'array',
-        description: '2-3 cooldown/stretch movements',
-        items: {
-          type: 'object',
-          required: ['name', 'duration_seconds', 'instruction'],
-          properties: {
-            name:             { type: 'string' },
-            duration_seconds: { type: 'number' },
-            instruction:      { type: 'string' },
+        cooldown: {
+          type: 'array',
+          description: '2-3 cooldown/stretch movements',
+          items: {
+            type: 'object',
+            required: ['name', 'duration_seconds', 'instruction'],
+            properties: {
+              name:             { type: 'string' },
+              duration_seconds: { type: 'number' },
+              instruction:      { type: 'string' },
+            },
           },
         },
+        total_calories:  { type: 'number' },
+        coaching_note:   { type: 'string', description: 'Short personal motivational note for this specific user' },
       },
-      total_calories:  { type: 'number' },
-      coaching_note:   { type: 'string', description: 'Short personal motivational note for this specific user' },
     },
   },
 }
 
-Deno.serve(async (req: Request) => {
-  if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders })
-
-  try {
-    const { userId, profile, supabase } = await requireAuth(req)
-    await checkAndIncrementUsage(supabase, userId, 'workout', profile.plan ?? 'free')
-
-    const body = await req.json()
-    const { targetMuscles, equipment, durationMinutes } = body
-
-    const response = await client.messages.create({
-      model: 'claude-sonnet-4-6',
-      max_tokens: 2048,
-      tools: [workoutTool],
-      tool_choice: { type: 'tool', name: 'create_workout_plan' },
-      system: `You are WeFit's AI fitness coach creating workouts for Nigerian users.
+const SYSTEM = `You are WeFit's AI fitness coach creating workouts for Nigerian users.
 
 Context:
 - Many users work out at home or basic gyms with minimal equipment
@@ -93,11 +79,28 @@ Context:
 - Always include warm-up and cooldown — injury prevention is non-negotiable
 - Provide easier and harder modifications for every exercise
 - Beginner: max 40 min, long rests (60-90s). Intermediate: 45-55 min, moderate rests (45-60s). Advanced: up to 60 min.
-- Never prescribe exercises requiring a spotter unless heavy dumbbells are confirmed available`,
+- Never prescribe exercises requiring a spotter unless heavy dumbbells are confirmed available
 
-      messages: [{
-        role: 'user',
-        content: `Generate a personalised workout:
+Call the create_workout_plan tool with a complete plan. Do not reply with prose.`
+
+Deno.serve(async (req: Request) => {
+  if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders })
+
+  try {
+    const { userId, profile, supabase } = await requireAuth(req)
+    await checkAndIncrementUsage(supabase, userId, 'workout', profile.plan ?? 'free')
+
+    const { targetMuscles, equipment, durationMinutes } = await req.json()
+
+    const w = await llmStructured<any>({
+      maxTokens: 2500,
+      tools: [workoutTool],
+      toolName: 'create_workout_plan',
+      messages: [
+        { role: 'system', content: SYSTEM },
+        {
+          role: 'user',
+          content: `Generate a personalised workout:
 - Fitness level: ${profile.fitness_level ?? 'intermediate'}
 - Primary goal: ${(profile.goals ?? []).join(', ') || 'general fitness'}
 - Target muscles: ${targetMuscles?.join(', ') ?? 'full body'}
@@ -105,13 +108,11 @@ Context:
 - Requested duration: ${durationMinutes ?? 30} minutes
 - Age: ${profile.age ?? 'not provided'}
 - Weight: ${profile.weight ?? 'not provided'}kg`,
-      }],
+        },
+      ],
     })
 
-    const toolBlock = response.content.find((b): b is Anthropic.ToolUseBlock => b.type === 'tool_use')
-    if (!toolBlock) throw new Error('No workout generated by AI')
-
-    const w = toolBlock.input as any
+    if (!Array.isArray(w.exercises) || w.exercises.length === 0) throw new Error('No workout generated by AI')
 
     const workout = {
       id:             crypto.randomUUID(),
@@ -127,7 +128,7 @@ Context:
         sets:                ex.sets,
         reps:                ex.reps,
         rest_seconds:        ex.rest_seconds,
-        muscles:             ex.target_muscles.join(', '),
+        muscles:             Array.isArray(ex.target_muscles) ? ex.target_muscles.join(', ') : (ex.target_muscles ?? ''),
         formTip:             ex.form_tip,
         caloriesBurn:        ex.calories_estimate,
         modificationEasier:  ex.modification_easier ?? '',

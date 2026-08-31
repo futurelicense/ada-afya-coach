@@ -1,10 +1,8 @@
-import Anthropic from 'npm:@anthropic-ai/sdk'
 import { corsHeaders } from '../_shared/cors.ts'
 import { requireAuth } from '../_shared/auth.ts'
 import { checkAndIncrementUsage } from '../_shared/usage.ts'
 import { ADA_SYSTEM_PROMPT } from '../_shared/nigerian-foods.ts'
-
-const client = new Anthropic({ apiKey: Deno.env.get('ANTHROPIC_API_KEY'), defaultHeaders: { 'anthropic-beta': 'prompt-caching-2024-07-31' } })
+import { llmStream, type ChatMessage } from '../_shared/llm.ts'
 
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders })
@@ -25,35 +23,7 @@ Deno.serve(async (req: Request) => {
       .order('created_at', { ascending: true })
       .limit(10)
 
-    // Save the user message before streaming starts
-    await supabase.from('ai_conversations').insert({
-      user_id:    userId,
-      session_id: sessionId,
-      role:       'user',
-      content:    message,
-    })
-
-    // Build Claude messages array from history + new message
-    const claudeMessages: Anthropic.MessageParam[] = [
-      ...(history ?? []).map((h: any) => ({ role: h.role as 'user' | 'assistant', content: h.content })),
-      { role: 'user', content: message },
-    ]
-
-    // Streaming request
-    const stream = client.messages.stream({
-      model:      'claude-sonnet-4-6',
-      max_tokens: 1024,
-      system: [
-        {
-          // Static persona block — cached across all requests
-          type: 'text',
-          text: ADA_SYSTEM_PROMPT,
-          cache_control: { type: 'ephemeral' },
-        },
-        {
-          // Dynamic user context — not cached (changes per user per day)
-          type: 'text',
-          text: `CURRENT USER CONTEXT:
+    const userContext = `CURRENT USER CONTEXT:
 Name: ${profile.name ?? 'User'}
 Age: ${profile.age ?? 'unknown'} | Weight: ${profile.weight ?? '?'}kg | Height: ${profile.height ?? '?'}cm
 Fitness level: ${profile.fitness_level ?? 'intermediate'}
@@ -66,42 +36,25 @@ TODAY'S STATS:
 - Current streak:       ${context?.streak ?? 0} days
 
 THIS WEEK:
-${(context?.weeklyStats ?? []).map((d: any) => `  ${d.day}: ${d.workouts ?? 0} workout(s), ${d.calories ?? 0} cal burned`).join('\n') || '  No data yet'}`,
-        },
-      ],
-      messages: claudeMessages,
-    })
+${(context?.weeklyStats ?? []).map((d: any) => `  ${d.day}: ${d.workouts ?? 0} workout(s), ${d.calories ?? 0} cal burned`).join('\n') || '  No data yet'}`
 
-    let fullResponse = ''
+    const messages: ChatMessage[] = [
+      { role: 'system', content: `${ADA_SYSTEM_PROMPT}\n\n${userContext}` },
+      ...(history ?? []).map((h: any) => ({ role: h.role as 'user' | 'assistant', content: h.content })),
+      { role: 'user', content: message },
+    ]
 
-    // Stream raw text tokens back to the client
-    const readable = new ReadableStream({
-      async start(controller) {
-        const enc = new TextEncoder()
-        try {
-          for await (const event of stream) {
-            if (
-              event.type === 'content_block_delta' &&
-              event.delta.type === 'text_delta'
-            ) {
-              fullResponse += event.delta.text
-              controller.enqueue(enc.encode(event.delta.text))
-            }
-          }
-        } finally {
-          // Persist Ada's complete response once stream finishes
-          if (fullResponse.trim()) {
-            await supabase.from('ai_conversations').insert({
-              user_id:    userId,
-              session_id: sessionId,
-              role:       'assistant',
-              content:    fullResponse,
-            })
-          }
-          controller.close()
-        }
+    // Persist the user message only after we have a successful response, to avoid
+    // orphaned turns polluting the next request's history.
+    const readable = llmStream(
+      { messages, maxTokens: 1024 },
+      async (full) => {
+        await supabase.from('ai_conversations').insert([
+          { user_id: userId, session_id: sessionId, role: 'user',      content: message },
+          { user_id: userId, session_id: sessionId, role: 'assistant', content: full },
+        ])
       },
-    })
+    )
 
     return new Response(readable, {
       headers: {
