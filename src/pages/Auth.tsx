@@ -11,6 +11,7 @@ import { Sparkles, ArrowLeft, Loader2, Eye, EyeOff } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 import { useAuth } from '@/contexts/AuthContext'
 import { userDataService } from '@/lib/userDataService'
+import { dashboardPathForRole } from '@/lib/roleRoutes'
 
 const signUpSchema = z.object({
   name:     z.string().trim().min(2, 'Name must be at least 2 characters').max(100),
@@ -27,14 +28,6 @@ const signInSchema = z.object({
 
 type SignUpData = z.infer<typeof signUpSchema>
 type SignInData = z.infer<typeof signInSchema>
-
-function homeForRole(role?: string) {
-  if (role === 'vendor') return '/vendor-dashboard'
-  if (role === 'trainer') return '/trainer-dashboard'
-  if (role === 'gym_owner') return '/gym-owner-dashboard'
-  if (role === 'influencer') return '/influencer-dashboard'
-  return '/dashboard'
-}
 
 export default function Auth() {
   const [searchParams] = useSearchParams()
@@ -86,7 +79,7 @@ export default function Auth() {
     setLoading(false)
     toast({ title: 'Welcome back' })
     if (!profile?.onboardingDone) navigate('/onboarding')
-    else navigate(homeForRole(profile.role))
+    else navigate(dashboardPathForRole(profile.role))
   }
 
   async function handleForgot(e: React.FormEvent) {

@@ -6,6 +6,7 @@ import { Store, Dumbbell, Building2, Users, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { userDataService, UserRole } from "@/lib/userDataService";
 import { useUserData } from "@/hooks/useUserData";
+import { dashboardPathForRole } from "@/lib/roleRoutes";
 
 const roles: { id: string; db: UserRole; title: string; description: string; icon: typeof Store; color: string }[] = [
   { id: "user", title: "Member", description: "Workouts, nutrition, and tracking", icon: Users, color: "text-primary", db: "user" },
@@ -14,12 +15,6 @@ const roles: { id: string; db: UserRole; title: string; description: string; ico
   { id: "gym-owner", title: "Gym Owner", description: "Memberships and facility schedule", icon: Building2, color: "text-green-500", db: "gym_owner" },
   { id: "influencer", title: "Fitness Influencer", description: "Content and partnership requests", icon: Users, color: "text-purple-500", db: "influencer" },
 ];
-
-function pathFor(role: UserRole) {
-  if (role === "user") return "/dashboard";
-  if (role === "gym_owner") return "/gym-owner-dashboard";
-  return `/${role}-dashboard`;
-}
 
 const RoleSelection = () => {
   const navigate = useNavigate();
@@ -34,7 +29,7 @@ const RoleSelection = () => {
       await userDataService.setRole(db);
       await refreshData();
       toast({ title: "Role saved", description: "Your workspace will match this role." });
-      navigate(pathFor(db));
+      navigate(dashboardPathForRole(db));
     } catch (err: unknown) {
       toast({
         variant: "destructive",

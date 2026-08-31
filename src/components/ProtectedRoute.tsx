@@ -3,6 +3,7 @@ import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserData } from "@/hooks/useUserData";
 import type { UserRole } from "@/lib/userDataService";
+import { dashboardPathForRole, hasOwnDashboard } from "@/lib/roleRoutes";
 
 function RouteSpinner() {
   return (
@@ -35,8 +36,14 @@ export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) 
     if (profileLoading && !profile) return <RouteSpinner />;
     const role = profile?.role ?? "user";
     if (!allowedRoles.includes(role)) {
-      return <Navigate to="/dashboard" replace />;
+      return <Navigate to={dashboardPathForRole(role)} replace />;
     }
+  }
+
+  // Route every user to their own dashboard: a business role that lands on the
+  // generic member dashboard is bounced to its dedicated workspace.
+  if (!allowedRoles && location.pathname === "/dashboard" && profile && hasOwnDashboard(profile.role)) {
+    return <Navigate to={dashboardPathForRole(profile.role)} replace />;
   }
 
   return <>{children}</>;
@@ -52,7 +59,7 @@ export function GuestOnly({ children }: { children: ReactNode }) {
     if (profile && !profile.onboardingDone) {
       return <Navigate to="/onboarding" replace />;
     }
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to={dashboardPathForRole(profile?.role)} replace />;
   }
   return <>{children}</>;
 }
