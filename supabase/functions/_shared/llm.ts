@@ -7,8 +7,9 @@
 
 const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions'
 
-export const TEXT_MODEL   = Deno.env.get('GROQ_MODEL')        ?? 'llama-3.3-70b-versatile'
-export const VISION_MODEL = Deno.env.get('GROQ_VISION_MODEL')  ?? 'meta-llama/llama-4-scout-17b-16e-instruct'
+export const TEXT_MODEL   = Deno.env.get('GROQ_MODEL')        ?? 'openai/gpt-oss-120b'
+// Empty = this Groq account has no vision model; llmVision goes straight to the HF fallback.
+export const VISION_MODEL = Deno.env.get('GROQ_VISION_MODEL')  ?? ''
 
 function groqKey(): string {
   const key = Deno.env.get('GROQ_API_KEY')
@@ -177,6 +178,7 @@ export async function llmVision(params: {
   const dataUri = `data:${params.mediaType};base64,${params.imageBase64}`
 
   try {
+    if (!VISION_MODEL) throw new Error('No Groq vision model configured')
     const json = await callGroq({
       model:     VISION_MODEL,
       maxTokens: params.maxTokens ?? 1024,
@@ -192,30 +194,35 @@ export async function llmVision(params: {
     const text = json.choices?.[0]?.message?.content?.trim()
     if (text) return text
     throw new Error('Groq vision returned empty response')
-  } catch (groqErr) {
+  } catch (_groqErr) {
+    // HF fallback — router's OpenAI-compatible endpoint with a vision-language model.
     const hfToken = Deno.env.get('HF_API_TOKEN')
-    if (!hfToken) throw groqErr
+    if (!hfToken) throw Object.assign(new Error('Food scanning is unavailable: no vision model. Set HF_API_TOKEN.'), { status: 503 })
 
-    // HF fallback — caption the image, then let the text model turn it into structured data.
-    const hfModel = Deno.env.get('HF_VISION_MODEL') ?? 'Salesforce/blip-image-captioning-large'
-    const bytes = Uint8Array.from(atob(params.imageBase64), (c) => c.charCodeAt(0))
-    const hfRes = await fetch(`https://api-inference.huggingface.co/models/${hfModel}`, {
+    const hfModel = Deno.env.get('HF_VISION_MODEL') ?? 'Qwen/Qwen2.5-VL-72B-Instruct'
+    const hfRes = await fetch('https://router.huggingface.co/v1/chat/completions', {
       method:  'POST',
-      headers: { 'Authorization': `Bearer ${hfToken}`, 'Content-Type': params.mediaType },
-      body:    bytes,
+      headers: { 'Authorization': `Bearer ${hfToken}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model:      hfModel,
+        max_tokens: params.maxTokens ?? 1024,
+        temperature: 0.3,
+        messages: [{
+          role: 'user',
+          content: [
+            { type: 'text', text: params.prompt },
+            { type: 'image_url', image_url: { url: dataUri } },
+          ],
+        }],
+      }),
     })
-    if (!hfRes.ok) throw Object.assign(new Error(`HF vision fallback failed ${hfRes.status}`), { status: 502 })
+    if (!hfRes.ok) {
+      const t = await hfRes.text().catch(() => '')
+      throw Object.assign(new Error(`HF vision fallback failed ${hfRes.status}: ${t}`), { status: 502 })
+    }
     const hfJson = await hfRes.json()
-    const caption = Array.isArray(hfJson) ? hfJson[0]?.generated_text : hfJson?.generated_text
-    if (!caption) throw Object.assign(new Error('HF vision fallback returned no caption'), { status: 502 })
-
-    return await llmText({
-      maxTokens: params.maxTokens ?? 1024,
-      temperature: 0.3,
-      messages: [
-        { role: 'system', content: 'You convert a photo caption into the exact JSON the user asks for. Use realistic Nigerian-food nutrition estimates.' },
-        { role: 'user', content: `Photo caption: "${caption}"\n\n${params.prompt}` },
-      ],
-    })
+    const text = hfJson.choices?.[0]?.message?.content?.trim()
+    if (!text) throw Object.assign(new Error('HF vision fallback returned no content'), { status: 502 })
+    return text
   }
 }

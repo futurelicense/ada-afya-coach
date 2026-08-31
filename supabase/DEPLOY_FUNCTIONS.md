@@ -25,9 +25,15 @@ supabase secrets set HF_API_TOKEN=<your-hf-token>          # scan-food vision fa
 Optional model overrides (defaults shown):
 
 ```bash
-# supabase secrets set GROQ_MODEL=llama-3.3-70b-versatile
-# supabase secrets set GROQ_VISION_MODEL=meta-llama/llama-4-scout-17b-16e-instruct
+# supabase secrets set GROQ_MODEL=openai/gpt-oss-120b               # text / tool-calling
+# supabase secrets set HF_VISION_MODEL=Qwen/Qwen2.5-VL-72B-Instruct # scan-food vision
+# supabase secrets set GROQ_VISION_MODEL=...   # only if your Groq account exposes a vision model
 ```
+
+This Groq account's model list (`curl https://api.groq.com/openai/v1/models -H "Authorization: Bearer $GROQ_API_KEY"`)
+has **no vision model**, so `scan-food` runs entirely through the Hugging Face router
+(`router.huggingface.co/v1/chat/completions`) with `Qwen/Qwen2.5-VL-72B-Instruct`.
+Text models available: `openai/gpt-oss-120b` (default), `openai/gpt-oss-20b`, `qwen/qwen3.6-27b`, `groq/compound`.
 
 ## 3. Deploy
 
@@ -57,5 +63,6 @@ Then trigger a workout/meal generation from the app while logged in.
   next sign-in; a hard sign-out + sign-in removes it.
 - Groq has no prompt caching, so the old `anthropic-beta: prompt-caching` headers are gone.
   The Nigerian-food knowledge block is now just part of the system prompt each call.
-- `scan-food` uses Groq's `llama-4-scout` vision model; if that call fails it falls back to a
-  Hugging Face caption model + Groq text pass (needs `HF_API_TOKEN`).
+- `scan-food` has no Groq vision model on this account, so it calls the HF router VLM directly
+  (`Qwen/Qwen2.5-VL-72B-Instruct`) — needs `HF_API_TOKEN`. Set `GROQ_VISION_MODEL` to switch it
+  back to Groq if the account gains a vision model.
