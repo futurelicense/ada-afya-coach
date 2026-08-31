@@ -1,13 +1,16 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react'
 import { Session, User, supabase } from '@/lib/supabase'
+import { identifyUser, resetUser } from '@/lib/analytics'
 
 interface AuthContextValue {
   session:    Session | null
   user:       User | null
   loading:    boolean
-  signUp:     (email: string, password: string, name: string) => Promise<{ error: Error | null }>
+  signUp:     (email: string, password: string, name: string) => Promise<{ error: Error | null; session: Session | null }>
   signIn:     (email: string, password: string) => Promise<{ error: Error | null }>
   signOut:    () => Promise<void>
+  resetPassword:  (email: string) => Promise<{ error: Error | null }>
+  updatePassword: (password: string) => Promise<{ error: Error | null }>
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null)
@@ -17,22 +20,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Hydrate from existing session on mount
     supabase.auth.getSession().then(({ data }) => {
       setSession(data.session)
+      if (data.session?.user) identifyUser(data.session.user.id, { email: data.session.user.email })
       setLoading(false)
     })
 
-    // Listen for sign-in / sign-out events
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session)
+      if (session?.user) identifyUser(session.user.id, { email: session.user.email })
+      else resetUser()
     })
 
     return () => subscription.unsubscribe()
   }, [])
 
   async function signUp(email: string, password: string, name: string) {
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -40,7 +44,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         emailRedirectTo: `${window.location.origin}/auth`,
       },
     })
-    return { error: error as Error | null }
+    return { error: error as Error | null, session: data.session }
   }
 
   async function signIn(email: string, password: string) {
@@ -50,14 +54,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   async function signOut() {
     await supabase.auth.signOut()
-    // Clear legacy localStorage keys from the old auth system
     localStorage.removeItem('fitnaija_current_user')
     localStorage.removeItem('fitnaija_users')
     localStorage.removeItem('wefit_onboarding_completed')
+    localStorage.removeItem('userRole')
+  }
+
+  async function resetPassword(email: string) {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    })
+    return { error: error as Error | null }
+  }
+
+  async function updatePassword(password: string) {
+    const { error } = await supabase.auth.updateUser({ password })
+    return { error: error as Error | null }
   }
 
   return (
-    <AuthContext.Provider value={{ session, user: session?.user ?? null, loading, signUp, signIn, signOut }}>
+    <AuthContext.Provider value={{ session, user: session?.user ?? null, loading, signUp, signIn, signOut, resetPassword, updatePassword }}>
       {children}
     </AuthContext.Provider>
   )

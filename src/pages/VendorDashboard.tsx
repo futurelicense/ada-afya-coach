@@ -1,175 +1,86 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Package, TrendingUp, Users, DollarSign, Star } from "lucide-react";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import ScheduleCalendar from "@/components/ScheduleCalendar";
-
-const vendorEventTypes = [
-  { value: "delivery", label: "Scheduled Delivery", color: "bg-primary/20 text-primary" },
-  { value: "bulk-order", label: "Bulk Order", color: "bg-secondary/20 text-secondary" },
-  { value: "catering", label: "Catering Event", color: "bg-purple-500/20 text-purple-600" },
-  { value: "pickup", label: "Pickup Order", color: "bg-blue-500/20 text-blue-600" },
-  { value: "prep", label: "Meal Prep", color: "bg-yellow-500/20 text-yellow-600" }
-];
+import { Package, Users, DollarSign, Star, Loader2 } from "lucide-react";
+import { ListingEditor } from "@/components/ListingEditor";
+import { useAuth } from "@/contexts/AuthContext";
+import { useBusinessStats } from "@/hooks/useBusinessStats";
+import { naira } from "@/lib/marketplaceService";
+import { supabase } from "@/lib/supabase";
+import { useToast } from "@/hooks/use-toast";
 
 const VendorDashboard = () => {
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const stats = useBusinessStats("vendor", user?.id);
+
+  const advance = async (id: string, status: string) => {
+    const { error } = await supabase.from("orders").update({ status, updated_at: new Date().toISOString() }).eq("id", id);
+    if (error) toast({ variant: "destructive", title: error.message });
+    else window.location.reload();
+  };
+
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="relative">
-        <div className="absolute inset-0 gradient-primary opacity-5 rounded-2xl blur-3xl"></div>
-        <div className="relative">
-          <h1 className="text-4xl md:text-5xl font-bold text-gradient mb-3">Vendor Dashboard</h1>
-          <p className="text-muted-foreground text-lg">Manage your meal offerings and orders</p>
-        </div>
+      <div>
+        <h1 className="text-4xl font-bold text-gradient mb-2">Vendor Dashboard</h1>
+        <p className="text-muted-foreground">Paid meal orders from members. Publish your kitchen so it appears on Explore.</p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-4 stagger-item">
-        <Card className="hover-lift overflow-hidden relative group">
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Orders</CardTitle>
-            <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-              <Package className="h-5 w-5 text-primary" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold bg-gradient-to-br from-foreground to-foreground/70 bg-clip-text text-transparent">142</div>
-            <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
-              <TrendingUp className="h-3 w-3 text-green-500" />
-              +12% from last month
-            </p>
-          </CardContent>
-        </Card>
-        <Card className="hover-lift overflow-hidden relative group">
-          <div className="absolute inset-0 bg-gradient-to-br from-secondary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Revenue</CardTitle>
-            <div className="h-10 w-10 rounded-full bg-secondary/10 flex items-center justify-center">
-              <DollarSign className="h-5 w-5 text-secondary" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold bg-gradient-to-br from-foreground to-foreground/70 bg-clip-text text-transparent">₦285,000</div>
-            <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
-              <TrendingUp className="h-3 w-3 text-green-500" />
-              +8% from last month
-            </p>
-          </CardContent>
-        </Card>
-        <Card className="hover-lift overflow-hidden relative group">
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Customers</CardTitle>
-            <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-              <Users className="h-5 w-5 text-primary" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold bg-gradient-to-br from-foreground to-foreground/70 bg-clip-text text-transparent">89</div>
-            <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
-              <TrendingUp className="h-3 w-3 text-green-500" />
-              +5 this week
-            </p>
-          </CardContent>
-        </Card>
-        <Card className="hover-lift overflow-hidden relative group shimmer">
-          <div className="absolute inset-0 gradient-premium opacity-10"></div>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
-            <CardTitle className="text-sm font-medium">Rating</CardTitle>
-            <div className="h-10 w-10 rounded-full bg-yellow-500/10 flex items-center justify-center">
-              <Star className="h-5 w-5 text-yellow-500 fill-yellow-500" />
-            </div>
-          </CardHeader>
-          <CardContent className="relative z-10">
-            <div className="text-3xl font-bold text-gradient">4.8</div>
-            <p className="text-xs text-muted-foreground mt-1">Based on 156 reviews</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Tabs defaultValue="orders" className="space-y-4">
-        <TabsList className="bg-muted/50 p-1">
-          <TabsTrigger value="orders" className="data-[state=active]:bg-card data-[state=active]:shadow-sm">Orders</TabsTrigger>
-          <TabsTrigger value="menu" className="data-[state=active]:bg-card data-[state=active]:shadow-sm">Menu Items</TabsTrigger>
-          <TabsTrigger value="schedule" className="data-[state=active]:bg-card data-[state=active]:shadow-sm">Delivery Schedule</TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="orders" className="space-y-4">
-          <Card className="border-primary/10">
-            <CardHeader className="border-b bg-gradient-to-r from-card to-primary/5">
-              <CardTitle>Recent Orders</CardTitle>
-              <CardDescription>Manage your incoming orders</CardDescription>
+      <div className="grid gap-4 md:grid-cols-4">
+        {[
+          { label: "Open orders", value: stats.loading ? "…" : String(stats.countA), icon: Package },
+          { label: "Revenue (paid)", value: stats.loading ? "…" : naira(stats.revenue), icon: DollarSign },
+          { label: "Paying customers", value: stats.loading ? "…" : String(stats.countB), icon: Users },
+          { label: "Rating", value: stats.rating, icon: Star },
+        ].map(({ label, value, icon: Icon }) => (
+          <Card key={label}>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">{label}</CardTitle>
+              <Icon className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Order ID</TableHead>
-                    <TableHead>Customer</TableHead>
-                    <TableHead>Items</TableHead>
-                    <TableHead>Amount</TableHead>
-                    <TableHead>Status</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  <TableRow>
-                    <TableCell>#ORD-001</TableCell>
-                    <TableCell>Chidi Okafor</TableCell>
-                    <TableCell>Jollof Rice, Grilled Chicken</TableCell>
-                    <TableCell>₦4,500</TableCell>
-                    <TableCell><span className="px-2 py-1 rounded-full bg-primary/20 text-primary text-xs">Pending</span></TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>#ORD-002</TableCell>
-                    <TableCell>Amara Nwosu</TableCell>
-                    <TableCell>Plantain, Fish Stew</TableCell>
-                    <TableCell>₦3,200</TableCell>
-                    <TableCell><span className="px-2 py-1 rounded-full bg-green-500/20 text-green-600 text-xs">Completed</span></TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
+              <div className="text-2xl font-bold">{value}</div>
             </CardContent>
           </Card>
-        </TabsContent>
+        ))}
+      </div>
 
-        <TabsContent value="menu" className="space-y-4">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <div>
-                <CardTitle>Your Menu</CardTitle>
-                <CardDescription>Manage your meal offerings</CardDescription>
-              </div>
-              <Button>Add New Item</Button>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {["Jollof Rice with Chicken", "Egusi Soup & Pounded Yam", "Pepper Soup", "Moi Moi"].map((item) => (
-                  <div key={item} className="flex items-center justify-between p-4 border rounded-lg">
-                    <div>
-                      <h4 className="font-semibold">{item}</h4>
-                      <p className="text-sm text-muted-foreground">Available • ₦2,500</p>
-                    </div>
-                    <Button variant="outline" size="sm">Edit</Button>
+      {user?.id && <ListingEditor kind="vendor" userId={user.id} />}
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Orders</CardTitle>
+          <CardDescription>Paystack-confirmed orders from Nutrition and Explore.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {stats.loading ? (
+            <div className="flex justify-center py-8"><Loader2 className="h-6 w-6 animate-spin" /></div>
+          ) : stats.rows.length === 0 ? (
+            <p className="py-8 text-center text-sm text-muted-foreground">No orders yet.</p>
+          ) : (
+            <ul className="space-y-3">
+              {stats.rows.map((row) => (
+                <li key={row.id} className="flex flex-wrap items-center justify-between gap-2 border rounded-lg p-3">
+                  <div>
+                    <p className="font-medium text-sm">{row.label || "Order"}</p>
+                    <p className="text-xs text-muted-foreground">{new Date(row.when).toLocaleString()} · {naira(row.amount)}</p>
                   </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="schedule" className="space-y-4">
-          <ScheduleCalendar
-            title="Delivery & Order Schedule"
-            description="Manage deliveries, catering events, and meal prep schedules"
-            eventTypes={vendorEventTypes}
-            storageKey="vendor-schedule-events"
-            clientLabel="Customer"
-            showClient={true}
-            showLocation={true}
-          />
-        </TabsContent>
-      </Tabs>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="secondary">{row.status}</Badge>
+                    {row.status === "confirmed" && (
+                      <Button size="sm" variant="outline" onClick={() => void advance(row.id, "preparing")}>Preparing</Button>
+                    )}
+                    {row.status === "preparing" && (
+                      <Button size="sm" variant="outline" onClick={() => void advance(row.id, "delivered")}>Delivered</Button>
+                    )}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 };

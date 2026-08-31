@@ -40,6 +40,7 @@ export const FoodScanner = ({ open, onOpenChange, onFoodSelected }: FoodScannerP
   const fileInputRef = useRef<HTMLInputElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const [isCameraActive, setIsCameraActive] = useState(false);
+  const [barcodeDigits, setBarcodeDigits] = useState('');
   const { toast } = useToast();
 
   const startCamera = useCallback(async () => {
@@ -145,18 +146,7 @@ export const FoodScanner = ({ open, onOpenChange, onFoodSelected }: FoodScannerP
 
     try {
       if (scanType === 'barcode') {
-        // Simulate barcode scanning
-        const result = await foodScanService.lookupBarcode('mock-barcode');
-        if (result) {
-          onFoodSelected(result);
-          onOpenChange(false);
-        } else {
-          toast({
-            title: "Product Not Found",
-            description: "This product is not in our database. Try scanning the nutrition label instead.",
-          });
-          setActiveTab('label');
-        }
+        return;
       } else if (scanType === 'label') {
         const extracted = await foodScanService.extractNutritionLabel(imageData);
         if (extracted) {
@@ -193,6 +183,40 @@ export const FoodScanner = ({ open, onOpenChange, onFoodSelected }: FoodScannerP
         title: "Processing Error",
         description: "Failed to analyze the image. Please try again.",
         variant: "destructive",
+      });
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const lookupEnteredBarcode = async () => {
+    const code = barcodeDigits.replace(/\s/g, '');
+    if (!/^\d{8,14}$/.test(code)) {
+      toast({
+        variant: "destructive",
+        title: "Enter a barcode number",
+        description: "Use the 8–14 digit code printed under the bars. Camera barcode reading is not available.",
+      });
+      return;
+    }
+    setIsProcessing(true);
+    try {
+      const food = await foodScanService.lookupBarcode(code);
+      if (!food) {
+        toast({
+          variant: "destructive",
+          title: "Not found",
+          description: "Open Food Facts has no match. Search by name or photograph the meal.",
+        });
+        return;
+      }
+      setRecognizedFoods([food]);
+      setRecognitionConfidence('medium');
+    } catch {
+      toast({
+        variant: "destructive",
+        title: "Lookup failed",
+        description: "Could not reach Open Food Facts. Try search or a photo.",
       });
     } finally {
       setIsProcessing(false);
@@ -368,46 +392,31 @@ export const FoodScanner = ({ open, onOpenChange, onFoodSelected }: FoodScannerP
 
             <TabsContent value="barcode" className="mt-0 space-y-4">
               <p className="text-sm text-muted-foreground">
-                Scan the barcode on packaged food products
+                Type the barcode number. We look it up on Open Food Facts. The camera does not decode barcodes.
               </p>
-              
-              <div className="relative aspect-[4/3] bg-muted rounded-xl overflow-hidden">
-                <video
-                  ref={videoRef}
-                  autoPlay
-                  playsInline
-                  className="w-full h-full object-cover"
-                />
-                {isCameraActive ? (
-                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                    <div className="w-64 h-24 border-2 border-primary/50 rounded-lg" />
-                  </div>
-                ) : (
-                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-4">
-                    <Barcode className="h-12 w-12 text-muted-foreground" />
-                    <p className="text-muted-foreground text-sm">Position barcode in frame</p>
-                  </div>
-                )}
-              </div>
-
-              <div className="flex gap-3">
-                {!isCameraActive ? (
-                  <Button onClick={startCamera} className="flex-1 gap-2">
-                    <Camera className="h-4 w-4" />
-                    Start Scanning
-                  </Button>
-                ) : (
-                  <>
-                    <Button onClick={capturePhoto} className="flex-1 gap-2">
-                      <Barcode className="h-4 w-4" />
-                      Scan
-                    </Button>
-                    <Button variant="outline" onClick={stopCamera} className="gap-2">
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </>
-                )}
-              </div>
+              <Input
+                inputMode="numeric"
+                autoComplete="off"
+                placeholder="e.g. 8901234567890"
+                value={barcodeDigits}
+                onChange={(e) => setBarcodeDigits(e.target.value)}
+              />
+              <Button onClick={lookupEnteredBarcode} disabled={isProcessing} className="w-full gap-2">
+                {isProcessing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Barcode className="h-4 w-4" />}
+                Look up barcode
+              </Button>
+              {recognizedFoods.length > 0 && activeTab === 'barcode' && (
+                <div className="space-y-2">
+                  {recognizedFoods.map((food) => (
+                    <Card key={food.id} className="cursor-pointer hover:border-primary" onClick={() => { onFoodSelected(food); onOpenChange(false); }}>
+                      <CardContent className="p-3">
+                        <p className="font-medium text-sm">{food.name}</p>
+                        <p className="text-xs text-muted-foreground">{food.calories} kcal · {food.protein}g protein</p>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
             </TabsContent>
 
             <TabsContent value="label" className="mt-0 space-y-4">

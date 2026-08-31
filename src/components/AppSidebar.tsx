@@ -15,6 +15,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import wefitLogo from "@/assets/wefit-logo.png";
 import { useUserData } from "@/hooks/useUserData";
+import { useAuth } from "@/contexts/AuthContext";
 
 const userNavItems = [
   { title: "Dashboard",  url: "/dashboard",  icon: Activity },
@@ -62,9 +63,13 @@ export function AppSidebar() {
   const collapsed  = state === "collapsed";
   const navigate   = useNavigate();
   const { profile } = useUserData();
+  const { signOut } = useAuth();
 
-  const role   = (typeof window !== "undefined" ? localStorage.getItem("userRole") : null) || "user";
-  const config = roleConfig[role] ?? roleConfig["user"];
+  const roleKey =
+    profile?.role === "gym_owner" ? "gym-owner" :
+    profile?.role && profile.role in roleConfig ? profile.role :
+    "user";
+  const config = roleConfig[roleKey] ?? roleConfig["user"];
 
   const initials = profile?.name
     ? profile.name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
@@ -154,7 +159,7 @@ export function AppSidebar() {
             <Button
               variant="ghost" size="icon"
               className="w-8 h-8 text-muted-foreground/60 hover:text-destructive hover:bg-destructive/10"
-              onClick={() => { localStorage.removeItem("userRole"); navigate("/role-selection"); }}
+              onClick={async () => { await signOut(); navigate("/auth"); }}
               title="Sign out"
             >
               <LogOut className="h-3.5 w-3.5" />
@@ -173,7 +178,7 @@ export function AppSidebar() {
               <Button
                 variant="ghost" size="icon"
                 className="w-7 h-7 text-muted-foreground/50 hover:text-destructive hover:bg-destructive/10 flex-shrink-0"
-                onClick={() => { localStorage.removeItem("userRole"); navigate("/role-selection"); }}
+                onClick={async () => { await signOut(); navigate("/auth"); }}
                 title="Sign out"
               >
                 <LogOut className="h-3.5 w-3.5" />

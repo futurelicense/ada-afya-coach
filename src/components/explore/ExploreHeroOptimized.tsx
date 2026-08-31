@@ -35,7 +35,7 @@ export const ExploreHeroOptimized = ({ searchQuery, onSearchChange }: ExploreHer
         
         {/* Subtitle */}
         <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-2xl mx-auto animate-fade-in" style={{ animationDelay: "0.1s" }}>
-          Discover local gyms, trainers, nutritionists, and fitness resources across Nigeria
+          Live gyms, trainers, kitchens, and creators on WeFit. Bookings and memberships are paid with Paystack.
         </p>
         
         {/* Search Bar */}
@@ -76,9 +76,9 @@ export const ExploreHeroOptimized = ({ searchQuery, onSearchChange }: ExploreHer
 
         {/* Stats */}
         <div className="grid grid-cols-3 gap-2 sm:gap-3 md:gap-6 mt-4 sm:mt-6 md:mt-8 animate-fade-in" style={{ animationDelay: "0.4s" }}>
-          <StatCard icon="💪" value="50+" label="Gyms" />
-          <StatCard icon="🏃" value="200+" label="Trainers" />
-          <StatCard icon="👥" value="1K+" label="Members" />
+          <StatCard icon="💪" value="Live" label="Listings from partners" />
+          <StatCard icon="💳" value="Pay" label="Paystack checkout" />
+          <StatCard icon="📊" value="Dash" label="Revenue on dashboards" />
         </div>
       </div>
       

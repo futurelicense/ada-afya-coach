@@ -7,7 +7,6 @@ import nigerianMeal from "@/assets/nigerian-meal.jpg";
 import { AIMealGenerator } from "@/components/AIMealGenerator";
 import { RecipeModal } from "@/components/RecipeModal";
 import { MealDeliverySystem } from "@/components/MealDeliverySystem";
-import { VendorMarketplace } from "@/components/VendorMarketplace";
 import { SwipeableMealCarousel } from "@/components/SwipeableMealCarousel";
 import { ScanFoodButton } from "@/components/ScanFoodButton";
 import { useUserData } from "@/hooks/useUserData";
@@ -27,8 +26,8 @@ const Nutrition = () => {
 
   const handleOrderMeal = (meal: any) => {
     toast({
-      title: "Order Placed!",
-      description: `Your order for ${meal.name} has been sent to local vendors.`,
+      title: "Use Order below",
+      description: `Select ${meal.name} in the kitchen checkout and pay with Paystack.`,
     });
   };
 
@@ -164,9 +163,6 @@ const Nutrition = () => {
               onOrderMeal={handleOrderMeal}
             />
           )}
-
-          {/* Vendor Marketplace */}
-          <VendorMarketplace />
         </TabsContent>
 
         <TabsContent value="foods" className="space-y-4 mt-6">

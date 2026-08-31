@@ -35,7 +35,10 @@ export const paystackService = {
    * Verify a payment after the user returns from Paystack.
    * Returns the confirmed plan on success.
    */
-  async verifyPayment(reference: string): Promise<{ plan: string }> {
+  /**
+   * Verify a payment after the user returns from Paystack.
+   */
+  async verifyPayment(reference: string): Promise<{ plan?: string; kind?: string }> {
     const headers = await authHeaders()
 
     const res = await fetch(`${FUNCTIONS_URL}/paystack-verify`, {

@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Activity, Flame, Droplets, Heart, TrendingUp, Sparkles, Plus, Zap, Target, Award, Scan, Trash2 } from "lucide-react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useUserData } from "@/hooks/useUserData";
 import { GamificationPanel } from "@/components/GamificationPanel";
 import { CircularProgress } from "@/components/CircularProgress";
@@ -13,13 +13,10 @@ import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { userDataService } from "@/lib/userDataService";
 import { useToast } from "@/hooks/use-toast";
-import { paystackService } from "@/lib/paystackService";
-import { track } from "@/lib/analytics";
 import { NumberTicker } from "@/components/NumberTicker";
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
   const { todayWorkouts, todayMeals, todayStats, weeklyStats, completeExercise, markMealEaten, updateWaterIntake, deleteWorkout, deleteMeal } = useUserData();
   const [greeting, setGreeting] = useState("");
   const [mounted, setMounted] = useState(false);
@@ -34,30 +31,6 @@ const Dashboard = () => {
     else setGreeting("Good Evening");
     userDataService.getCurrentStreak().then(setStreak);
   }, [todayWorkouts]);
-
-  // Verify Paystack payment when user returns from checkout
-  useEffect(() => {
-    const payment   = searchParams.get('payment');
-    const reference = searchParams.get('reference') ?? searchParams.get('trxref');
-    if (payment !== 'success' || !reference) return;
-
-    // Remove query params immediately to avoid re-running on refresh
-    setSearchParams({}, { replace: true });
-
-    paystackService.verifyPayment(reference).then(({ plan }) => {
-      track.paymentCompleted(plan);
-      toast({
-        title:       `Welcome to ${plan.charAt(0).toUpperCase() + plan.slice(1)}! 🎉`,
-        description: 'Your subscription is now active. Enjoy full access.',
-      });
-    }).catch(() => {
-      toast({
-        variant:     'destructive',
-        title:       'Payment check failed',
-        description: 'We could not confirm your payment. Contact support if your card was charged.',
-      });
-    });
-  }, []);
 
   const weekWorkouts = weeklyStats.reduce((sum, s) => sum + s.workoutsCompleted, 0);
   

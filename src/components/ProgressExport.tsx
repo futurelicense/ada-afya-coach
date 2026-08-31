@@ -18,7 +18,7 @@ export const ProgressExport = ({ stats }: ProgressExportProps) => {
   const [copied, setCopied] = useState(false);
 
   const generateShareText = () => {
-    return `💪 My FitNaija Progress:\n\n✅ ${stats.totalWorkouts} Workouts Completed\n🔥 ${stats.caloriesBurned.toLocaleString()} Calories Burned\n⚡ ${stats.currentStreak} Day Streak\n🎯 ${stats.goalsAchieved} Goals Achieved\n\nJoin me on FitNaija! 🇳🇬`;
+    return `My WeFit progress:\n\n${stats.totalWorkouts} workouts completed\n${stats.caloriesBurned.toLocaleString()} calories burned\n${stats.currentStreak} day streak\n${stats.goalsAchieved} goals achieved\n\nTrain with WeFit.`;
   };
 
   const shareProgress = async () => {
@@ -27,7 +27,7 @@ export const ProgressExport = ({ stats }: ProgressExportProps) => {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: 'My FitNaija Progress',
+          title: 'My WeFit progress',
           text: text,
         });
         toast({
@@ -88,7 +88,7 @@ export const ProgressExport = ({ stats }: ProgressExportProps) => {
       <CardContent className="space-y-4">
         {/* Stats Preview */}
         <div className="p-4 bg-gradient-card rounded-lg border text-center">
-          <p className="text-lg font-bold mb-2">My FitNaija Journey 🇳🇬</p>
+          <p className="text-lg font-bold mb-2">My WeFit journey</p>
           <div className="grid grid-cols-2 gap-3 text-sm">
             <div>
               <p className="text-2xl font-bold text-primary">{stats.totalWorkouts}</p>

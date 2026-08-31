@@ -11,7 +11,6 @@ Deno.serve(async (req: Request) => {
     const { reference } = await req.json()
     if (!reference) throw new Error('No payment reference provided')
 
-    // Verify with Paystack
     const res = await fetch(`https://api.paystack.co/transaction/verify/${reference}`, {
       headers: { Authorization: `Bearer ${PAYSTACK_SECRET}` },
     })
@@ -22,32 +21,42 @@ Deno.serve(async (req: Request) => {
     }
 
     const txn      = data.data
-    const plan     = txn.metadata?.plan as string
+    const kind     = (txn.metadata?.kind as string) ?? 'subscription'
     const txUserId = txn.metadata?.user_id as string
 
     if (txUserId !== userId) {
       throw Object.assign(new Error('Payment does not belong to this user'), { status: 403 })
     }
 
-    if (!['pro', 'elite'].includes(plan)) {
-      throw new Error('Unknown plan in payment metadata')
+    if (kind === 'subscription' || ['pro', 'elite'].includes(txn.metadata?.plan)) {
+      const plan = txn.metadata?.plan as string
+      if (!['pro', 'elite'].includes(plan)) throw new Error('Unknown plan in payment metadata')
+
+      const endsAt = new Date()
+      endsAt.setDate(endsAt.getDate() + 30)
+
+      const { error } = await supabase.rpc('upsert_subscription', {
+        p_user_id:          userId,
+        p_plan:             plan,
+        p_paystack_reference: reference,
+        p_amount_naira:     Math.round(txn.amount / 100),
+        p_ends_at:          endsAt.toISOString(),
+      })
+      if (error) throw error
+
+      return new Response(JSON.stringify({ success: true, kind: 'subscription', plan }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
     }
 
-    // Persist subscription — 30 days from now (Paystack will renew via webhook)
-    const endsAt = new Date()
-    endsAt.setDate(endsAt.getDate() + 30)
-
-    const { error } = await supabase.rpc('upsert_subscription', {
-      p_user_id:          userId,
-      p_plan:             plan,
-      p_paystack_reference: reference,
-      p_amount_naira:     Math.round(txn.amount / 100),
-      p_ends_at:          endsAt.toISOString(),
+    const { error } = await supabase.rpc('fulfill_marketplace_payment', {
+      p_kind: kind,
+      p_reference: reference,
+      p_user_id: userId,
     })
-
     if (error) throw error
 
-    return new Response(JSON.stringify({ success: true, plan }), {
+    return new Response(JSON.stringify({ success: true, kind }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
 

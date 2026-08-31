@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Badge } from '@/components/ui/badge'
-import { Sparkles, Send, X, Mic, Bot, User, Minimize2 } from 'lucide-react'
+import { Sparkles, Send, X, Bot, User, Minimize2 } from 'lucide-react'
 import { useUserData } from '@/hooks/useUserData'
 import { useAuth } from '@/contexts/AuthContext'
 import { aiService } from '@/lib/aiService'
@@ -93,7 +93,7 @@ export function FloatingAIChat() {
         setMessages(prev => [...prev, {
           id:        (Date.now() + 1).toString(),
           role:      'assistant',
-          content:   "You've reached today's chat limit. Upgrade to Pro for unlimited coaching sessions! 💪",
+          content:   "You've reached today's chat limit on your plan. Pro allows 50 requests per feature per day; Elite is unlimited.",
           timestamp: new Date(),
         }])
         setIsStreaming(false)
@@ -136,6 +136,8 @@ export function FloatingAIChat() {
       setIsStreaming(false)
     }
   }
+
+  if (!session) return null
 
   return (
     <>
@@ -273,9 +275,6 @@ export function FloatingAIChat() {
                     disabled={isStreaming}
                   />
                   <div className="flex flex-col gap-2">
-                    <Button size="icon" variant="outline" className="h-10 w-10 shrink-0" title="Voice (coming soon)" disabled>
-                      <Mic className="h-4 w-4" />
-                    </Button>
                     <Button
                       onClick={() => handleSend()}
                       disabled={!input.trim() || isStreaming}

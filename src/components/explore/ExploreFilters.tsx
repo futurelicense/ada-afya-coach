@@ -1,7 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { 
-  Dumbbell, User, Utensils, ShoppingBag, Calendar, TreePine, TrendingUp, Filter, X
+  Dumbbell, User, Utensils, ShoppingBag, TrendingUp, Filter, X
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -15,14 +15,12 @@ interface ExploreFiltersProps {
 }
 
 const categories = [
-  { id: "all" as CategoryType, label: "All", icon: Filter, count: 28 },
-  { id: "gyms" as CategoryType, label: "Gyms", icon: Dumbbell, count: 3 },
-  { id: "trainers" as CategoryType, label: "Trainers", icon: User, count: 3 },
-  { id: "nutritionists" as CategoryType, label: "Nutrition", icon: Utensils, count: 3 },
-  { id: "stores" as CategoryType, label: "Stores", icon: ShoppingBag, count: 3 },
-  { id: "events" as CategoryType, label: "Events", icon: Calendar, count: 3 },
-  { id: "spots" as CategoryType, label: "Outdoor", icon: TreePine, count: 3 },
-  { id: "influencers" as CategoryType, label: "Influencers", icon: TrendingUp, count: 4 },
+  { id: "all" as CategoryType, label: "All", icon: Filter },
+  { id: "gyms" as CategoryType, label: "Gyms", icon: Dumbbell },
+  { id: "trainers" as CategoryType, label: "Trainers", icon: User },
+  { id: "nutritionists" as CategoryType, label: "Nutrition", icon: Utensils },
+  { id: "stores" as CategoryType, label: "Vendors", icon: ShoppingBag },
+  { id: "influencers" as CategoryType, label: "Influencers", icon: TrendingUp },
 ];
 
 export const ExploreFilters = ({ 
@@ -51,15 +49,6 @@ export const ExploreFilters = ({
             >
               <Icon className="h-3.5 w-3.5" />
               <span>{category.label}</span>
-              <Badge 
-                variant="secondary" 
-                className={cn(
-                  "ml-0.5 text-[10px] sm:text-xs h-4 sm:h-5 px-1 sm:px-1.5",
-                  isActive && "bg-primary-foreground/20 text-primary-foreground"
-                )}
-              >
-                {category.count}
-              </Badge>
             </Button>
           );
         })}

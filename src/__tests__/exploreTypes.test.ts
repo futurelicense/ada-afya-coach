@@ -1,6 +1,7 @@
 // Type-level tests: verify exported types from @/types/explore are structurally sound.
 // These tests instantiate objects conforming to the types and assert runtime shape.
 
+import { describe, it, expect } from "vitest";
 import type { Gym, Trainer, Nutritionist, Store, FitnessEvent, WorkoutSpot, Influencer } from "@/types/explore";
 
 describe("explore types – structural validation", () => {
@@ -47,7 +48,7 @@ describe("explore types – structural validation", () => {
       type: "Marathon",
       attendees: 500,
       price: "₦5,000",
-      organizer: "FitNaija",
+      organizer: "WeFit",
     };
     expect(event.attendees).toBe(500);
   });
@@ -69,7 +70,7 @@ describe("explore types – structural validation", () => {
   it("Influencer has platform and followers", () => {
     const influencer: Influencer = {
       id: "5",
-      name: "FitNaija Coach",
+      name: "WeFit Coach",
       followers: "250K",
       niche: "Bodybuilding",
       verified: true,

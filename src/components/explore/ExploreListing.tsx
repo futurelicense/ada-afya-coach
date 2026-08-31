@@ -8,13 +8,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { 
   Dumbbell, User, Utensils, ShoppingBag, Calendar, TreePine, 
   ExternalLink, Navigation, CheckCircle2, Users, TrendingUp, 
-  MapPin, Phone, Sparkles
+  MapPin, Phone, Sparkles, Loader2
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { ExploreCard } from "./ExploreCard";
 import { ExploreFilters, CategoryType } from "./ExploreFilters";
 import { GymPaymentDialog } from "@/components/GymPaymentDialog";
 import { TrainerBookingDialog } from "@/components/TrainerBookingDialog";
+import { createInquiry } from "@/lib/inquiryService";
 
 // Types
 interface Gym {
@@ -263,7 +264,7 @@ const events: Event[] = [
     type: 'Marathon',
     attendees: 500,
     price: '₦5,000',
-    organizer: 'FitNaija Events',
+    organizer: 'WeFit Events',
     image: 'https://images.unsplash.com/photo-1552674605-db6ffd4facb5?w=400&h=300&fit=crop',
   },
   {
@@ -394,6 +395,7 @@ export const ExploreListing = ({ searchQuery }: ExploreListingProps) => {
   const [eventName, setEventName] = useState("");
   const [eventEmail, setEventEmail] = useState("");
   const [eventPhone, setEventPhone] = useState("");
+  const [sending, setSending] = useState(false);
 
   // Filter data based on search and category
   const filteredData = useMemo(() => {
@@ -443,41 +445,72 @@ export const ExploreListing = ({ searchQuery }: ExploreListingProps) => {
   };
 
   const handleSpotDirections = (spot: WorkoutSpot) => {
-    toast({
-      title: "Opening Directions",
-      description: `Getting directions to ${spot.name}...`,
-    });
-    window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(spot.location)}`, '_blank');
+    window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(spot.location + " " + spot.name)}`, '_blank');
   };
 
   const handleInfluencerFollow = (influencer: Influencer) => {
     toast({
-      title: "Opening Profile",
-      description: `Redirecting to ${influencer.name}'s ${influencer.platform} profile...`,
+      title: "Directory sample",
+      description: `${influencer.name} is listed as an example. WeFit does not open a live ${influencer.platform} profile from here.`,
     });
   };
 
-  const handleBookingSubmit = () => {
-    toast({
-      title: "Booking Confirmed!",
-      description: "You will receive a confirmation email shortly.",
-    });
-    setTrainerDialog(false);
-    setNutritionistDialog(false);
-    setBookingDate("");
-    setBookingTime("");
-    setBookingNotes("");
+  const handleNutritionistRequest = async () => {
+    if (!selectedNutritionist) return;
+    setSending(true);
+    try {
+      await createInquiry({
+        type: "nutritionist_booking",
+        listingId: selectedNutritionist.id,
+        listingName: selectedNutritionist.name,
+        payload: { date: bookingDate, time: bookingTime, notes: bookingNotes },
+      });
+      toast({
+        title: "Request sent",
+        description: "This is not a confirmed booking. WeFit will follow up if a partner is available.",
+      });
+      setNutritionistDialog(false);
+      setBookingDate("");
+      setBookingTime("");
+      setBookingNotes("");
+    } catch (err: unknown) {
+      toast({
+        variant: "destructive",
+        title: "Could not send request",
+        description: err instanceof Error ? err.message : "Sign in and try again.",
+      });
+    } finally {
+      setSending(false);
+    }
   };
 
-  const handleEventRegistration = () => {
-    toast({
-      title: "Registration Successful!",
-      description: "You're all set for the event. Check your email for details.",
-    });
-    setEventDialog(false);
-    setEventName("");
-    setEventEmail("");
-    setEventPhone("");
+  const handleEventInterest = async () => {
+    if (!selectedEvent) return;
+    setSending(true);
+    try {
+      await createInquiry({
+        type: "event_interest",
+        listingId: selectedEvent.id,
+        listingName: selectedEvent.name,
+        payload: { name: eventName, email: eventEmail, phone: eventPhone, listedPrice: selectedEvent.price },
+      });
+      toast({
+        title: "Interest recorded",
+        description: "Not a ticket. Sample events are not live registrations.",
+      });
+      setEventDialog(false);
+      setEventName("");
+      setEventEmail("");
+      setEventPhone("");
+    } catch (err: unknown) {
+      toast({
+        variant: "destructive",
+        title: "Could not send request",
+        description: err instanceof Error ? err.message : "Sign in and try again.",
+      });
+    } finally {
+      setSending(false);
+    }
   };
 
   // Render section helper
@@ -507,6 +540,9 @@ export const ExploreListing = ({ searchQuery }: ExploreListingProps) => {
 
   return (
     <div className="space-y-4 sm:space-y-6 md:space-y-8">
+      <p className="text-sm text-muted-foreground rounded-lg border border-border/60 bg-muted/40 px-3 py-2">
+        Sample directory. Membership, trainer, and meal actions send a request to WeFit — they are not checkout or a confirmed booking.
+      </p>
       <ExploreFilters
         activeCategory={activeCategory}
         onCategoryChange={setActiveCategory}
@@ -536,7 +572,7 @@ export const ExploreListing = ({ searchQuery }: ExploreListingProps) => {
               category="Gym"
               categoryIcon={<Dumbbell className="h-3 w-3" />}
               onAction={() => handleGymVisit(gym)}
-              actionLabel="View & Join"
+              actionLabel="Request membership"
               featured={index === 0}
             />
           ), "gyms")}
@@ -556,7 +592,7 @@ export const ExploreListing = ({ searchQuery }: ExploreListingProps) => {
               category="Trainer"
               categoryIcon={<User className="h-3 w-3" />}
               onAction={() => handleTrainerBook(trainer)}
-              actionLabel="Book Session"
+              actionLabel="Request session"
               actionIcon={<Calendar className="h-4 w-4" />}
             />
           ), "trainers")}
@@ -576,7 +612,7 @@ export const ExploreListing = ({ searchQuery }: ExploreListingProps) => {
               category="Nutritionist"
               categoryIcon={<Utensils className="h-3 w-3" />}
               onAction={() => handleNutritionistBook(nutritionist)}
-              actionLabel="Book Consultation"
+              actionLabel="Request consult"
               actionIcon={<Calendar className="h-4 w-4" />}
             />
           ), "nutritionists")}
@@ -595,7 +631,7 @@ export const ExploreListing = ({ searchQuery }: ExploreListingProps) => {
               category="Store"
               categoryIcon={<ShoppingBag className="h-3 w-3" />}
               onAction={() => handleStoreVisit(store)}
-              actionLabel="Visit Store"
+              actionLabel="Details"
               actionIcon={<ExternalLink className="h-4 w-4" />}
             />
           ), "stores")}
@@ -612,7 +648,7 @@ export const ExploreListing = ({ searchQuery }: ExploreListingProps) => {
               category="Event"
               categoryIcon={<Calendar className="h-3 w-3" />}
               onAction={() => handleEventRegister(event)}
-              actionLabel="Register Now"
+              actionLabel="Express interest"
               actionIcon={<CheckCircle2 className="h-4 w-4" />}
             >
               <p className="text-xs text-muted-foreground">by {event.organizer}</p>
@@ -632,7 +668,7 @@ export const ExploreListing = ({ searchQuery }: ExploreListingProps) => {
               category="Outdoor"
               categoryIcon={<TreePine className="h-3 w-3" />}
               onAction={() => handleSpotDirections(spot)}
-              actionLabel="Get Directions"
+              actionLabel="Open Maps"
               actionIcon={<Navigation className="h-4 w-4" />}
             >
               <p className="text-xs text-muted-foreground">Best time: {spot.bestTime}</p>
@@ -651,7 +687,7 @@ export const ExploreListing = ({ searchQuery }: ExploreListingProps) => {
               category="Influencer"
               categoryIcon={<TrendingUp className="h-3 w-3" />}
               onAction={() => handleInfluencerFollow(influencer)}
-              actionLabel="Follow"
+              actionLabel="About"
               actionIcon={<Users className="h-4 w-4" />}
             />
           ), "influencers")}
@@ -675,8 +711,10 @@ export const ExploreListing = ({ searchQuery }: ExploreListingProps) => {
       <Dialog open={nutritionistDialog} onOpenChange={setNutritionistDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Book Consultation with {selectedNutritionist?.name}</DialogTitle>
-            <DialogDescription>Schedule your nutrition consultation</DialogDescription>
+            <DialogTitle>Request consult with {selectedNutritionist?.name}</DialogTitle>
+            <DialogDescription>
+              This is a request, not a confirmed appointment. WeFit does not take payment here.
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div>
@@ -708,7 +746,9 @@ export const ExploreListing = ({ searchQuery }: ExploreListingProps) => {
             </div>
           </div>
           <DialogFooter>
-            <Button onClick={handleBookingSubmit}>Confirm Booking</Button>
+            <Button onClick={handleNutritionistRequest} disabled={sending}>
+              {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : "Send request"}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -736,10 +776,11 @@ export const ExploreListing = ({ searchQuery }: ExploreListingProps) => {
           </div>
           <DialogFooter>
             <Button onClick={() => {
-              toast({ title: "Opening Store", description: "Redirecting to store website..." });
+              if (!selectedStore) return;
+              window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selectedStore.name + " " + selectedStore.location)}`, "_blank");
               setStoreDialog(false);
             }}>
-              Visit Store
+              Open in Maps
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -748,8 +789,10 @@ export const ExploreListing = ({ searchQuery }: ExploreListingProps) => {
       <Dialog open={eventDialog} onOpenChange={setEventDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Register for {selectedEvent?.name}</DialogTitle>
-            <DialogDescription>Complete your event registration</DialogDescription>
+            <DialogTitle>Interest in {selectedEvent?.name}</DialogTitle>
+            <DialogDescription>
+              Sample event — this records interest with WeFit. It is not a ticket or payment.
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div>
@@ -781,11 +824,13 @@ export const ExploreListing = ({ searchQuery }: ExploreListingProps) => {
               />
             </div>
             <div className="p-4 bg-muted rounded-lg">
-              <p className="text-sm font-semibold">Event Price: {selectedEvent?.price}</p>
+              <p className="text-sm font-semibold">Listed price: {selectedEvent?.price}</p>
             </div>
           </div>
           <DialogFooter>
-            <Button onClick={handleEventRegistration}>Complete Registration</Button>
+            <Button onClick={handleEventInterest} disabled={sending}>
+              {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : "Send interest"}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

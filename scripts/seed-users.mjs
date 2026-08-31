@@ -232,6 +232,10 @@ async function seed() {
       city: "Abuja", state: "FCT",
       cuisine_types: ["Nigerian Cuisine", "Healthy", "Meal Prep"],
       is_verified: true,
+      published: true,
+      delivery_fee_naira: 500,
+      min_order_naira: 1500,
+      phone: "+234 803 000 1111",
     });
     if (error) console.error(`    ❌  vendor: ${error.message}`);
     else       console.log("    ✓  Kemi's Healthy Kitchen");
@@ -250,9 +254,52 @@ async function seed() {
       city: "Lagos", state: "Lagos",
       certifications: ["NSCA-CSCS", "CPR/AED Certified"],
       rating: 4.9,
+      price_per_session_naira: 6000,
+      published: true,
+      kind: "trainer",
     });
     if (error) console.error(`    ❌  trainer: ${error.message}`);
     else       console.log("    ✓  Emeka Nwosu CSCS");
+  }
+
+  console.log("\n  Seeding gym…");
+  const gymId = byEmail["gymowner@wefit.ng"];
+  if (gymId) {
+    await supabase.from("gyms").delete().eq("user_id", gymId);
+    const { error } = await supabase.from("gyms").insert({
+      user_id: gymId,
+      name: "Bola Fitness Club",
+      address: "Ikeja GRA",
+      city: "Lagos",
+      state: "Lagos",
+      phone: "+234 802 000 2222",
+      published: true,
+      is_verified: true,
+      capacity: 80,
+      membership_plans: [
+        { id: "monthly", name: "Monthly", amount_naira: 25000, months: 1 },
+        { id: "quarterly", name: "Quarterly", amount_naira: 65000, months: 3 },
+        { id: "yearly", name: "Yearly", amount_naira: 240000, months: 12 },
+      ],
+    });
+    if (error) console.error(`    ❌  gym: ${error.message}`);
+    else console.log("    ✓  Bola Fitness Club");
+  }
+
+  console.log("\n  Seeding influencer…");
+  const infId = byEmail["influencer@wefit.ng"];
+  if (infId) {
+    await supabase.from("influencers").delete().eq("user_id", infId);
+    const { error } = await supabase.from("influencers").insert({
+      user_id: infId,
+      name: "Tunde Oladele",
+      niche: "Strength & lifestyle",
+      platform: "WeFit",
+      partnership_rate_naira: 50000,
+      published: true,
+    });
+    if (error) console.error(`    ❌  influencer: ${error.message}`);
+    else console.log("    ✓  Tunde Oladele");
   }
 
   // ── Activity Feed ──────────────────────────────────────────────────

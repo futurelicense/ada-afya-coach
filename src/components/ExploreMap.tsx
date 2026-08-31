@@ -33,14 +33,16 @@ export const ExploreMap = () => {
               <div className="text-center space-y-2 sm:space-y-4">
                 <MapPin className="h-10 w-10 sm:h-12 md:h-16 sm:w-12 md:w-16 mx-auto text-primary animate-bounce" />
                 <div className="space-y-1 sm:space-y-2">
-                  <p className="text-sm sm:text-base md:text-lg font-semibold">Interactive Map Coming Soon</p>
+                  <p className="text-sm sm:text-base md:text-lg font-semibold">Open listings in Google Maps</p>
                   <p className="text-xs sm:text-sm text-muted-foreground max-w-md">
-                    View all fitness locations on an interactive map
+                    Each gym, trainer, and park card has a maps link. An in-app map is not included yet.
                   </p>
                 </div>
-                <Button size="sm" className="shadow-glow text-xs sm:text-sm">
-                  <Navigation className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                  Enable Location
+                <Button size="sm" className="shadow-glow text-xs sm:text-sm" asChild>
+                  <a href="https://www.google.com/maps/search/gyms+near+me+Nigeria" target="_blank" rel="noreferrer">
+                    <Navigation className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                    Search nearby gyms
+                  </a>
                 </Button>
               </div>
             </div>

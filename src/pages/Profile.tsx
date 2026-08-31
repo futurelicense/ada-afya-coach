@@ -10,7 +10,6 @@ import { GoalSetting } from "@/components/GoalSetting";
 import { ProgressExport } from "@/components/ProgressExport";
 import { ProgressPhotos } from "@/components/ProgressPhotos";
 import { ProgressPhotoComparison } from "@/components/ProgressPhotoComparison";
-import { LocalNigerianIntegration } from "@/components/LocalNigerianIntegration";
 import { User, Edit, Target, TrendingUp, Award, Calendar, Flame, Activity, Save, X, Bell, BellOff } from "lucide-react";
 import { useState, useEffect } from "react";
 import { userDataService, UserProfile, Goal } from "@/lib/userDataService";
@@ -49,6 +48,7 @@ const Profile = () => {
     setEditForm(profile ? { ...profile } : {
       name: '', email: '', age: 25, fitnessLevel: 'intermediate', goals: [],
       weight: 70, targetWeight: 75, height: 170, location: '', joinDate: new Date().toISOString().split('T')[0],
+      role: 'user', onboardingDone: false,
     });
     setIsEditing(true);
   };
@@ -256,8 +256,6 @@ const Profile = () => {
             <ProgressPhotoComparison />
           </div>
 
-          <LocalNigerianIntegration />
-          
           <ProgressExport
             stats={{
               totalWorkouts: totalStats.totalWorkouts,

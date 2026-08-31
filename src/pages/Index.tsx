@@ -73,17 +73,17 @@ const FEATURES = [
 const MARQUEE_ITEMS = [
   "AI Workout Generator", "Nigerian Meal Plans", "Food Scanner", "Live Training Sessions",
   "Community Leaderboard", "Streak Tracking", "Coach Ada AI", "Progress Analytics",
-  "Paystack Payments", "Push Notifications", "Dark Mode", "Works Offline",
+  "Paystack Payments", "Push Notifications", "Dark Mode", "Installable PWA",
   "AI Workout Generator", "Nigerian Meal Plans", "Food Scanner", "Live Training Sessions",
   "Community Leaderboard", "Streak Tracking", "Coach Ada AI", "Progress Analytics",
-  "Paystack Payments", "Push Notifications", "Dark Mode", "Works Offline",
+  "Paystack Payments", "Push Notifications", "Dark Mode", "Installable PWA",
 ];
 
 const WHY_ITEMS = [
-  { icon: "🇳🇬", title: "Built for Nigeria", desc: "AI trained on Nigerian foods, culture, and fitness habits. Not a foreign app retrofitted." },
-  { icon: "💳", title: "Pay with Paystack", desc: "₦2,500/month — no foreign card, no hassle. Upgrade or cancel any time." },
-  { icon: "📶", title: "Works on any connection", desc: "Optimised for 3G. Offline-ready PWA — no data, no problem." },
-  { icon: "🔒", title: "Your data, secured", desc: "End-to-end encrypted. Your health data never leaves our Nigerian-tuned servers." },
+  { icon: "🇳🇬", title: "Built for Nigeria", desc: "AI prompted around Nigerian foods, culture, and fitness habits — not a foreign app with a naira sticker." },
+  { icon: "💳", title: "Pay with Paystack", desc: "Pro is ₦2,500/month. Upgrade or cancel through Paystack." },
+  { icon: "📶", title: "Works on 3G", desc: "The app is a PWA you can install. AI, auth, and payments still need a connection." },
+  { icon: "🔒", title: "Your data, secured", desc: "TLS in transit, encrypted at rest with our cloud providers. We do not sell your health logs." },
 ];
 
 export default function Index() {
@@ -116,7 +116,7 @@ export default function Index() {
               <Link to="/auth">
                 <Button variant="ghost" size="sm" className="hidden md:flex">Sign in</Button>
               </Link>
-              <Button size="sm" className="shadow-glow gap-1.5" onClick={() => navigate("/onboarding")}>
+              <Button size="sm" className="shadow-glow gap-1.5" onClick={() => navigate("/auth?mode=signup")}>
                 Get started <ArrowRight className="w-3.5 h-3.5" />
               </Button>
             </div>
@@ -137,7 +137,7 @@ export default function Index() {
             {/* Left — copy */}
             <div className="space-y-8 animate-fade-in">
               <Badge className="bg-amber-500/10 text-amber-400 border-amber-500/20 gap-2 px-4 py-1.5 text-sm">
-                🇳🇬 Nigeria's #1 AI Fitness Platform
+                🇳🇬 AI fitness, built for Nigeria
               </Badge>
 
               <h1 className="font-display font-black text-5xl md:text-6xl lg:text-7xl leading-[1.05] tracking-tight text-white">
@@ -154,13 +154,13 @@ export default function Index() {
                 <Button
                   size="lg"
                   className="shadow-glow text-base font-semibold px-8 gap-2 bg-primary hover:bg-primary/90"
-                  onClick={() => navigate("/onboarding")}
+                  onClick={() => navigate("/auth?mode=signup")}
                 >
                   Start Free Today <ArrowRight className="w-4 h-4" />
                 </Button>
                 <Button size="lg" variant="outline" className="border-white/20 text-white hover:bg-white/10 text-base gap-2" asChild>
-                  <Link to="/dashboard">
-                    <Play className="w-4 h-4 fill-current" /> See the app
+                  <Link to="/pricing">
+                    <Play className="w-4 h-4 fill-current" /> See pricing
                   </Link>
                 </Button>
               </div>
@@ -168,13 +168,13 @@ export default function Index() {
               {/* Stats */}
               <div className="grid grid-cols-3 gap-6 pt-6 border-t border-white/10">
                 {[
-                  { value: 50000, suffix: "+", label: "Active users" },
-                  { value: 10,    suffix: "M+", label: "Calories burned" },
-                  { value: 4.9,   suffix: "★",  label: "App rating", decimals: 1 },
-                ].map(({ value, suffix, label, decimals }) => (
+                  { value: 500, suffix: "+", label: "Nigerian dishes in Ada’s knowledge" },
+                  { value: 5,    suffix: "/day", label: "Free AI requests per feature" },
+                  { value: 3,   suffix: " plans",  label: "Free, Pro, Elite" },
+                ].map(({ value, suffix, label }) => (
                   <div key={label}>
                     <div className="font-display font-black text-2xl lg:text-3xl text-white">
-                      <NumberTicker value={value} suffix={suffix} decimals={decimals} />
+                      <NumberTicker value={value} suffix={suffix} />
                     </div>
                     <div className="text-xs text-white/50 mt-0.5">{label}</div>
                   </div>
@@ -355,7 +355,7 @@ export default function Index() {
         <div className={`container mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10 scroll-reveal ${ctaReveal.isVisible ? "visible" : ""}`}>
           <div className="max-w-3xl mx-auto space-y-8">
             <Badge className="bg-amber-500/10 text-amber-400 border-amber-500/20 gap-2 px-4 py-1.5">
-              <Star className="w-3 h-3 fill-current" /> Rated 4.9 by early users
+              <Star className="w-3 h-3 fill-current" /> Free to start · Paystack when you upgrade
             </Badge>
             <h2 className="font-display font-black text-4xl md:text-6xl text-white leading-tight">
               Your fitness journey<br />starts <span className="text-gradient">right now</span>
@@ -367,7 +367,7 @@ export default function Index() {
               <Button
                 size="lg"
                 className="shadow-glow text-base font-semibold px-10 gap-2"
-                onClick={() => navigate("/onboarding")}
+                onClick={() => navigate("/auth?mode=signup")}
               >
                 <Zap className="w-4 h-4" /> Start for free
               </Button>
@@ -390,7 +390,7 @@ export default function Index() {
                 <span className="font-display font-bold text-gradient">WeFit</span>
               </div>
               <p className="text-xs text-white/40 leading-relaxed">
-                Nigeria's first AI-powered fitness platform. Train smarter, eat better, live healthier.
+                Nigeria&apos;s AI-powered fitness platform. Train smarter, eat better, live healthier.
               </p>
             </div>
             {[
@@ -411,10 +411,9 @@ export default function Index() {
             ))}
           </div>
           <div className="border-t border-white/5 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <p className="text-xs text-white/30">© 2025 WeFit. Made with ❤️ in Nigeria.</p>
+            <p className="text-xs text-white/30">© 2026 WeFit. Made in Nigeria.</p>
             <div className="flex items-center gap-1">
-              {[1,2,3,4,5].map(i => <Star key={i} className="w-3 h-3 fill-amber-400 text-amber-400" />)}
-              <span className="text-xs text-white/40 ml-1.5">4.9 · 2.4k reviews</span>
+              <span className="text-xs text-white/40">AI coaching · Nigerian meals · Paystack</span>
             </div>
           </div>
         </div>

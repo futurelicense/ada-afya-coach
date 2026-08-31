@@ -945,6 +945,45 @@ $$;
 
 
 -- ═══════════════════════════════════════════════════════════════════
+-- Phase 9: Gender + partner inquiries (see migrations/009_gender_inquiries.sql)
+-- ═══════════════════════════════════════════════════════════════════
+
+alter table public.profiles add column if not exists gender text;
+
+create table if not exists public.inquiries (
+  id            uuid primary key default gen_random_uuid(),
+  user_id       uuid references auth.users(id) on delete cascade not null,
+  type          text not null check (type in ('gym_membership', 'trainer_booking', 'meal_order', 'nutritionist_booking', 'event_interest')),
+  listing_id    text,
+  listing_name  text not null,
+  payload       jsonb not null default '{}',
+  status        text not null default 'pending' check (status in ('pending', 'contacted', 'closed')),
+  created_at    timestamptz default now()
+);
+
+create index if not exists inquiries_user_idx on public.inquiries (user_id, created_at desc);
+alter table public.inquiries enable row level security;
+create policy "own inquiries" on public.inquiries
+  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+create or replace function public.increment_challenge_participants(p_challenge_id uuid)
+returns void language plpgsql security definer set search_path = public as $$
+begin
+  update public.community_challenges
+  set participant_count = coalesce(participant_count, 0) + 1
+  where id = p_challenge_id;
+end;
+$$;
+
+
+-- ═══════════════════════════════════════════════════════════════════
+-- ═══════════════════════════════════════════════════════════════════
+-- Phase 10: Live marketplace — see migrations/011_marketplace_live.sql
+-- gym_memberships, influencers, vendor_menu_items, ensure_business_listing,
+-- fulfill_marketplace_payment. Paystack kinds: meal_order, trainer_booking,
+-- gym_membership, partnership.
+-- ═══════════════════════════════════════════════════════════════════
+
 -- Done. Next step: create seed users (one per role) via the Admin API:
 --   SUPABASE_SERVICE_ROLE_KEY=eyJ... node scripts/seed-users.mjs
 -- Password for all seed accounts: OneFitness

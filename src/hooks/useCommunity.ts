@@ -111,11 +111,7 @@ export function useCommunity() {
     })
     if (error) return false
 
-    // Increment participant count
-    await supabase
-      .from('community_challenges')
-      .update({ participant_count: supabase.rpc('increment', { x: 1 }) as any })
-      .eq('id', challengeId)
+    await supabase.rpc('increment_challenge_participants', { p_challenge_id: challengeId })
 
     setChallenges(prev =>
       prev.map(c => c.id === challengeId ? { ...c, joined: true, current_value: 0, participant_count: c.participant_count + 1 } : c)

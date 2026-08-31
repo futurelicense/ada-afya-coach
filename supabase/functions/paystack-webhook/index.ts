@@ -44,20 +44,31 @@ Deno.serve(async (req: Request) => {
     switch (event.event) {
       case 'charge.success': {
         const userId = data.metadata?.user_id
+        const kind   = data.metadata?.kind ?? (data.metadata?.plan ? 'subscription' : null)
         const plan   = data.metadata?.plan
-        if (!userId || !['pro','elite'].includes(plan)) break
 
-        const endsAt = new Date()
-        endsAt.setDate(endsAt.getDate() + 30)
+        if (kind === 'subscription' || (plan && ['pro','elite'].includes(plan))) {
+          if (!userId || !['pro','elite'].includes(plan)) break
+          const endsAt = new Date()
+          endsAt.setDate(endsAt.getDate() + 30)
+          await supabase.rpc('upsert_subscription', {
+            p_user_id:            userId,
+            p_plan:               plan,
+            p_paystack_reference: data.reference,
+            p_paystack_customer_code: data.customer?.customer_code ?? null,
+            p_amount_naira:       Math.round(data.amount / 100),
+            p_ends_at:            endsAt.toISOString(),
+          })
+          break
+        }
 
-        await supabase.rpc('upsert_subscription', {
-          p_user_id:            userId,
-          p_plan:               plan,
-          p_paystack_reference: data.reference,
-          p_paystack_customer_code: data.customer?.customer_code ?? null,
-          p_amount_naira:       Math.round(data.amount / 100),
-          p_ends_at:            endsAt.toISOString(),
-        })
+        if (userId && kind && ['meal_order','trainer_booking','gym_membership','partnership'].includes(kind)) {
+          await supabase.rpc('fulfill_marketplace_payment', {
+            p_kind: kind,
+            p_reference: data.reference,
+            p_user_id: userId,
+          })
+        }
         break
       }
 

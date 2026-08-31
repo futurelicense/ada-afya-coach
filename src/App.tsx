@@ -10,14 +10,15 @@ import { ScrollToTop } from "./components/ScrollToTop";
 import { Layout } from "./components/Layout";
 import { FloatingAIChat } from "./components/FloatingAIChat";
 import { AuthProvider } from "./contexts/AuthContext";
+import { ErrorBoundary } from "./components/ErrorBoundary";
+import { ProtectedRoute, GuestOnly } from "./components/ProtectedRoute";
+import { PaymentReturnHandler } from "./components/PaymentReturnHandler";
 import { trackPageView } from "./lib/analytics";
 
-// Eagerly load critical path pages
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 
-// Lazy-load everything else
 const Onboarding           = lazy(() => import("./pages/Onboarding"));
 const Dashboard            = lazy(() => import("./pages/Dashboard"));
 const Workouts             = lazy(() => import("./pages/Workouts"));
@@ -35,6 +36,10 @@ const About                = lazy(() => import("./pages/About"));
 const Blog                 = lazy(() => import("./pages/Blog"));
 const Careers              = lazy(() => import("./pages/Careers"));
 const Pricing              = lazy(() => import("./pages/Pricing"));
+const Privacy              = lazy(() => import("./pages/Privacy"));
+const Terms                = lazy(() => import("./pages/Terms"));
+const Security             = lazy(() => import("./pages/Security"));
+const ResetPassword        = lazy(() => import("./pages/ResetPassword"));
 
 function PageViewTracker() {
   const { pathname } = useLocation();
@@ -52,48 +57,63 @@ function PageFallback() {
   );
 }
 
+function AppShell({ children }: { children: React.ReactNode }) {
+  return (
+    <ProtectedRoute>
+      <Layout>{children}</Layout>
+    </ProtectedRoute>
+  );
+}
+
 const queryClient = new QueryClient();
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
-      <AuthProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <ScrollToTop />
-            <PageViewTracker />
-            <Suspense fallback={<PageFallback />}>
-              <Routes>
-                  <Route path="/"                        element={<Index />} />
-                  <Route path="/auth"                    element={<Auth />} />
-                  <Route path="/onboarding"              element={<Onboarding />} />
-                  <Route path="/role-selection"          element={<RoleSelection />} />
-                  <Route path="/about"                   element={<About />} />
-                  <Route path="/blog"                    element={<Blog />} />
-                  <Route path="/careers"                 element={<Careers />} />
-                  <Route path="/pricing"                 element={<Pricing />} />
-                  <Route path="/dashboard"               element={<Layout><Dashboard /></Layout>} />
-                  <Route path="/vendor-dashboard"        element={<Layout><VendorDashboard /></Layout>} />
-                  <Route path="/trainer-dashboard"       element={<Layout><TrainerDashboard /></Layout>} />
-                  <Route path="/gym-owner-dashboard"     element={<Layout><GymOwnerDashboard /></Layout>} />
-                  <Route path="/influencer-dashboard"    element={<Layout><InfluencerDashboard /></Layout>} />
-                  <Route path="/workouts"                element={<Layout><Workouts /></Layout>} />
-                  <Route path="/nutrition"               element={<Layout><Nutrition /></Layout>} />
-                  <Route path="/analytics"               element={<Layout><Analytics /></Layout>} />
-                  <Route path="/explore"                 element={<Layout><Explore /></Layout>} />
-                  <Route path="/community"               element={<Layout><Community /></Layout>} />
-                  <Route path="/profile"                 element={<Layout><Profile /></Layout>} />
-                  <Route path="*"                        element={<NotFound />} />
-              </Routes>
-            </Suspense>
-            <FloatingAIChat />
-          </BrowserRouter>
-        </TooltipProvider>
-      </AuthProvider>
-    </ThemeProvider>
-  </QueryClientProvider>
+  <ErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
+        <AuthProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <ScrollToTop />
+              <PageViewTracker />
+              <PaymentReturnHandler />
+              <Suspense fallback={<PageFallback />}>
+                <Routes>
+                    <Route path="/"                        element={<Index />} />
+                    <Route path="/auth"                    element={<GuestOnly><Auth /></GuestOnly>} />
+                    <Route path="/reset-password"          element={<ResetPassword />} />
+                    <Route path="/onboarding"              element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
+                    <Route path="/role-selection"          element={<ProtectedRoute><RoleSelection /></ProtectedRoute>} />
+                    <Route path="/about"                   element={<About />} />
+                    <Route path="/blog"                    element={<Blog />} />
+                    <Route path="/careers"                 element={<Careers />} />
+                    <Route path="/pricing"                 element={<Pricing />} />
+                    <Route path="/privacy"                 element={<Privacy />} />
+                    <Route path="/terms"                   element={<Terms />} />
+                    <Route path="/security"                element={<Security />} />
+                    <Route path="/dashboard"               element={<AppShell><Dashboard /></AppShell>} />
+                    <Route path="/vendor-dashboard"        element={<ProtectedRoute allowedRoles={["vendor"]}><Layout><VendorDashboard /></Layout></ProtectedRoute>} />
+                    <Route path="/trainer-dashboard"       element={<ProtectedRoute allowedRoles={["trainer"]}><Layout><TrainerDashboard /></Layout></ProtectedRoute>} />
+                    <Route path="/gym-owner-dashboard"     element={<ProtectedRoute allowedRoles={["gym_owner"]}><Layout><GymOwnerDashboard /></Layout></ProtectedRoute>} />
+                    <Route path="/influencer-dashboard"    element={<ProtectedRoute allowedRoles={["influencer"]}><Layout><InfluencerDashboard /></Layout></ProtectedRoute>} />
+                    <Route path="/workouts"                element={<AppShell><Workouts /></AppShell>} />
+                    <Route path="/nutrition"               element={<AppShell><Nutrition /></AppShell>} />
+                    <Route path="/analytics"               element={<AppShell><Analytics /></AppShell>} />
+                    <Route path="/explore"                 element={<AppShell><Explore /></AppShell>} />
+                    <Route path="/community"               element={<AppShell><Community /></AppShell>} />
+                    <Route path="/profile"                 element={<AppShell><Profile /></AppShell>} />
+                    <Route path="*"                        element={<NotFound />} />
+                </Routes>
+              </Suspense>
+              <FloatingAIChat />
+            </BrowserRouter>
+          </TooltipProvider>
+        </AuthProvider>
+      </ThemeProvider>
+    </QueryClientProvider>
+  </ErrorBoundary>
 );
 
 export default App;

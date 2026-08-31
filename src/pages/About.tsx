@@ -14,10 +14,10 @@ const team = [
 ];
 
 const stats = [
-  { value: "50K+", label: "Active Users" },
-  { value: "500+", label: "Nigerian Dishes" },
-  { value: "10M+", label: "Calories Tracked" },
-  { value: "4.9★", label: "App Rating" },
+  { value: "500+", label: "Nigerian dishes Ada knows" },
+  { value: "3", label: "Plans: Free, Pro, Elite" },
+  { value: "₦2,500", label: "Pro per month via Paystack" },
+  { value: "Claude", label: "AI behind Coach Ada" },
 ];
 
 const values = [
@@ -55,7 +55,7 @@ export default function About() {
           <p className="text-lg text-muted-foreground">
             WeFit was born from a simple frustration: global fitness apps don&apos;t understand Nigerian foods, bodies, or lifestyles. So we built one that does.
           </p>
-          <Button className="shadow-glow" onClick={() => navigate("/onboarding")}>
+          <Button className="shadow-glow" onClick={() => navigate("/auth?mode=signup")}>
             Join the Movement
           </Button>
         </div>
@@ -77,10 +77,10 @@ export default function About() {
                 In 2023, Adaeze Okonkwo and Emeka Eze were building separate health apps when they met at a Lagos tech conference. Both had the same problem: every AI nutrition tool they tried couldn&apos;t recognise a plate of egusi soup or tell the difference between eba and fufu.
               </p>
               <p>
-                They co-founded WeFit with a mission to create an AI wellness companion that actually understands Nigerian lifestyles. Within 6 months, they had a prototype. Within 12 months, 10,000 users. Today, WeFit serves over 50,000 Nigerians across all 36 states.
+                They co-founded WeFit to build an AI wellness companion that understands Nigerian lifestyles. The product is in active development: Coach Ada, meal and workout generation, Paystack subscriptions, and community challenges are live. Directory listings of gyms and trainers are informational — requests, not instant checkout.
               </p>
               <p>
-                We&apos;re backed by leading African venture capital firms and a community of passionate users who believe technology should reflect their culture.
+                We are an independent team. We are not claiming a user count, nationwide coverage, or venture backing we cannot show.
               </p>
             </div>
           </div>
@@ -152,8 +152,8 @@ export default function About() {
               <h3 className="font-semibold">Help Center</h3>
             </div>
             <p className="text-sm text-muted-foreground mb-3">Browse our knowledge base or chat with Ada for instant support.</p>
-            <Button variant="outline" size="sm" className="w-full" onClick={() => navigate("/auth")}>
-              Open Help Center
+            <Button variant="outline" size="sm" className="w-full" asChild>
+              <Link to="/dashboard">Chat with Ada</Link>
             </Button>
           </Card>
           <Card className="p-6 border-border/50" id="privacy">
@@ -161,9 +161,12 @@ export default function About() {
               <Shield className="w-5 h-5 text-green-500" />
               <h3 className="font-semibold">Privacy Policy</h3>
             </div>
-            <p className="text-sm text-muted-foreground">
-              Your data belongs to you. We never sell personal health data to third parties. All data is encrypted and stored securely within Nigeria.
+            <p className="text-sm text-muted-foreground mb-3">
+              Your data belongs to you. We do not sell personal health data. Read the full policy for storage and encryption details.
             </p>
+            <Button variant="outline" size="sm" className="w-full" asChild>
+              <Link to="/privacy">Privacy policy</Link>
+            </Button>
           </Card>
         </div>
       </div>

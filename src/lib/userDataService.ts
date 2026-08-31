@@ -1,6 +1,8 @@
 // Supabase-backed user data service
 import { supabase } from '@/lib/supabase';
 
+export type UserRole = 'user' | 'vendor' | 'trainer' | 'gym_owner' | 'influencer' | 'admin';
+
 export interface UserProfile {
   name: string;
   email: string;
@@ -13,6 +15,9 @@ export interface UserProfile {
   location: string;
   joinDate: string;
   plan?: 'free' | 'pro' | 'elite';
+  role: UserRole;
+  onboardingDone: boolean;
+  gender?: string | null;
 }
 
 export interface WorkoutSession {
@@ -85,6 +90,9 @@ function profileFromRow(row: any): UserProfile {
     location: row.location ?? '',
     joinDate: row.join_date ?? today(),
     plan: row.plan ?? 'free',
+    role: row.role ?? 'user',
+    onboardingDone: row.onboarding_done ?? false,
+    gender: row.gender ?? null,
   };
 }
 
@@ -201,7 +209,24 @@ class UserDataService {
       height: profile.height,
       location: profile.location,
       join_date: profile.joinDate,
+      role: profile.role,
+      onboarding_done: profile.onboardingDone,
+      gender: profile.gender ?? null,
     }, { onConflict: 'id' });
+  }
+
+  async setRole(role: UserRole): Promise<void> {
+    const userId = await currentUserId();
+    if (!userId) return;
+    const { error } = await supabase.from('profiles').update({ role }).eq('id', userId);
+    if (error) throw error;
+    if (['vendor', 'trainer', 'gym_owner', 'influencer'].includes(role)) {
+      const { error: listingError } = await supabase.rpc('ensure_business_listing', {
+        p_user_id: userId,
+        p_role: role,
+      });
+      if (listingError) throw listingError;
+    }
   }
 
   // ── Workouts ─────────────────────────────────────────────

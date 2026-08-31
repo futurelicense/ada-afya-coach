@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate, Link, useSearchParams } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label'
 import { Sparkles, ArrowLeft, Loader2, Eye, EyeOff } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 import { useAuth } from '@/contexts/AuthContext'
+import { userDataService } from '@/lib/userDataService'
 
 const signUpSchema = z.object({
   name:     z.string().trim().min(2, 'Name must be at least 2 characters').max(100),
@@ -27,55 +28,83 @@ const signInSchema = z.object({
 type SignUpData = z.infer<typeof signUpSchema>
 type SignInData = z.infer<typeof signInSchema>
 
+function homeForRole(role?: string) {
+  if (role === 'vendor') return '/vendor-dashboard'
+  if (role === 'trainer') return '/trainer-dashboard'
+  if (role === 'gym_owner') return '/gym-owner-dashboard'
+  if (role === 'influencer') return '/influencer-dashboard'
+  return '/dashboard'
+}
+
 export default function Auth() {
-  const [isSignUp, setIsSignUp]       = useState(false)
+  const [searchParams] = useSearchParams()
+  const [isSignUp, setIsSignUp]       = useState(searchParams.get('mode') === 'signup')
+  const [forgot, setForgot]           = useState(false)
   const [loading, setLoading]         = useState(false)
   const [showPassword, setShowPassword] = useState(false)
+  const [resetEmail, setResetEmail]   = useState('')
   const navigate  = useNavigate()
   const { toast } = useToast()
-  const { signUp, signIn } = useAuth()
+  const { signUp, signIn, resetPassword } = useAuth()
 
   const signUpForm = useForm<SignUpData>({ resolver: zodResolver(signUpSchema) })
   const signInForm = useForm<SignInData>({ resolver: zodResolver(signInSchema) })
 
   async function handleSignUp(data: SignUpData) {
     setLoading(true)
-    const { error } = await signUp(data.email, data.password, data.name)
+    const { error, session } = await signUp(data.email, data.password, data.name)
     setLoading(false)
 
     if (error) {
-      toast({
-        variant:     'destructive',
-        title:       'Sign up failed',
-        description: error.message,
-      })
+      toast({ variant: 'destructive', title: 'Sign up failed', description: error.message })
       return
     }
 
-    toast({ title: 'Account created!', description: 'Welcome to WeFit 🎉' })
+    if (!session) {
+      toast({
+        title: 'Check your email',
+        description: 'Confirm your address, then sign in to finish setup.',
+      })
+      setIsSignUp(false)
+      return
+    }
+
+    toast({ title: 'Account created', description: 'Let’s set up your plan.' })
     navigate('/onboarding')
   }
 
   async function handleSignIn(data: SignInData) {
     setLoading(true)
     const { error } = await signIn(data.email, data.password)
-    setLoading(false)
-
     if (error) {
-      toast({
-        variant:     'destructive',
-        title:       'Sign in failed',
-        description: 'Incorrect email or password.',
-      })
+      setLoading(false)
+      toast({ variant: 'destructive', title: 'Sign in failed', description: 'Incorrect email or password.' })
       return
     }
 
-    toast({ title: 'Welcome back!', description: 'Good to see you again 💪' })
-    navigate('/dashboard')
+    const profile = await userDataService.getProfile()
+    setLoading(false)
+    toast({ title: 'Welcome back' })
+    if (!profile?.onboardingDone) navigate('/onboarding')
+    else navigate(homeForRole(profile.role))
+  }
+
+  async function handleForgot(e: React.FormEvent) {
+    e.preventDefault()
+    setLoading(true)
+    const { error } = await resetPassword(resetEmail)
+    setLoading(false)
+    if (error) {
+      toast({ variant: 'destructive', title: 'Could not send email', description: error.message })
+      return
+    }
+    toast({ title: 'Check your email', description: 'Use the link to set a new password.' })
+    setForgot(false)
   }
 
   function toggle() {
     setIsSignUp(v => !v)
+    setForgot(false)
     signUpForm.reset()
     signInForm.reset()
   }
@@ -83,54 +112,56 @@ export default function Auth() {
   return (
     <div className="min-h-screen flex items-center justify-center p-4 gradient-hero">
       <div className="w-full max-w-md space-y-6">
-        {/* Back link */}
         <Link to="/" className="flex items-center gap-2 text-white/80 hover:text-white transition-colors text-sm">
           <ArrowLeft className="w-4 h-4" />
           Back to Home
         </Link>
 
         <Card className="p-8 glass shadow-premium border-white/10">
-          {/* Header */}
           <div className="text-center mb-8">
             <div className="w-14 h-14 rounded-2xl gradient-primary flex items-center justify-center mx-auto mb-4 shadow-glow">
               <Sparkles className="w-7 h-7 text-white" />
             </div>
             <h1 className="text-3xl font-bold text-gradient">
-              {isSignUp ? 'Create Account' : 'Welcome Back'}
+              {forgot ? 'Reset password' : isSignUp ? 'Create Account' : 'Welcome Back'}
             </h1>
             <p className="text-muted-foreground mt-2 text-sm">
-              {isSignUp ? 'Start your AI-powered fitness journey' : 'Sign in to continue your progress'}
+              {forgot
+                ? 'We’ll email you a reset link'
+                : isSignUp ? 'Start your AI-powered fitness journey' : 'Sign in to continue your progress'}
             </p>
           </div>
 
-          {isSignUp ? (
-            /* ── SIGN UP FORM ── */
+          {forgot ? (
+            <form onSubmit={handleForgot} className="space-y-4">
+              <div className="space-y-1.5">
+                <Label htmlFor="reset-email">Email</Label>
+                <Input id="reset-email" type="email" required value={resetEmail} onChange={e => setResetEmail(e.target.value)} />
+              </div>
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
+                Send reset link
+              </Button>
+              <button type="button" className="w-full text-sm text-primary" onClick={() => setForgot(false)}>
+                Back to sign in
+              </button>
+            </form>
+          ) : isSignUp ? (
             <form onSubmit={signUpForm.handleSubmit(handleSignUp)} className="space-y-4">
               <div className="space-y-1.5">
                 <Label htmlFor="name">Full Name</Label>
-                <Input
-                  id="name"
-                  placeholder="e.g. Tunde Adeyemi"
-                  {...signUpForm.register('name')}
-                />
+                <Input id="name" placeholder="e.g. Tunde Adeyemi" {...signUpForm.register('name')} />
                 {signUpForm.formState.errors.name && (
                   <p className="text-xs text-destructive">{signUpForm.formState.errors.name.message}</p>
                 )}
               </div>
-
               <div className="space-y-1.5">
                 <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="you@example.com"
-                  {...signUpForm.register('email')}
-                />
+                <Input id="email" type="email" placeholder="you@example.com" {...signUpForm.register('email')} />
                 {signUpForm.formState.errors.email && (
                   <p className="text-xs text-destructive">{signUpForm.formState.errors.email.message}</p>
                 )}
               </div>
-
               <div className="space-y-1.5">
                 <Label htmlFor="password">Password</Label>
                 <div className="relative">
@@ -153,28 +184,20 @@ export default function Auth() {
                   <p className="text-xs text-destructive">{signUpForm.formState.errors.password.message}</p>
                 )}
               </div>
-
               <Button type="submit" className="w-full shadow-glow mt-2" disabled={loading}>
                 {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
                 Create Account
               </Button>
             </form>
           ) : (
-            /* ── SIGN IN FORM ── */
             <form onSubmit={signInForm.handleSubmit(handleSignIn)} className="space-y-4">
               <div className="space-y-1.5">
                 <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="you@example.com"
-                  {...signInForm.register('email')}
-                />
+                <Input id="email" type="email" placeholder="you@example.com" {...signInForm.register('email')} />
                 {signInForm.formState.errors.email && (
                   <p className="text-xs text-destructive">{signInForm.formState.errors.email.message}</p>
                 )}
               </div>
-
               <div className="space-y-1.5">
                 <Label htmlFor="password">Password</Label>
                 <div className="relative">
@@ -197,7 +220,9 @@ export default function Auth() {
                   <p className="text-xs text-destructive">{signInForm.formState.errors.password.message}</p>
                 )}
               </div>
-
+              <button type="button" className="text-xs text-primary hover:underline" onClick={() => setForgot(true)}>
+                Forgot password?
+              </button>
               <Button type="submit" className="w-full shadow-glow mt-2" disabled={loading}>
                 {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
                 Sign In
@@ -205,22 +230,20 @@ export default function Auth() {
             </form>
           )}
 
-          {/* Toggle */}
-          <p className="text-center text-sm text-muted-foreground mt-6">
-            {isSignUp ? 'Already have an account?' : "Don't have an account?"}
-            {' '}
-            <button
-              type="button"
-              onClick={toggle}
-              className="text-primary font-medium hover:underline"
-            >
-              {isSignUp ? 'Sign In' : 'Sign Up'}
-            </button>
-          </p>
+          {!forgot && (
+            <p className="text-center text-sm text-muted-foreground mt-6">
+              {isSignUp ? 'Already have an account?' : "Don't have an account?"}
+              {' '}
+              <button type="button" onClick={toggle} className="text-primary font-medium hover:underline">
+                {isSignUp ? 'Sign In' : 'Sign Up'}
+              </button>
+            </p>
+          )}
         </Card>
 
         <p className="text-center text-xs text-white/50">
-          By continuing you agree to our Terms of Service and Privacy Policy.
+          By continuing you agree to our <Link to="/terms" className="underline">Terms</Link> and{' '}
+          <Link to="/privacy" className="underline">Privacy Policy</Link>.
         </p>
       </div>
     </div>

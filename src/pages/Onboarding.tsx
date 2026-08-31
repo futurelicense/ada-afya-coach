@@ -58,23 +58,31 @@ const Onboarding = () => {
     setSaving(true);
 
     const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
-      await supabase.from("profiles").upsert({
-        id:              user.id,
-        name:            formData.name || "User",
-        age:             parseInt(formData.age) || 25,
-        gender:          formData.gender || null,
-        weight:          parseFloat(formData.weight) || 70,
-        height:          parseInt(formData.height) || 170,
-        target_weight:   parseFloat(formData.weight) || 70,
-        fitness_level:   (formData.fitnessLevel || "intermediate"),
-        goals:           formData.goal ? [formData.goal] : [],
-        diet_preference: formData.dietPreference || null,
-        onboarding_done: true,
-      }, { onConflict: "id" });
+    if (!user) {
+      setSaving(false);
+      navigate("/auth");
+      return;
     }
 
+    const { error } = await supabase.from("profiles").upsert({
+      id:              user.id,
+      name:            formData.name || "User",
+      age:             parseInt(formData.age) || 25,
+      gender:          formData.gender || null,
+      weight:          parseFloat(formData.weight) || 70,
+      height:          parseInt(formData.height) || 170,
+      target_weight:   parseFloat(formData.weight) || 70,
+      fitness_level:   (formData.fitnessLevel || "intermediate"),
+      goals:           formData.goal ? [formData.goal] : [],
+      diet_preference: formData.dietPreference || null,
+      onboarding_done: true,
+    }, { onConflict: "id" });
+
     setSaving(false);
+    if (error) {
+      console.error(error);
+      return;
+    }
     navigate("/dashboard");
   };
 
