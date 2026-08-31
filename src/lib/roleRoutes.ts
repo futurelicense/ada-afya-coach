@@ -6,10 +6,10 @@ import type { UserRole } from "@/lib/userDataService";
  */
 export function dashboardPathForRole(role?: UserRole | string | null): string {
   switch (role) {
-    case "vendor":     return "/vendor-dashboard";
-    case "trainer":    return "/trainer-dashboard";
-    case "gym_owner":  return "/gym-owner-dashboard";
-    case "influencer": return "/influencer-dashboard";
+    case "vendor":     return "/vendor";
+    case "trainer":    return "/trainer";
+    case "gym_owner":  return "/gym";
+    case "influencer": return "/influencer";
     case "admin":      return "/admin";
     // "user", unknown → the member dashboard
     default:           return "/dashboard";

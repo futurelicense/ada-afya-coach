@@ -103,9 +103,31 @@ async function prepareMarketplace(supabase: any, userId: string, kind: Marketpla
   if (kind === 'meal_order') {
     const { data: vendor, error } = await supabase.from('vendors').select('id, delivery_fee_naira, min_order_naira').eq('id', body.listingId).single()
     if (error || !vendor) throw new Error('Vendor not found')
-    const items: Array<{ name: string; price_naira: number; qty?: number }> = body.items ?? []
-    if (!items.length) throw new Error('Select at least one meal')
-    const subtotal = items.reduce((s, i) => s + Math.max(0, Number(i.price_naira) || 0) * (i.qty ?? 1), 0)
+
+    const requested: Array<{ menu_item_id?: string; name?: string; price_naira?: number; qty?: number }> = body.items ?? []
+    if (!requested.length) throw new Error('Select at least one meal')
+
+    // Price and stock-check server-side against the real menu. Never trust client prices.
+    const ids = requested.map((i) => i.menu_item_id).filter(Boolean) as string[]
+    const menu = ids.length
+      ? (await supabase.from('vendor_menu_items').select('id, name, price_naira, available, quantity').eq('vendor_id', vendor.id).in('id', ids)).data ?? []
+      : []
+    const byId = new Map(menu.map((m: any) => [m.id, m]))
+
+    const items = requested.map((i) => {
+      const qty = Math.max(1, Math.floor(Number(i.qty) || 1))
+      if (i.menu_item_id) {
+        const m = byId.get(i.menu_item_id)
+        if (!m) throw new Error('A selected dish is no longer on the menu')
+        if (!m.available) throw new Error(`"${m.name}" is currently unavailable`)
+        if (m.quantity != null && m.quantity < qty) throw new Error(`Only ${m.quantity} of "${m.name}" left`)
+        return { menu_item_id: m.id, name: m.name, price_naira: m.price_naira, qty }
+      }
+      // Legacy path (no menu item id) — fall back to the client-provided price
+      return { name: i.name ?? 'Meal', price_naira: Math.max(0, Number(i.price_naira) || 0), qty }
+    })
+
+    const subtotal = items.reduce((s, i) => s + i.price_naira * i.qty, 0)
     const delivery = vendor.delivery_fee_naira ?? 0
     const total = subtotal + delivery
     if (vendor.min_order_naira && subtotal < vendor.min_order_naira) {

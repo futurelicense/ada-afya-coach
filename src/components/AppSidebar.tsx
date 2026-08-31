@@ -1,8 +1,9 @@
 "use client";
 
 import {
-  Home, Dumbbell, Utensils, User, Users, Activity, BarChart3, Compass,
+  Dumbbell, Utensils, User, Users, Activity, BarChart3, Compass,
   Store, Building2, TrendingUp, LogOut, ChevronRight, Sparkles, Shield,
+  Package, Inbox, CalendarDays, Clock, Radio, Share2,
 } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import {
@@ -17,8 +18,10 @@ import wefitLogo from "@/assets/wefit-logo.png";
 import { useUserData } from "@/hooks/useUserData";
 import { useAuth } from "@/contexts/AuthContext";
 
-const userNavItems = [
-  { title: "Dashboard",  url: "/dashboard",  icon: Activity },
+type NavItem = { title: string; url: string; icon: typeof Activity; end?: boolean };
+
+const userNavItems: NavItem[] = [
+  { title: "Dashboard",  url: "/dashboard",  icon: Activity, end: true },
   { title: "Workouts",   url: "/workouts",   icon: Dumbbell },
   { title: "Nutrition",  url: "/nutrition",  icon: Utensils },
   { title: "Analytics",  url: "/analytics",  icon: BarChart3 },
@@ -26,37 +29,50 @@ const userNavItems = [
   { title: "Community",  url: "/community",  icon: Users },
   { title: "Profile",    url: "/profile",    icon: User },
 ];
-const vendorNavItems     = [
-  { title: "Vendor Dashboard", url: "/vendor-dashboard",    icon: Store },
-  { title: "Explore",          url: "/explore",             icon: Compass },
-  { title: "Profile",          url: "/profile",             icon: User },
+const vendorNavItems: NavItem[] = [
+  { title: "Dashboard", url: "/vendor",          icon: Store, end: true },
+  { title: "Menu",      url: "/vendor/menu",     icon: Utensils },
+  { title: "Orders",    url: "/vendor/orders",   icon: Package },
+  { title: "Listing",   url: "/vendor/listing",  icon: Compass },
+  { title: "Requests",  url: "/vendor/requests", icon: Inbox },
+  { title: "Explore",   url: "/explore",         icon: Compass },
+  { title: "Profile",   url: "/profile",         icon: User },
 ];
-const trainerNavItems    = [
-  { title: "Trainer Dashboard", url: "/trainer-dashboard",  icon: Dumbbell },
-  { title: "Workouts",          url: "/workouts",           icon: Activity },
-  { title: "Community",         url: "/community",          icon: Users },
-  { title: "Profile",           url: "/profile",            icon: User },
+const trainerNavItems: NavItem[] = [
+  { title: "Dashboard",    url: "/trainer",             icon: Dumbbell, end: true },
+  { title: "Bookings",     url: "/trainer/bookings",    icon: CalendarDays },
+  { title: "Clients",      url: "/trainer/clients",     icon: Users },
+  { title: "Availability", url: "/trainer/availability", icon: Clock },
+  { title: "Go Live",      url: "/trainer/live",        icon: Radio },
+  { title: "Listing",      url: "/trainer/listing",     icon: Compass },
+  { title: "Requests",     url: "/trainer/requests",    icon: Inbox },
+  { title: "Profile",      url: "/profile",             icon: User },
 ];
-const gymOwnerNavItems   = [
-  { title: "Gym Dashboard", url: "/gym-owner-dashboard",    icon: Building2 },
-  { title: "Analytics",     url: "/analytics",              icon: BarChart3 },
-  { title: "Explore",       url: "/explore",                icon: Compass },
-  { title: "Profile",       url: "/profile",                icon: User },
+const gymOwnerNavItems: NavItem[] = [
+  { title: "Dashboard", url: "/gym",          icon: Building2, end: true },
+  { title: "Members",   url: "/gym/members",  icon: Users },
+  { title: "Plans",     url: "/gym/plans",    icon: BarChart3 },
+  { title: "Listing",   url: "/gym/listing",  icon: Compass },
+  { title: "Requests",  url: "/gym/requests", icon: Inbox },
+  { title: "Profile",   url: "/profile",      icon: User },
 ];
-const influencerNavItems = [
-  { title: "Influencer Hub", url: "/influencer-dashboard",  icon: TrendingUp },
-  { title: "Analytics",      url: "/analytics",             icon: BarChart3 },
-  { title: "Community",      url: "/community",             icon: Users },
-  { title: "Profile",        url: "/profile",               icon: User },
+const influencerNavItems: NavItem[] = [
+  { title: "Dashboard",    url: "/influencer",              icon: TrendingUp, end: true },
+  { title: "Content",      url: "/influencer/content",      icon: Activity },
+  { title: "Followers",    url: "/influencer/followers",    icon: Users },
+  { title: "Partnerships", url: "/influencer/partnerships", icon: Share2 },
+  { title: "Listing",      url: "/influencer/listing",      icon: Compass },
+  { title: "Requests",     url: "/influencer/requests",     icon: Inbox },
+  { title: "Profile",      url: "/profile",                 icon: User },
 ];
-const adminNavItems = [
+const adminNavItems: NavItem[] = [
   { title: "Admin",     url: "/admin",     icon: Shield },
   { title: "Explore",   url: "/explore",   icon: Compass },
   { title: "Community", url: "/community", icon: Users },
   { title: "Profile",   url: "/profile",   icon: User },
 ];
 
-const roleConfig: Record<string, { label: string; badge: string; navItems: typeof userNavItems }> = {
+const roleConfig: Record<string, { label: string; badge: string; navItems: NavItem[] }> = {
   vendor:      { label: "Meal Vendor",  badge: "bg-amber-500/20 text-amber-400 border-amber-500/30",   navItems: vendorNavItems },
   trainer:     { label: "Trainer",      badge: "bg-blue-500/20 text-blue-400 border-blue-500/30",       navItems: trainerNavItems },
   "gym-owner": { label: "Gym Owner",    badge: "bg-green-500/20 text-green-400 border-green-500/30",    navItems: gymOwnerNavItems },
@@ -115,6 +131,7 @@ export function AppSidebar() {
                   <SidebarMenuButton asChild>
                     <NavLink
                       to={item.url}
+                      end={item.end}
                       className={({ isActive }) =>
                         `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all duration-200 ${
                           isActive

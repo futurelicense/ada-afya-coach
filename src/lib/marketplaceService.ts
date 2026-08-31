@@ -25,7 +25,7 @@ export async function startMarketplaceCheckout(payload: {
   kind: MarketplaceKind;
   listingId: string;
   callbackPath?: string;
-  items?: Array<{ name: string; price_naira: number; qty?: number }>;
+  items?: Array<{ menu_item_id?: string; name: string; price_naira: number; qty?: number }>;
   address?: string;
   phone?: string;
   planId?: string;

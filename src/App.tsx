@@ -4,7 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "next-themes";
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { useEffect } from "react";
 import { ScrollToTop } from "./components/ScrollToTop";
 import { Layout } from "./components/Layout";
@@ -28,10 +28,10 @@ const Community            = lazy(() => import("./pages/Community"));
 const Explore              = lazy(() => import("./pages/Explore"));
 const Profile              = lazy(() => import("./pages/Profile"));
 const RoleSelection        = lazy(() => import("./pages/RoleSelection"));
-const VendorDashboard      = lazy(() => import("./pages/VendorDashboard"));
-const TrainerDashboard     = lazy(() => import("./pages/TrainerDashboard"));
-const GymOwnerDashboard    = lazy(() => import("./pages/GymOwnerDashboard"));
-const InfluencerDashboard  = lazy(() => import("./pages/InfluencerDashboard"));
+const VendorWorkspace      = lazy(() => import("./pages/VendorWorkspace"));
+const TrainerWorkspace     = lazy(() => import("./pages/TrainerWorkspace"));
+const GymWorkspace         = lazy(() => import("./pages/GymWorkspace"));
+const InfluencerWorkspace  = lazy(() => import("./pages/InfluencerWorkspace"));
 const AdminDashboard       = lazy(() => import("./pages/AdminDashboard"));
 const About                = lazy(() => import("./pages/About"));
 const Blog                 = lazy(() => import("./pages/Blog"));
@@ -95,11 +95,20 @@ const App = () => (
                     <Route path="/terms"                   element={<Terms />} />
                     <Route path="/security"                element={<Security />} />
                     <Route path="/dashboard"               element={<AppShell><Dashboard /></AppShell>} />
-                    <Route path="/vendor-dashboard"        element={<ProtectedRoute allowedRoles={["vendor"]}><Layout><VendorDashboard /></Layout></ProtectedRoute>} />
-                    <Route path="/trainer-dashboard"       element={<ProtectedRoute allowedRoles={["trainer"]}><Layout><TrainerDashboard /></Layout></ProtectedRoute>} />
-                    <Route path="/gym-owner-dashboard"     element={<ProtectedRoute allowedRoles={["gym_owner"]}><Layout><GymOwnerDashboard /></Layout></ProtectedRoute>} />
-                    <Route path="/influencer-dashboard"    element={<ProtectedRoute allowedRoles={["influencer"]}><Layout><InfluencerDashboard /></Layout></ProtectedRoute>} />
+                    <Route path="/vendor"                 element={<ProtectedRoute allowedRoles={["vendor"]}><Layout><VendorWorkspace /></Layout></ProtectedRoute>} />
+                    <Route path="/vendor/:section"         element={<ProtectedRoute allowedRoles={["vendor"]}><Layout><VendorWorkspace /></Layout></ProtectedRoute>} />
+                    <Route path="/trainer"                element={<ProtectedRoute allowedRoles={["trainer"]}><Layout><TrainerWorkspace /></Layout></ProtectedRoute>} />
+                    <Route path="/trainer/:section"        element={<ProtectedRoute allowedRoles={["trainer"]}><Layout><TrainerWorkspace /></Layout></ProtectedRoute>} />
+                    <Route path="/gym"                    element={<ProtectedRoute allowedRoles={["gym_owner"]}><Layout><GymWorkspace /></Layout></ProtectedRoute>} />
+                    <Route path="/gym/:section"            element={<ProtectedRoute allowedRoles={["gym_owner"]}><Layout><GymWorkspace /></Layout></ProtectedRoute>} />
+                    <Route path="/influencer"             element={<ProtectedRoute allowedRoles={["influencer"]}><Layout><InfluencerWorkspace /></Layout></ProtectedRoute>} />
+                    <Route path="/influencer/:section"     element={<ProtectedRoute allowedRoles={["influencer"]}><Layout><InfluencerWorkspace /></Layout></ProtectedRoute>} />
                     <Route path="/admin"                  element={<ProtectedRoute allowedRoles={["admin"]}><Layout><AdminDashboard /></Layout></ProtectedRoute>} />
+                    {/* legacy dashboard paths */}
+                    <Route path="/vendor-dashboard"        element={<Navigate to="/vendor" replace />} />
+                    <Route path="/trainer-dashboard"       element={<Navigate to="/trainer" replace />} />
+                    <Route path="/gym-owner-dashboard"     element={<Navigate to="/gym" replace />} />
+                    <Route path="/influencer-dashboard"    element={<Navigate to="/influencer" replace />} />
                     <Route path="/workouts"                element={<AppShell><Workouts /></AppShell>} />
                     <Route path="/nutrition"               element={<AppShell><Nutrition /></AppShell>} />
                     <Route path="/analytics"               element={<AppShell><Analytics /></AppShell>} />
