@@ -2,7 +2,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Users, Eye, Share2, DollarSign, Loader2 } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ListingEditor } from "@/components/ListingEditor";
+import { InquiryInbox } from "@/components/InquiryInbox";
+import { InfluencerPosts } from "@/components/InfluencerPosts";
+import { FollowerList } from "@/components/FollowerList";
 import { useAuth } from "@/contexts/AuthContext";
 import { useBusinessStats } from "@/hooks/useBusinessStats";
 import { naira } from "@/lib/marketplaceService";
@@ -17,7 +21,7 @@ const InfluencerDashboard = () => {
   const accept = async (id: string) => {
     const { error } = await supabase.from("influencer_partnerships").update({ status: "accepted", updated_at: new Date().toISOString() }).eq("id", id);
     if (error) toast({ variant: "destructive", title: error.message });
-    else window.location.reload();
+    else await stats.refresh();
   };
 
   return (
@@ -48,6 +52,25 @@ const InfluencerDashboard = () => {
 
       {user?.id && <ListingEditor kind="influencer" userId={user.id} />}
 
+      <Tabs defaultValue="partnerships">
+        <TabsList>
+          <TabsTrigger value="partnerships">Partnerships</TabsTrigger>
+          <TabsTrigger value="content">Content</TabsTrigger>
+          <TabsTrigger value="followers">Followers</TabsTrigger>
+          <TabsTrigger value="requests">Requests</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="content">
+          <InfluencerPosts influencerId={stats.listingId} />
+        </TabsContent>
+        <TabsContent value="followers">
+          <FollowerList influencerId={stats.listingId} />
+        </TabsContent>
+        <TabsContent value="requests">
+          <InquiryInbox listingId={stats.listingId} />
+        </TabsContent>
+
+        <TabsContent value="partnerships">
       <Card>
         <CardHeader>
           <CardTitle>Partnerships</CardTitle>
@@ -78,6 +101,8 @@ const InfluencerDashboard = () => {
           )}
         </CardContent>
       </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

@@ -5,6 +5,9 @@ import { Users, Calendar, DollarSign, Star, Radio, Loader2 } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LiveStreamStudio } from "@/components/LiveStreamStudio";
 import { ListingEditor } from "@/components/ListingEditor";
+import { InquiryInbox } from "@/components/InquiryInbox";
+import { TrainerAvailabilityEditor } from "@/components/TrainerAvailabilityEditor";
+import { ClientRoster } from "@/components/ClientRoster";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserData } from "@/hooks/useUserData";
 import { useBusinessStats } from "@/hooks/useBusinessStats";
@@ -21,7 +24,7 @@ const TrainerDashboard = () => {
   const complete = async (id: string) => {
     const { error } = await supabase.from("bookings").update({ status: "completed", updated_at: new Date().toISOString() }).eq("id", id);
     if (error) toast({ variant: "destructive", title: error.message });
-    else window.location.reload();
+    else await stats.refresh();
   };
 
   return (
@@ -52,14 +55,17 @@ const TrainerDashboard = () => {
 
       {user?.id && <ListingEditor kind="trainer" userId={user.id} />}
 
-      <Tabs defaultValue="clients">
+      <Tabs defaultValue="sessions">
         <TabsList>
-          <TabsTrigger value="clients">Sessions</TabsTrigger>
+          <TabsTrigger value="sessions">Sessions</TabsTrigger>
+          <TabsTrigger value="roster">Clients</TabsTrigger>
+          <TabsTrigger value="schedule">Availability</TabsTrigger>
+          <TabsTrigger value="requests">Requests</TabsTrigger>
           <TabsTrigger value="live" className="gap-1.5">
             <Radio className="h-3.5 w-3.5 text-red-500" /> Go Live
           </TabsTrigger>
         </TabsList>
-        <TabsContent value="clients">
+        <TabsContent value="sessions">
           <Card>
             <CardHeader>
               <CardTitle>Bookings</CardTitle>
@@ -90,6 +96,15 @@ const TrainerDashboard = () => {
               )}
             </CardContent>
           </Card>
+        </TabsContent>
+        <TabsContent value="roster">
+          <ClientRoster trainerId={stats.listingId} />
+        </TabsContent>
+        <TabsContent value="schedule">
+          <TrainerAvailabilityEditor trainerId={stats.listingId} />
+        </TabsContent>
+        <TabsContent value="requests">
+          <InquiryInbox listingId={stats.listingId} />
         </TabsContent>
         <TabsContent value="live">
           <LiveStreamStudio

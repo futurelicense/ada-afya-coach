@@ -10,24 +10,43 @@ export interface MoneyRow {
   party?: string;
 }
 
+export type BusinessKind = "vendor" | "trainer" | "gym" | "influencer";
+
 export interface BusinessStats {
   loading: boolean;
+  listingId: string | null;
   revenue: number;
   countA: number;
   countB: number;
   rating: string;
   rows: MoneyRow[];
+  refresh: () => Promise<void>;
 }
 
-function paidStatuses(kind: "vendor" | "trainer" | "gym" | "influencer") {
+const LISTING_TABLE: Record<BusinessKind, string> = {
+  vendor: "vendors",
+  trainer: "public_trainers",
+  gym: "gyms",
+  influencer: "influencers",
+};
+
+const TXN_TABLE: Record<BusinessKind, string> = {
+  vendor: "orders",
+  trainer: "bookings",
+  gym: "gym_memberships",
+  influencer: "influencer_partnerships",
+};
+
+function paidStatuses(kind: BusinessKind) {
   if (kind === "vendor") return ["confirmed", "preparing", "ready", "delivered"];
   if (kind === "trainer") return ["confirmed", "completed"];
   if (kind === "gym") return ["active"];
   return ["paid", "accepted"];
 }
 
-export function useBusinessStats(kind: "vendor" | "trainer" | "gym" | "influencer", userId: string | undefined): BusinessStats {
+export function useBusinessStats(kind: BusinessKind, userId: string | undefined): BusinessStats {
   const [loading, setLoading] = useState(true);
+  const [listingId, setListingId] = useState<string | null>(null);
   const [revenue, setRevenue] = useState(0);
   const [countA, setCountA] = useState(0);
   const [countB, setCountB] = useState(0);
@@ -43,6 +62,7 @@ export function useBusinessStats(kind: "vendor" | "trainer" | "gym" | "influence
     try {
       if (kind === "vendor") {
         const { data: listing } = await supabase.from("vendors").select("id, rating").eq("user_id", userId).maybeSingle();
+        setListingId(listing?.id ?? null);
         if (!listing) { setRows([]); setRevenue(0); setCountA(0); setCountB(0); return; }
         const { data: orders } = await supabase.from("orders").select("*").eq("vendor_id", listing.id).order("created_at", { ascending: false });
         const list = orders ?? [];
@@ -60,6 +80,7 @@ export function useBusinessStats(kind: "vendor" | "trainer" | "gym" | "influence
         })));
       } else if (kind === "trainer") {
         const { data: listing } = await supabase.from("public_trainers").select("id, rating").eq("user_id", userId).maybeSingle();
+        setListingId(listing?.id ?? null);
         if (!listing) { setRows([]); return; }
         const { data: bookings } = await supabase.from("bookings").select("*").eq("trainer_id", listing.id).order("scheduled_at", { ascending: false });
         const list = bookings ?? [];
@@ -78,6 +99,7 @@ export function useBusinessStats(kind: "vendor" | "trainer" | "gym" | "influence
         })));
       } else if (kind === "gym") {
         const { data: listing } = await supabase.from("gyms").select("id, rating, capacity").eq("user_id", userId).maybeSingle();
+        setListingId(listing?.id ?? null);
         if (!listing) { setRows([]); return; }
         const { data: mems } = await supabase.from("gym_memberships").select("*").eq("gym_id", listing.id).order("created_at", { ascending: false });
         const list = mems ?? [];
@@ -98,6 +120,7 @@ export function useBusinessStats(kind: "vendor" | "trainer" | "gym" | "influence
         })));
       } else {
         const { data: listing } = await supabase.from("influencers").select("id, follower_count, view_count").eq("user_id", userId).maybeSingle();
+        setListingId(listing?.id ?? null);
         if (!listing) { setRows([]); return; }
         const { data: parts } = await supabase.from("influencer_partnerships").select("*").eq("influencer_id", listing.id).order("created_at", { ascending: false });
         const list = parts ?? [];
@@ -121,5 +144,16 @@ export function useBusinessStats(kind: "vendor" | "trainer" | "gym" | "influence
 
   useEffect(() => { void load(); }, [load]);
 
-  return { loading, revenue, countA, countB, rating, rows };
+  // Live-refresh when a transaction row for this business changes.
+  useEffect(() => {
+    if (!userId) return;
+    const channel = supabase
+      .channel(`biz-${kind}-${userId}`)
+      .on("postgres_changes", { event: "*", schema: "public", table: TXN_TABLE[kind] }, () => { void load(); })
+      .on("postgres_changes", { event: "*", schema: "public", table: LISTING_TABLE[kind], filter: `user_id=eq.${userId}` }, () => { void load(); })
+      .subscribe();
+    return () => { void supabase.removeChannel(channel); };
+  }, [kind, userId, load]);
+
+  return { loading, listingId, revenue, countA, countB, rating, rows, refresh: load };
 }

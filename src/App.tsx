@@ -32,6 +32,7 @@ const VendorDashboard      = lazy(() => import("./pages/VendorDashboard"));
 const TrainerDashboard     = lazy(() => import("./pages/TrainerDashboard"));
 const GymOwnerDashboard    = lazy(() => import("./pages/GymOwnerDashboard"));
 const InfluencerDashboard  = lazy(() => import("./pages/InfluencerDashboard"));
+const AdminDashboard       = lazy(() => import("./pages/AdminDashboard"));
 const About                = lazy(() => import("./pages/About"));
 const Blog                 = lazy(() => import("./pages/Blog"));
 const Careers              = lazy(() => import("./pages/Careers"));
@@ -98,6 +99,7 @@ const App = () => (
                     <Route path="/trainer-dashboard"       element={<ProtectedRoute allowedRoles={["trainer"]}><Layout><TrainerDashboard /></Layout></ProtectedRoute>} />
                     <Route path="/gym-owner-dashboard"     element={<ProtectedRoute allowedRoles={["gym_owner"]}><Layout><GymOwnerDashboard /></Layout></ProtectedRoute>} />
                     <Route path="/influencer-dashboard"    element={<ProtectedRoute allowedRoles={["influencer"]}><Layout><InfluencerDashboard /></Layout></ProtectedRoute>} />
+                    <Route path="/admin"                  element={<ProtectedRoute allowedRoles={["admin"]}><Layout><AdminDashboard /></Layout></ProtectedRoute>} />
                     <Route path="/workouts"                element={<AppShell><Workouts /></AppShell>} />
                     <Route path="/nutrition"               element={<AppShell><Nutrition /></AppShell>} />
                     <Route path="/analytics"               element={<AppShell><Analytics /></AppShell>} />

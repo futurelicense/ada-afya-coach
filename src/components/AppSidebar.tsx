@@ -2,7 +2,7 @@
 
 import {
   Home, Dumbbell, Utensils, User, Users, Activity, BarChart3, Compass,
-  Store, Building2, TrendingUp, LogOut, ChevronRight, Sparkles,
+  Store, Building2, TrendingUp, LogOut, ChevronRight, Sparkles, Shield,
 } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import {
@@ -49,12 +49,19 @@ const influencerNavItems = [
   { title: "Community",      url: "/community",             icon: Users },
   { title: "Profile",        url: "/profile",               icon: User },
 ];
+const adminNavItems = [
+  { title: "Admin",     url: "/admin",     icon: Shield },
+  { title: "Explore",   url: "/explore",   icon: Compass },
+  { title: "Community", url: "/community", icon: Users },
+  { title: "Profile",   url: "/profile",   icon: User },
+];
 
 const roleConfig: Record<string, { label: string; badge: string; navItems: typeof userNavItems }> = {
   vendor:      { label: "Meal Vendor",  badge: "bg-amber-500/20 text-amber-400 border-amber-500/30",   navItems: vendorNavItems },
   trainer:     { label: "Trainer",      badge: "bg-blue-500/20 text-blue-400 border-blue-500/30",       navItems: trainerNavItems },
   "gym-owner": { label: "Gym Owner",    badge: "bg-green-500/20 text-green-400 border-green-500/30",    navItems: gymOwnerNavItems },
   influencer:  { label: "Influencer",   badge: "bg-pink-500/20 text-pink-400 border-pink-500/30",       navItems: influencerNavItems },
+  admin:       { label: "Admin",        badge: "bg-red-500/20 text-red-400 border-red-500/30",          navItems: adminNavItems },
   user:        { label: "Member",       badge: "bg-primary/20 text-primary border-primary/30",          navItems: userNavItems },
 };
 

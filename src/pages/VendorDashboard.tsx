@@ -3,6 +3,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Package, Users, DollarSign, Star, Loader2 } from "lucide-react";
 import { ListingEditor } from "@/components/ListingEditor";
+import { InquiryInbox } from "@/components/InquiryInbox";
+import { VendorMenuEditor } from "@/components/VendorMenuEditor";
 import { useAuth } from "@/contexts/AuthContext";
 import { useBusinessStats } from "@/hooks/useBusinessStats";
 import { naira } from "@/lib/marketplaceService";
@@ -17,7 +19,7 @@ const VendorDashboard = () => {
   const advance = async (id: string, status: string) => {
     const { error } = await supabase.from("orders").update({ status, updated_at: new Date().toISOString() }).eq("id", id);
     if (error) toast({ variant: "destructive", title: error.message });
-    else window.location.reload();
+    else await stats.refresh();
   };
 
   return (
@@ -47,6 +49,10 @@ const VendorDashboard = () => {
       </div>
 
       {user?.id && <ListingEditor kind="vendor" userId={user.id} />}
+
+      <VendorMenuEditor vendorId={stats.listingId} />
+
+      <InquiryInbox listingId={stats.listingId} />
 
       <Card>
         <CardHeader>

@@ -1,7 +1,9 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Users, DollarSign, Dumbbell, Star, Loader2 } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Users, DollarSign, Dumbbell, Star } from "lucide-react";
 import { ListingEditor } from "@/components/ListingEditor";
+import { InquiryInbox } from "@/components/InquiryInbox";
+import { GymPlanEditor } from "@/components/GymPlanEditor";
+import { GymMemberRoster } from "@/components/GymMemberRoster";
 import { useAuth } from "@/contexts/AuthContext";
 import { useBusinessStats } from "@/hooks/useBusinessStats";
 import { naira } from "@/lib/marketplaceService";
@@ -38,31 +40,11 @@ const GymOwnerDashboard = () => {
 
       {user?.id && <ListingEditor kind="gym" userId={user.id} />}
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Memberships</CardTitle>
-          <CardDescription>Live Paystack checkouts from members.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          {stats.loading ? (
-            <div className="flex justify-center py-8"><Loader2 className="h-6 w-6 animate-spin" /></div>
-          ) : stats.rows.length === 0 ? (
-            <p className="py-8 text-center text-sm text-muted-foreground">No memberships yet.</p>
-          ) : (
-            <ul className="space-y-3">
-              {stats.rows.map((row) => (
-                <li key={row.id} className="flex items-center justify-between gap-2 border rounded-lg p-3">
-                  <div>
-                    <p className="font-medium text-sm">{row.label}</p>
-                    <p className="text-xs text-muted-foreground">{new Date(row.when).toLocaleString()} · {naira(row.amount)}</p>
-                  </div>
-                  <Badge variant="secondary">{row.status}</Badge>
-                </li>
-              ))}
-            </ul>
-          )}
-        </CardContent>
-      </Card>
+      <GymPlanEditor gymId={stats.listingId} onSaved={() => void stats.refresh()} />
+
+      <GymMemberRoster gymId={stats.listingId} />
+
+      <InquiryInbox listingId={stats.listingId} />
     </div>
   );
 };
