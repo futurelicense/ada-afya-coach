@@ -32,10 +32,23 @@ async function userId(email) {
   return u.id;
 }
 
+const NEW_LISTING = {
+  vendors:         (n) => ({ name: `${n}'s Kitchen`, city: "Lagos", address: "Lagos", published: true, delivery_fee_naira: 500, min_order_naira: 1500 }),
+  public_trainers: (n) => ({ name: n, city: "Lagos", price_per_session_naira: 5000, published: true, kind: "trainer" }),
+  gyms:            (n) => ({ name: `${n} Gym`, address: "Lagos", city: "Lagos", published: true, capacity: 100 }),
+  influencers:     (n) => ({ name: n, niche: "Fitness", published: true }),
+};
+
 async function listing(table, uid) {
   const { data } = await db.from(table).select("id").eq("user_id", uid).maybeSingle();
-  if (!data) throw new Error(`No ${table} row for user ${uid} — run seed-users.mjs first`);
-  return data.id;
+  if (data) return data.id;
+  const { data: prof } = await db.from("profiles").select("name").eq("id", uid).maybeSingle();
+  const { data: created, error } = await db.from(table)
+    .insert({ user_id: uid, ...NEW_LISTING[table](prof?.name ?? "WeFit") })
+    .select("id").single();
+  if (error) throw error;
+  console.log(`  (created missing ${table} listing)`);
+  return created.id;
 }
 
 async function main() {
