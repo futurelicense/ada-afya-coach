@@ -31,18 +31,10 @@ function concat(...arrays: Uint8Array[]): Uint8Array {
 }
 
 async function deflate(data: Uint8Array): Promise<Uint8Array> {
-  const cs     = new CompressionStream('deflate')
-  const writer = cs.writable.getWriter()
-  await writer.write(data)
-  await writer.close()
-  const chunks: Uint8Array[] = []
-  const reader = cs.readable.getReader()
-  while (true) {
-    const { done, value } = await reader.read()
-    if (done) break
-    chunks.push(value)
-  }
-  return concat(...chunks)
+  // Read and write the stream concurrently — writing then awaiting close()
+  // before reading deadlocks once the internal buffer fills.
+  const stream = new Blob([data]).stream().pipeThrough(new CompressionStream('deflate'))
+  return new Uint8Array(await new Response(stream).arrayBuffer())
 }
 
 function toB64(bytes: Uint8Array): string {
