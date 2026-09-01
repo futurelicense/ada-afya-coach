@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dumbbell, User, Utensils, ShoppingBag, Users, Loader2, Sparkles } from "lucide-react";
@@ -22,6 +23,7 @@ import { useToast } from "@/hooks/use-toast";
 
 export function ExploreDirectory({ searchQuery }: { searchQuery: string }) {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [dir, setDir] = useState<Directory | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState<CategoryType>("all");
@@ -84,24 +86,8 @@ export function ExploreDirectory({ searchQuery }: { searchQuery: string }) {
     }
   };
 
-  const orderFromVendor = async (v: ExploreVendor) => {
-    const itemName = v.products[0] ?? "Meal";
-    try {
-      await startMarketplaceCheckout({
-        kind: "meal_order",
-        listingId: v.id,
-        items: [{ name: itemName, price_naira: Math.max(v.minOrder || 2000, 2000) }],
-        address: "See order notes after payment",
-        callbackPath: "/nutrition",
-      });
-    } catch (err: unknown) {
-      toast({
-        variant: "destructive",
-        title: "Checkout failed",
-        description: err instanceof Error ? err.message : "Sign in and try again.",
-      });
-    }
-  };
+  // Ordering happens on the Nutrition page where the full menu + cart lives.
+  const orderFromVendor = (v: ExploreVendor) => navigate(`/nutrition?vendor=${v.id}`);
 
   if (loading) {
     return <div className="flex justify-center py-16"><Loader2 className="h-8 w-8 animate-spin text-muted-foreground" /></div>;
@@ -194,9 +180,21 @@ export function ExploreDirectory({ searchQuery }: { searchQuery: string }) {
                   image={v.image}
                   category="Vendor"
                   categoryIcon={<ShoppingBag className="h-3 w-3" />}
-                  onAction={() => void orderFromVendor(v)}
-                  actionLabel="Order & pay"
-                />
+                  onAction={() => orderFromVendor(v)}
+                  actionLabel="View menu & order"
+                >
+                  {v.menu.length > 0 && (
+                    <ul className="mt-2 space-y-0.5 text-xs text-muted-foreground">
+                      {v.menu.slice(0, 3).map((m, idx) => (
+                        <li key={idx} className="flex justify-between gap-2">
+                          <span className={m.in_stock ? "" : "line-through"}>{m.name}</span>
+                          <span>{naira(m.price_naira)}</span>
+                        </li>
+                      ))}
+                      {v.menu.length > 3 && <li>+{v.menu.length - 3} more…</li>}
+                    </ul>
+                  )}
+                </ExploreCard>
               ))}
             </Section>
           )}
@@ -214,7 +212,12 @@ export function ExploreDirectory({ searchQuery }: { searchQuery: string }) {
                   onAction={() => void partner(i)}
                   actionLabel="Partner & pay"
                 >
-                  <Button size="sm" variant="ghost" className="mt-2" onClick={() => void follow(i)}>Follow on WeFit</Button>
+                  <div className="mt-2 flex gap-2">
+                    <Button size="sm" variant="ghost" onClick={() => void follow(i)}>Follow</Button>
+                    <Button size="sm" variant="ghost" asChild>
+                      <Link to={`/creator/${i.id}`}>View profile</Link>
+                    </Button>
+                  </div>
                 </ExploreCard>
               ))}
             </Section>

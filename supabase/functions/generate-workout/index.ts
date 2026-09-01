@@ -93,7 +93,8 @@ Deno.serve(async (req: Request) => {
     const { targetMuscles, equipment, durationMinutes } = await req.json()
 
     const w = await llmStructured<any>({
-      maxTokens: 2500,
+      maxTokens: 2800,
+      reasoningEffort: 'low',
       tools: [workoutTool],
       toolName: 'create_workout_plan',
       messages: [

@@ -42,7 +42,7 @@ const Onboarding = () => {
   const [step,    setStep]    = useState(1);
   const [saving,  setSaving]  = useState(false);
   const [formData, setFormData] = useState({
-    name: "", gender: "", age: "",
+    name: "", gender: "", age: "", location: "",
     weight: "", height: "",
     goal: "", fitnessLevel: "", dietPreference: "",
   });
@@ -52,11 +52,8 @@ const Onboarding = () => {
 
   const update = (key: string, value: string) => setFormData(p => ({ ...p, [key]: value }));
 
-  const handleNext = async () => {
-    if (step < totalSteps) { setStep(s => s + 1); return; }
-
+  const finish = async (dest: string) => {
     setSaving(true);
-
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       setSaving(false);
@@ -69,6 +66,7 @@ const Onboarding = () => {
       name:            formData.name || "User",
       age:             parseInt(formData.age) || 25,
       gender:          formData.gender || null,
+      location:        formData.location || null,
       weight:          parseFloat(formData.weight) || 70,
       height:          parseInt(formData.height) || 170,
       target_weight:   parseFloat(formData.weight) || 70,
@@ -79,11 +77,13 @@ const Onboarding = () => {
     }, { onConflict: "id" });
 
     setSaving(false);
-    if (error) {
-      console.error(error);
-      return;
-    }
-    navigate("/dashboard");
+    if (error) { console.error(error); return; }
+    navigate(dest);
+  };
+
+  const handleNext = async () => {
+    if (step < totalSteps) { setStep(s => s + 1); return; }
+    await finish("/dashboard");
   };
 
   return (
@@ -172,6 +172,15 @@ const Onboarding = () => {
                       </Label>
                     ))}
                   </RadioGroup>
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-white/70 text-sm">City / area</Label>
+                  <Input
+                    placeholder="e.g. Lekki, Lagos"
+                    value={formData.location}
+                    onChange={e => update("location", e.target.value)}
+                    className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-primary/50 h-12 rounded-xl"
+                  />
                 </div>
               </div>
             )}
@@ -322,6 +331,17 @@ const Onboarding = () => {
                 {!saving && step < totalSteps && <ArrowRight className="h-4 w-4" />}
               </Button>
             </div>
+
+            {step === totalSteps && (
+              <button
+                type="button"
+                onClick={() => void finish("/role-selection")}
+                disabled={saving}
+                className="w-full text-center text-xs text-primary/70 hover:text-primary mt-4 disabled:opacity-50"
+              >
+                Running a gym, kitchen, or training business? Set that up →
+              </button>
+            )}
 
             <p className="text-center text-xs text-white/25 mt-5">
               Step {step} of {totalSteps} · Your data is kept private

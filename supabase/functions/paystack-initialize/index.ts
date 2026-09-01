@@ -158,6 +158,16 @@ async function prepareMarketplace(supabase: any, userId: string, kind: Marketpla
     const amount = Math.round(unit * sessions * discount)
     const scheduled = body.scheduledAt ? new Date(body.scheduledAt) : new Date()
     if (Number.isNaN(scheduled.getTime())) throw new Error('Choose a valid date and time')
+    if (scheduled.getTime() < Date.now()) throw new Error('Choose a time in the future')
+
+    // If the trainer has published weekly availability, the requested slot must fall inside it.
+    const { data: slots } = await supabase.from('trainer_availability')
+      .select('weekday, start_min, end_min').eq('trainer_id', trainer.id)
+    if (slots && slots.length) {
+      const mins = scheduled.getHours() * 60 + scheduled.getMinutes()
+      const ok = slots.some((s: any) => s.weekday === scheduled.getDay() && mins >= s.start_min && mins < s.end_min)
+      if (!ok) throw new Error('That time is outside the trainer’s available hours')
+    }
     const { data: row, error: ins } = await supabase.from('bookings').insert({
       user_id: userId,
       trainer_id: trainer.id,

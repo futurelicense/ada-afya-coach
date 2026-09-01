@@ -33,6 +33,7 @@ const TrainerWorkspace     = lazy(() => import("./pages/TrainerWorkspace"));
 const GymWorkspace         = lazy(() => import("./pages/GymWorkspace"));
 const InfluencerWorkspace  = lazy(() => import("./pages/InfluencerWorkspace"));
 const AdminDashboard       = lazy(() => import("./pages/AdminDashboard"));
+const CreatorProfile       = lazy(() => import("./pages/CreatorProfile"));
 const About                = lazy(() => import("./pages/About"));
 const Blog                 = lazy(() => import("./pages/Blog"));
 const Careers              = lazy(() => import("./pages/Careers"));
@@ -94,6 +95,7 @@ const App = () => (
                     <Route path="/privacy"                 element={<Privacy />} />
                     <Route path="/terms"                   element={<Terms />} />
                     <Route path="/security"                element={<Security />} />
+                    <Route path="/creator/:id"            element={<CreatorProfile />} />
                     <Route path="/dashboard"               element={<AppShell><Dashboard /></AppShell>} />
                     <Route path="/vendor"                 element={<ProtectedRoute allowedRoles={["vendor"]}><Layout><VendorWorkspace /></Layout></ProtectedRoute>} />
                     <Route path="/vendor/:section"         element={<ProtectedRoute allowedRoles={["vendor"]}><Layout><VendorWorkspace /></Layout></ProtectedRoute>} />

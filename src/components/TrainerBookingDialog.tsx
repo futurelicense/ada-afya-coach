@@ -4,10 +4,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Calendar, Clock, Loader2 } from "lucide-react";
 import { naira, startMarketplaceCheckout } from "@/lib/marketplaceService";
+import { supabase } from "@/lib/supabase";
+
+const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const hhmm = (m: number) => `${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`;
+interface Slot { weekday: number; start_min: number; end_min: number; }
 
 interface Trainer {
   id: string;
@@ -31,6 +36,20 @@ export const TrainerBookingDialog = ({ trainer, open, onClose }: TrainerBookingD
   const [sessionType, setSessionType] = useState("single");
   const [bookingNotes, setBookingNotes] = useState("");
   const [sending, setSending] = useState(false);
+  const [slots, setSlots] = useState<Slot[]>([]);
+
+  useEffect(() => {
+    if (!open || !trainer) return;
+    supabase.from("trainer_availability").select("weekday, start_min, end_min").eq("trainer_id", trainer.id)
+      .then(({ data }) => setSlots((data as Slot[]) ?? []));
+  }, [open, trainer]);
+
+  const slotOk = (() => {
+    if (slots.length === 0 || !bookingDate || !bookingTime) return true;
+    const d = new Date(`${bookingDate}T${bookingTime}:00`);
+    const mins = d.getHours() * 60 + d.getMinutes();
+    return slots.some((s) => s.weekday === d.getDay() && mins >= s.start_min && mins < s.end_min);
+  })();
 
   const amount = trainer
     ? sessionType === "package-10"
@@ -101,6 +120,15 @@ export const TrainerBookingDialog = ({ trainer, open, onClose }: TrainerBookingD
               <Input type="time" value={bookingTime} onChange={(e) => setBookingTime(e.target.value)} />
             </div>
           </div>
+          {slots.length > 0 && (
+            <div className="text-xs text-muted-foreground">
+              <span className="font-medium">Available: </span>
+              {slots.map((s, i) => (
+                <span key={i}>{i > 0 ? " · " : ""}{DAYS[s.weekday]} {hhmm(s.start_min)}–{hhmm(s.end_min)}</span>
+              ))}
+              {!slotOk && <p className="text-destructive mt-1">That time is outside these hours.</p>}
+            </div>
+          )}
           <div>
             <Label>Notes</Label>
             <Textarea value={bookingNotes} onChange={(e) => setBookingNotes(e.target.value)} rows={3} />
@@ -110,7 +138,7 @@ export const TrainerBookingDialog = ({ trainer, open, onClose }: TrainerBookingD
 
         <DialogFooter className="flex-col sm:flex-row gap-2">
           <Button variant="outline" onClick={onClose}>Cancel</Button>
-          <Button onClick={() => void pay()} disabled={sending}>
+          <Button onClick={() => void pay()} disabled={sending || !slotOk}>
             {sending && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
             Pay with Paystack
           </Button>

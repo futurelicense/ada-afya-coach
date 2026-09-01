@@ -1,4 +1,31 @@
-// Nigerian food knowledge base — cached in Claude's prompt cache.
+// Condensed food reference (~600 tokens) for the meal-plan function so each
+// request stays well under Groq's free-tier tokens-per-minute budget.
+export const NIGERIAN_FOOD_KNOWLEDGE_BRIEF = `
+NIGERIAN FOOD QUICK REFERENCE (approx per standard serving)
+
+BREAKFAST: Akara 6pc ~285cal (P14/C32/F11) · Moi Moi 1 wrap ~220 (P12/C28/F6) · Pap 250ml ~120 (P2/C26) ·
+Boiled plantain 1 ~180 · Boiled yam 150g ~177 · Bread+2 eggs ~340 (P18) · Oats+groundnut ~310 (weight loss) ·
+Indomie+egg ~430 (processed).
+
+LUNCH: Jollof rice 1cup ~350 · Jollof+grilled chicken ~570 (P40) · Fried rice+grilled fish ~490 (P32) ·
+Beans+plantain ~420 (fiber, budget) · Egusi+eba ~580 (high fat) · Ofada+ayamase ~510 (lower GI) ·
+Beans porridge ~320 (P16) · White rice+stew ~480.
+
+DINNER (keep lighter for weight loss): Efo riro 1cup ~280 (P20, iron) · Okra soup+eba 150g ~410 ·
+Pepper soup goat ~220 / catfish ~180 (low carb, lean) · Grilled tilapia 200g+salad ~320 (P38, best for cut) ·
+Vegetable soup+small eba ~320.
+
+SNACKS: Groundnuts 30g ~170 (healthy fat) · Banana ~90 (pre-workout) · Garden egg ~25 (diet) ·
+Tiger nuts 60g ~240 · Coconut water 250ml ~46 (electrolytes) · Boli ~150 · Suya 100g ~200 (P26, post-workout).
+
+SWAPS: eba/fufu→oat fufu (−80cal,+fiber) · palm oil 3tbsp→1tbsp (−360/wk) · fried→boiled/grilled fish or plantain ·
+white rice→ofada · soft drinks→zobo/kunu.
+
+RULES: hot climate → 3–3.5L water/day. Diabetes: cut white rice, no fufu at dinner, prefer ofada/beans/okra.
+Hypertension: less palm oil & salt, more veg. Muslim users: no pork/alcohol extracts. Lactose: tiger nut / soy milk.
+`
+
+// Nigerian food knowledge base — full reference.
 // ~2800 tokens of verified nutritional data for common Nigerian dishes.
 export const NIGERIAN_FOOD_KNOWLEDGE = `
 NIGERIAN FOOD DATABASE — Nutritional Reference (per standard serving)

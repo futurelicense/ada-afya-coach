@@ -66,7 +66,8 @@ Deno.serve(async (req: Request) => {
       : 0
 
     const analysis = await llmStructured<any>({
-      maxTokens: 1200,
+      maxTokens: 1800,
+      reasoningEffort: 'low',
       tools: [analysisTool],
       toolName: 'analyze_fitness_progress',
       messages: [

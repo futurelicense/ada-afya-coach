@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -22,6 +23,8 @@ interface MenuRow {
 }
 
 export const MealDeliverySystem = () => {
+  const [searchParams] = useSearchParams();
+  const wantVendor = searchParams.get("vendor");
   const [vendors, setVendors] = useState<ExploreVendor[]>([]);
   const [vendorId, setVendorId] = useState("");
   const [menu, setMenu] = useState<MenuRow[]>([]);
@@ -37,7 +40,9 @@ export const MealDeliverySystem = () => {
   useEffect(() => {
     fetchDirectory().then((d) => {
       setVendors(d.vendors);
-      if (d.vendors[0]) setVendorId(d.vendors[0].id);
+      const preferred = wantVendor && d.vendors.find((v) => v.id === wantVendor);
+      if (preferred) setVendorId(preferred.id);
+      else if (d.vendors[0]) setVendorId(d.vendors[0].id);
     }).catch(() => undefined);
     supabase.auth.getUser().then(async ({ data }) => {
       if (!data.user) return;

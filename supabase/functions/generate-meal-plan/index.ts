@@ -1,7 +1,7 @@
 import { corsHeaders } from '../_shared/cors.ts'
 import { requireAuth } from '../_shared/auth.ts'
 import { checkAndIncrementUsage } from '../_shared/usage.ts'
-import { NIGERIAN_FOOD_KNOWLEDGE } from '../_shared/nigerian-foods.ts'
+import { NIGERIAN_FOOD_KNOWLEDGE_BRIEF } from '../_shared/nigerian-foods.ts'
 import { llmStructured, type GroqTool } from '../_shared/llm.ts'
 
 const mealPlanTool: GroqTool = {
@@ -67,7 +67,7 @@ Rules:
 
 Call the create_meal_plan tool with a complete plan. Do not reply with prose.
 
-${NIGERIAN_FOOD_KNOWLEDGE}`
+${NIGERIAN_FOOD_KNOWLEDGE_BRIEF}`
 
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders })
@@ -79,7 +79,8 @@ Deno.serve(async (req: Request) => {
     const { calorieTarget, dietPreference, healthNotes } = await req.json()
 
     const plan = await llmStructured<any>({
-      maxTokens: 2500,
+      maxTokens: 2600,
+      reasoningEffort: 'low',
       tools: [mealPlanTool],
       toolName: 'create_meal_plan',
       messages: [

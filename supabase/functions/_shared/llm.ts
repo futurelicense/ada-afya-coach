@@ -40,6 +40,7 @@ interface GroqOpts {
   tools?:        GroqTool[]
   toolName?:     string        // force this tool
   jsonObject?:   boolean       // force response_format json_object
+  reasoningEffort?: 'low' | 'medium' | 'high'   // gpt-oss models
 }
 
 async function callGroq(opts: GroqOpts): Promise<any> {
@@ -49,6 +50,7 @@ async function callGroq(opts: GroqOpts): Promise<any> {
     max_tokens:  opts.maxTokens ?? 1024,
     temperature: opts.temperature ?? 0.6,
   }
+  if (opts.reasoningEffort) body.reasoning_effort = opts.reasoningEffort
   if (opts.tools?.length) {
     body.tools = opts.tools
     body.tool_choice = opts.toolName

@@ -35,6 +35,7 @@ export interface ExploreVendor {
   location: string;
   rating: number;
   products: string[];
+  menu: Array<{ name: string; price_naira: number; in_stock: boolean }>;
   delivery: boolean;
   phone: string;
   image?: string;
@@ -71,13 +72,17 @@ export async function fetchDirectory(): Promise<Directory> {
     supabase.from("public_trainers").select("*").eq("published", true).order("created_at", { ascending: false }),
     supabase.from("vendors").select("*").eq("published", true).order("created_at", { ascending: false }),
     supabase.from("influencers").select("*").eq("published", true).order("created_at", { ascending: false }),
-    supabase.from("vendor_menu_items").select("vendor_id, name").eq("available", true),
+    supabase.from("vendor_menu_items").select("vendor_id, name, price_naira, available, quantity"),
   ]);
 
-  const menuByVendor = new Map<string, string[]>();
+  const menuByVendor = new Map<string, Array<{ name: string; price_naira: number; in_stock: boolean }>>();
   for (const row of menuRes.data ?? []) {
     const list = menuByVendor.get(row.vendor_id) ?? [];
-    list.push(row.name);
+    list.push({
+      name: row.name,
+      price_naira: row.price_naira ?? 0,
+      in_stock: row.available && (row.quantity == null || row.quantity > 0),
+    });
     menuByVendor.set(row.vendor_id, list);
   }
 
@@ -114,19 +119,23 @@ export async function fetchDirectory(): Promise<Directory> {
     kind: t.kind === "nutritionist" ? "nutritionist" : "trainer",
   }));
 
-  const vendors: ExploreVendor[] = (vendorsRes.data ?? []).map((v) => ({
-    id: v.id,
-    name: v.name,
-    type: (v.cuisine_types ?? []).join(", ") || "Meals",
-    location: loc(v.city, v.address),
-    rating: Number(v.rating) || 0,
-    products: menuByVendor.get(v.id) ?? v.cuisine_types ?? [],
-    delivery: true,
-    phone: v.phone ?? "",
-    image: v.image_url ?? undefined,
-    deliveryFee: v.delivery_fee_naira ?? 0,
-    minOrder: v.min_order_naira ?? 0,
-  }));
+  const vendors: ExploreVendor[] = (vendorsRes.data ?? []).map((v) => {
+    const menu = menuByVendor.get(v.id) ?? [];
+    return {
+      id: v.id,
+      name: v.name,
+      type: (v.cuisine_types ?? []).join(", ") || "Meals",
+      location: loc(v.city, v.address),
+      rating: Number(v.rating) || 0,
+      products: menu.length ? menu.map((m) => m.name) : (v.cuisine_types ?? []),
+      menu,
+      delivery: true,
+      phone: v.phone ?? "",
+      image: v.image_url ?? undefined,
+      deliveryFee: v.delivery_fee_naira ?? 0,
+      minOrder: v.min_order_naira ?? 0,
+    };
+  });
 
   const influencers: ExploreInfluencer[] = (infRes.data ?? []).map((i) => ({
     id: i.id,
@@ -158,6 +167,52 @@ export async function followInfluencer(influencerId: string): Promise<void> {
   if (error && !error.message.includes("duplicate")) throw error;
 }
 
+export async function unfollowInfluencer(influencerId: string): Promise<void> {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return;
+  await supabase.from("influencer_follows").delete()
+    .eq("influencer_id", influencerId).eq("follower_id", user.id);
+}
+
+export async function isFollowing(influencerId: string): Promise<boolean> {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return false;
+  const { data } = await supabase.from("influencer_follows").select("follower_id")
+    .eq("influencer_id", influencerId).eq("follower_id", user.id).maybeSingle();
+  return !!data;
+}
+
 export async function bumpInfluencerView(influencerId: string): Promise<void> {
   await supabase.rpc("increment_influencer_views", { p_id: influencerId });
+}
+
+export interface CreatorProfile {
+  id: string;
+  name: string;
+  bio: string | null;
+  niche: string | null;
+  platform: string;
+  image?: string;
+  followers: number;
+  rate: number;
+  posts: Array<{ id: string; title: string | null; body: string; image_url: string | null; created_at: string }>;
+}
+
+export async function fetchCreator(id: string): Promise<CreatorProfile | null> {
+  const [{ data: inf }, { data: posts }] = await Promise.all([
+    supabase.from("influencers").select("*").eq("id", id).eq("published", true).maybeSingle(),
+    supabase.from("influencer_posts").select("id, title, body, image_url, created_at").eq("influencer_id", id).order("created_at", { ascending: false }),
+  ]);
+  if (!inf) return null;
+  return {
+    id: inf.id,
+    name: inf.name,
+    bio: inf.bio,
+    niche: inf.niche,
+    platform: inf.platform ?? "WeFit",
+    image: inf.image_url ?? undefined,
+    followers: inf.follower_count ?? 0,
+    rate: inf.partnership_rate_naira ?? 50000,
+    posts: (posts as CreatorProfile["posts"]) ?? [],
+  };
 }
