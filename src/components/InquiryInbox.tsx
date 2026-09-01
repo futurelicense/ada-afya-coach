@@ -44,7 +44,10 @@ export function InquiryInbox({ listingId }: { listingId: string | null }) {
     if (!listingId) return;
     const ch = supabase
       .channel(`inbox-${listingId}`)
-      .on("postgres_changes", { event: "*", schema: "public", table: "inquiries", filter: `listing_id=eq.${listingId}` }, () => { void load(); })
+      .on("postgres_changes", { event: "*", schema: "public", table: "inquiries", filter: `listing_id=eq.${listingId}` }, (payload) => {
+        if (payload.eventType === "INSERT") toast({ title: "New request" });
+        void load();
+      })
       .subscribe();
     return () => { void supabase.removeChannel(ch); };
   }, [listingId, load]);

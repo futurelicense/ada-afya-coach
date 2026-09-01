@@ -14,7 +14,39 @@ async function verifySignature(req: Request, body: string): Promise<boolean> {
   )
   const mac = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(body))
   const hex = Array.from(new Uint8Array(mac)).map(b => b.toString(16).padStart(2, '0')).join('')
-  return hex === sig
+  // constant-time compare
+  if (hex.length !== sig.length) return false
+  let diff = 0
+  for (let i = 0; i < hex.length; i++) diff |= hex.charCodeAt(i) ^ sig.charCodeAt(i)
+  return diff === 0
+}
+
+// Best-effort push to the business owner after a marketplace payment lands.
+async function notifyOwner(supabase: any, kind: string, reference: string) {
+  try {
+    const map: Record<string, { table: string; fk: string; ownerTable: string; title: string; url: string }> = {
+      meal_order:      { table: 'orders',                  fk: 'vendor_id',     ownerTable: 'vendors',         title: 'New paid order',        url: '/vendor/orders' },
+      trainer_booking: { table: 'bookings',                fk: 'trainer_id',    ownerTable: 'public_trainers', title: 'New session booked',    url: '/trainer/bookings' },
+      gym_membership:  { table: 'gym_memberships',         fk: 'gym_id',        ownerTable: 'gyms',            title: 'New membership',        url: '/gym/members' },
+      partnership:     { table: 'influencer_partnerships', fk: 'influencer_id', ownerTable: 'influencers',     title: 'New partnership (paid)', url: '/influencer/partnerships' },
+    }
+    const m = map[kind]
+    if (!m) return
+    const { data: row } = await supabase.from(m.table).select(m.fk).eq('paystack_reference', reference).maybeSingle()
+    const listingId = row?.[m.fk]
+    if (!listingId) return
+    const { data: owner } = await supabase.from(m.ownerTable).select('user_id').eq('id', listingId).maybeSingle()
+    if (!owner?.user_id) return
+
+    await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/send-push`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}`,
+      },
+      body: JSON.stringify({ user_ids: [owner.user_id], title: m.title, body: 'Open WeFit to view it.', url: m.url }),
+    })
+  } catch { /* never block fulfillment on a notification */ }
 }
 
 Deno.serve(async (req: Request) => {
@@ -68,6 +100,7 @@ Deno.serve(async (req: Request) => {
             p_reference: data.reference,
             p_user_id: userId,
           })
+          await notifyOwner(supabase, kind, data.reference)
         }
         break
       }

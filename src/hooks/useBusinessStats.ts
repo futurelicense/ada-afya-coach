@@ -1,5 +1,13 @@
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { toast } from "@/hooks/use-toast";
+
+const NEW_ROW_MESSAGE: Record<BusinessKind, string> = {
+  vendor: "New order received",
+  trainer: "New session booked",
+  gym: "New membership",
+  influencer: "New partnership request",
+};
 
 export interface MoneyRow {
   id: string;
@@ -144,16 +152,25 @@ export function useBusinessStats(kind: BusinessKind, userId: string | undefined)
 
   useEffect(() => { void load(); }, [load]);
 
-  // Live-refresh when a transaction row for this business changes.
+  // Live-refresh + toast when a transaction row for this business changes.
+  const fkCol: Record<BusinessKind, string> = {
+    vendor: "vendor_id", trainer: "trainer_id", gym: "gym_id", influencer: "influencer_id",
+  };
   useEffect(() => {
-    if (!userId) return;
+    if (!userId || !listingId) return;
+    // postgres_changes only streams changes made after subscribe — no backlog to filter out.
     const channel = supabase
-      .channel(`biz-${kind}-${userId}`)
-      .on("postgres_changes", { event: "*", schema: "public", table: TXN_TABLE[kind] }, () => { void load(); })
+      .channel(`biz-${kind}-${listingId}`)
+      .on("postgres_changes",
+        { event: "*", schema: "public", table: TXN_TABLE[kind], filter: `${fkCol[kind]}=eq.${listingId}` },
+        (payload) => {
+          if (payload.eventType === "INSERT") toast({ title: NEW_ROW_MESSAGE[kind] });
+          void load();
+        })
       .on("postgres_changes", { event: "*", schema: "public", table: LISTING_TABLE[kind], filter: `user_id=eq.${userId}` }, () => { void load(); })
       .subscribe();
     return () => { void supabase.removeChannel(channel); };
-  }, [kind, userId, load]);
+  }, [kind, userId, listingId, load]);
 
   return { loading, listingId, revenue, countA, countB, rating, rows, refresh: load };
 }
