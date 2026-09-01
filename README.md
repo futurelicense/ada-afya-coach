@@ -1,73 +1,54 @@
-# Welcome to your Lovable project
+# WeFit
 
-## Project info
+Nigeria's AI fitness platform. AI-generated workouts and Nigerian-cuisine meal
+plans, an AI coach chat, food-photo scanning, plus a marketplace connecting
+members with meal vendors, personal trainers, gyms, and fitness influencers.
 
-**URL**: https://lovable.dev/projects/710f31d5-d8f1-4ed3-b4b7-4a00503484f0
+## Stack
 
-## How can I edit this code?
+| Layer | Tech |
+|---|---|
+| Frontend | React 18 + Vite + TypeScript, React Router, TanStack Query, shadcn/ui, Tailwind, PWA |
+| Backend | Supabase — Postgres + Auth + Storage + Realtime + RLS |
+| Edge functions | Deno (Supabase Functions) |
+| AI | Groq (OpenAI-compatible) — `openai/gpt-oss-120b` for text/tools, HF `Qwen2.5-VL` for food-photo vision |
+| Payments | Paystack (NGN) — subscriptions + marketplace checkout |
+| Live video | Agora RTC |
 
-There are several ways of editing your application.
+## Roles
 
-**Use Lovable**
+`user` (member), `vendor`, `trainer`, `gym_owner`, `influencer`, `admin`.
+Each business role gets its own multi-page workspace (`/vendor`, `/trainer`,
+`/gym`, `/influencer`) and a public listing on `/explore`. Admins get `/admin`.
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/710f31d5-d8f1-4ed3-b4b7-4a00503484f0) and start prompting.
+## Local development
 
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+```bash
+npm install
+cp .env.example .env      # fill in your Supabase project URL + anon key
+npm run dev               # http://localhost:8080
 ```
 
-**Edit a file directly in GitHub**
+`npm run build` · `npm run lint` · `npm test` (Vitest).
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## Backend setup
 
-**Use GitHub Codespaces**
+1. Create a Supabase project, put its URL + anon key in `.env`.
+2. Apply the schema: run `supabase/COMPLETE_SCHEMA.sql`, then every file in
+   `supabase/migrations/` in order (011 onward, and 012+ via `supabase db push`).
+3. Seed accounts (one per role, password `OneFitness`):
+   ```bash
+   SUPABASE_SERVICE_ROLE_KEY=… node scripts/seed-users.mjs
+   SUPABASE_SERVICE_ROLE_KEY=… node scripts/seed-demo.mjs   # menus, availability, demo data
+   ```
+4. Deploy the edge functions and set their secrets — see
+   `supabase/DEPLOY_FUNCTIONS.md`.
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## Edge function secrets
 
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/710f31d5-d8f1-4ed3-b4b7-4a00503484f0) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+```
+GROQ_API_KEY, HF_API_TOKEN              # AI
+PAYSTACK_SECRET_KEY, SITE_URL           # payments
+AGORA_APP_ID, AGORA_APP_CERTIFICATE     # live streaming
+VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY     # web push  (also set VITE_VAPID_PUBLIC_KEY in the frontend env)
+```

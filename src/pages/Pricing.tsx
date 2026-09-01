@@ -38,7 +38,7 @@ const plans = [
     color: "text-primary",
     badgeColor: "bg-primary/10 text-primary border-primary/20",
     popular: true,
-    planKey: 'pro' as 'pro',
+    planKey: 'pro' as const,
     features: [
       "50 AI requests per feature per day",
       "Nigerian meal generation with shopping lists",
@@ -60,7 +60,7 @@ const plans = [
     icon: Crown,
     color: "text-yellow-500",
     badgeColor: "bg-yellow-500/10 text-yellow-600 border-yellow-500/20",
-    planKey: 'elite' as 'elite',
+    planKey: 'elite' as const,
     features: [
       "Everything in Pro, with unlimited daily AI requests",
       "Go live as a trainer (broadcast workouts)",

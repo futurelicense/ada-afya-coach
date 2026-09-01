@@ -153,11 +153,11 @@ export function useBusinessStats(kind: BusinessKind, userId: string | undefined)
   useEffect(() => { void load(); }, [load]);
 
   // Live-refresh + toast when a transaction row for this business changes.
-  const fkCol: Record<BusinessKind, string> = {
-    vendor: "vendor_id", trainer: "trainer_id", gym: "gym_id", influencer: "influencer_id",
-  };
   useEffect(() => {
     if (!userId || !listingId) return;
+    const fkCol: Record<BusinessKind, string> = {
+      vendor: "vendor_id", trainer: "trainer_id", gym: "gym_id", influencer: "influencer_id",
+    };
     // postgres_changes only streams changes made after subscribe — no backlog to filter out.
     const channel = supabase
       .channel(`biz-${kind}-${listingId}`)
