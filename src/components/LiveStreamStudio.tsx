@@ -131,8 +131,8 @@ export function LiveStreamStudio({ trainerId, trainerName }: Props) {
       headers: { Authorization: `Bearer ${session.access_token}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({ channelName: channel, role: 1 }),
     });
-    const { token, appId, error: tokenErr } = await tokenRes.json();
-    if (tokenErr) { toast({ title: tokenErr, variant: "destructive" }); return; }
+    const { token, appId, uid = 0, error: tokenErr } = await tokenRes.json();
+    if (tokenErr || !appId) { toast({ title: tokenErr || "Live streaming isn't configured yet", variant: "destructive" }); return; }
 
     // 2. Create session in Supabase
     const { data: sess, error: dbErr } = await supabase.from('live_sessions').insert({
@@ -150,7 +150,7 @@ export function LiveStreamStudio({ trainerId, trainerName }: Props) {
     const client = AgoraRTC.createClient({ mode: 'live', codec: 'h264' });
     clientRef.current = client;
     await client.setClientRole('host');
-    await client.join(appId, channel, token, null);
+    await client.join(appId, channel, token ?? null, uid);
 
     // 4. Create + publish audio track
     const audio = await AgoraRTC.createMicrophoneAudioTrack();

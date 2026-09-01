@@ -113,8 +113,8 @@ export function LiveStreamViewer({ userPlan, username = "You" }: Props) {
         headers: { Authorization: `Bearer ${session.access_token}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({ channelName: sess.agora_channel, role: 2 }),
       });
-      const { token, appId, error: tokenErr } = await tokenRes.json();
-      if (tokenErr) throw new Error(tokenErr);
+      const { token, appId, uid = 0, error: tokenErr } = await tokenRes.json();
+      if (tokenErr || !appId) throw new Error(tokenErr || "Live streaming isn't configured yet");
 
       const client = AgoraRTC.createClient({ mode: 'live', codec: 'h264' });
       clientRef.current = client;
@@ -134,7 +134,7 @@ export function LiveStreamViewer({ userPlan, username = "You" }: Props) {
         await client.unsubscribe(user, mediaType);
       });
 
-      await client.join(appId, sess.agora_channel, token, null);
+      await client.join(appId, sess.agora_channel, token ?? null, uid);
 
       // Increment viewer count in Supabase
       await supabase.rpc('update_live_viewer_count', { p_session_id: sess.id, p_delta: 1 });
