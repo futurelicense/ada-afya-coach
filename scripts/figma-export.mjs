@@ -162,7 +162,16 @@ async function capture(browser, sessions, vp, s, manifest) {
   try {
     await page.goto(`${BASE}${s.path}`, { waitUntil: "domcontentloaded", timeout: 30000 });
     await page.waitForLoadState("networkidle", { timeout: 8000 }).catch(() => {});
-    await page.waitForTimeout(1800); // lazy chunks + data fetches + animations settle
+    await page.waitForTimeout(3000); // auth restore + ProtectedRoute redirect + data fetches
+
+    const landed = new URL(page.url()).pathname;
+    const want = s.path.split("?")[0];
+    if (want !== "/no-such-page" && landed !== want && !landed.startsWith(want)) {
+      console.warn(`✗ ${vp.name}/${s.group}/${s.name}: redirected to ${landed} (expected ${want}) — session/role issue`);
+      await context.close();
+      return;
+    }
+
     await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
     await page.waitForTimeout(400);
     await page.evaluate(() => window.scrollTo(0, 0));
@@ -186,7 +195,10 @@ async function capture(browser, sessions, vp, s, manifest) {
 }
 
 async function main() {
-  await rm(OUT, { recursive: true, force: true });
+  const only = (process.env.EXPORT_ONLY ?? "").split(",").map((x) => x.trim()).filter(Boolean);
+  const screens = only.length ? SCREENS.filter((s) => only.includes(`${s.group}/${s.name}`)) : SCREENS;
+  if (!only.length) await rm(OUT, { recursive: true, force: true });
+
   const browser = await chromium.launch();
   const manifest = [];
 
@@ -195,7 +207,7 @@ async function main() {
     sessions[email] = await getSession(email);
   }
 
-  const tasks = VIEWPORTS.flatMap((vp) => SCREENS.map((s) => ({ vp, s })));
+  const tasks = VIEWPORTS.flatMap((vp) => screens.map((s) => ({ vp, s })));
   let i = 0;
   await Promise.all(Array.from({ length: CONCURRENCY }, async () => {
     while (i < tasks.length) {
