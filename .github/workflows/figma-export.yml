@@ -1,0 +1,33 @@
+name: Figma export
+
+# Capture every screen as a self-contained HTML file (+ PNG) for import
+# into Figma via the html.to.design plugin. Run manually from the Actions tab.
+
+on:
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: Site to capture
+        default: https://wecoach.vercel.app
+        required: true
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm install --no-audit --no-fund
+      - run: npm install --no-save playwright@1.47.2
+      - run: npx playwright install --with-deps chromium
+      - run: node scripts/figma-export.mjs
+        env:
+          EXPORT_BASE: ${{ inputs.base_url }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wefit-figma-export
+          path: figma-export/
+          retention-days: 14

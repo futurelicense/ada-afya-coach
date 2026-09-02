@@ -33,3 +33,6 @@ dist-ssr
 *.sln
 *.sw?
 .vercel
+
+# Generated screen captures for Figma import
+figma-export/
