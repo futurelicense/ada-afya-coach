@@ -142,58 +142,67 @@ function buildHtml(rawHtml, css, dataUris) {
   return html.replace(/<\/head>/i, `<style>\n${css}\n</style>\n</head>`);
 }
 
+const CONCURRENCY = Number(process.env.EXPORT_CONCURRENCY ?? 4);
+
+async function capture(browser, sessions, vp, s, manifest) {
+  const context = await browser.newContext({
+    viewport: { width: vp.width, height: vp.height },
+    deviceScaleFactor: 2,
+  });
+  if (s.auth) {
+    await context.addInitScript(([k, v]) => {
+      try { localStorage.setItem(k, v); } catch { /* noop */ }
+    }, ["wefit_session", JSON.stringify(sessions[s.auth])]);
+  }
+  const page = await context.newPage();
+  const dir = path.join(OUT, vp.name, s.group);
+  await mkdir(dir, { recursive: true });
+  const base = path.join(dir, s.name);
+
+  try {
+    await page.goto(`${BASE}${s.path}`, { waitUntil: "domcontentloaded", timeout: 30000 });
+    await page.waitForLoadState("networkidle", { timeout: 8000 }).catch(() => {});
+    await page.waitForTimeout(1800); // lazy chunks + data fetches + animations settle
+    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+    await page.waitForTimeout(400);
+    await page.evaluate(() => window.scrollTo(0, 0));
+
+    await page.screenshot({ path: `${base}.png`, fullPage: true });
+
+    const assets = await page.evaluate(collectAssets);
+    let css = assets.css;
+    for (const href of assets.crossOriginHrefs) {
+      try { css += "\n" + (await (await fetch(href)).text()); } catch { /* noop */ }
+    }
+    await writeFile(`${base}.html`, buildHtml(await page.content(), css, assets.dataUris));
+
+    manifest.push({ viewport: vp.name, group: s.group, name: s.name, path: s.path });
+    console.log(`✓ ${vp.name}/${s.group}/${s.name}`);
+  } catch (err) {
+    console.warn(`✗ ${vp.name}/${s.group}/${s.name}: ${err.message}`);
+  } finally {
+    await context.close();
+  }
+}
+
 async function main() {
   await rm(OUT, { recursive: true, force: true });
   const browser = await chromium.launch();
-  const sessions = {};
   const manifest = [];
 
-  for (const vp of VIEWPORTS) {
-    for (const s of SCREENS) {
-      const context = await browser.newContext({
-        viewport: { width: vp.width, height: vp.height },
-        deviceScaleFactor: 2,
-      });
-
-      if (s.auth) {
-        if (!sessions[s.auth]) sessions[s.auth] = await getSession(s.auth);
-        const sess = sessions[s.auth];
-        await context.addInitScript(([k, v]) => {
-          try { localStorage.setItem(k, v); } catch { /* noop */ }
-        }, ["wefit_session", JSON.stringify(sess)]);
-      }
-
-      const page = await context.newPage();
-      const dir = path.join(OUT, vp.name, s.group);
-      await mkdir(dir, { recursive: true });
-      const base = path.join(dir, s.name);
-
-      try {
-        await page.goto(`${BASE}${s.path}`, { waitUntil: "networkidle", timeout: 45000 });
-        await page.waitForTimeout(2500); // lazy chunks + data fetches + animations
-        await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
-        await page.waitForTimeout(600);
-        await page.evaluate(() => window.scrollTo(0, 0));
-
-        await page.screenshot({ path: `${base}.png`, fullPage: true });
-
-        const assets = await page.evaluate(collectAssets);
-        let css = assets.css;
-        for (const href of assets.crossOriginHrefs) {
-          try { css += "\n" + (await (await fetch(href)).text()); } catch { /* noop */ }
-        }
-        const rawHtml = await page.content();
-        await writeFile(`${base}.html`, buildHtml(rawHtml, css, assets.dataUris));
-
-        manifest.push({ viewport: vp.name, group: s.group, name: s.name, path: s.path });
-        console.log(`✓ ${vp.name}/${s.group}/${s.name}`);
-      } catch (err) {
-        console.warn(`✗ ${vp.name}/${s.group}/${s.name}: ${err.message}`);
-      }
-
-      await context.close();
-    }
+  const sessions = {};
+  for (const email of [...new Set(SCREENS.map((s) => s.auth).filter(Boolean))]) {
+    sessions[email] = await getSession(email);
   }
+
+  const tasks = VIEWPORTS.flatMap((vp) => SCREENS.map((s) => ({ vp, s })));
+  let i = 0;
+  await Promise.all(Array.from({ length: CONCURRENCY }, async () => {
+    while (i < tasks.length) {
+      const { vp, s } = tasks[i++];
+      await capture(browser, sessions, vp, s, manifest);
+    }
+  }));
 
   await browser.close();
 
