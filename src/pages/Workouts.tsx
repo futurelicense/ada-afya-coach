@@ -2,11 +2,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Dumbbell, Clock, Zap, Play, CheckCircle2, Sparkles, Flame, Target, TrendingUp, Check, Radio } from "lucide-react";
+import { Dumbbell, Clock, Zap, Play, CheckCircle2, Sparkles, Flame, Target, TrendingUp, Check, Radio, Heart, Smile } from "lucide-react";
 import workoutImage from "@/assets/workout-session.jpg";
 import { AIWorkoutGenerator } from "@/components/AIWorkoutGenerator";
 import { CustomWorkoutBuilder } from "@/components/CustomWorkoutBuilder";
 import { VoiceGuidedWorkout } from "@/components/VoiceGuidedWorkout";
+import { PageHero } from "@/components/PageHero";
 import { useUserData } from "@/hooks/useUserData";
 import { useAuth } from "@/contexts/AuthContext";
 import { lazy, Suspense, useState, useEffect, useRef, useCallback } from "react";
@@ -99,10 +100,18 @@ const Workouts = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 py-4 md:py-6 space-y-5 md:space-y-8 pb-24 md:pb-8">
-      <div className="text-center space-y-2 md:space-y-3 mb-6 md:mb-12">
-        <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold gradient-text">Workouts</h1>
-        <p className="text-muted-foreground text-sm md:text-lg">Transform your body with personalized plans</p>
-      </div>
+      <PageHero
+        title="Workouts"
+        subtitle="Transform your body with personalized plans."
+        pills={[
+          { icon: Zap, label: "Get stronger" },
+          { icon: Heart, label: "Feel healthier" },
+          { icon: Smile, label: "Happier you" },
+        ]}
+        scriptText="Stronger, Happier You"
+        quote="Small steps today, big results tomorrow."
+        image={workoutImage}
+      />
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="glass mb-4 md:mb-8 p-1 h-auto w-full">

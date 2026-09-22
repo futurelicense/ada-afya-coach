@@ -16,6 +16,7 @@ import { userDataService, UserProfile, Goal } from "@/lib/userDataService";
 import { gamificationService } from "@/lib/gamificationService";
 import { useToast } from "@/hooks/use-toast";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
+import heroImage from "@/assets/hero-fitness.jpg";
 
 const Profile = () => {
   const { toast } = useToast();
@@ -80,8 +81,15 @@ const Profile = () => {
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
       {/* Profile Header */}
-      <Card className="shadow-card">
-        <CardContent className="p-6">
+      <Card className="shadow-card overflow-hidden relative">
+        {!isEditing && (
+          <div className="hidden lg:block absolute top-0 right-0 bottom-0 w-56">
+            <img src={heroImage} alt="" className="w-full h-full object-cover" />
+            <div className="absolute inset-0 bg-gradient-to-r from-card via-card/60 to-transparent" />
+            <span className="absolute top-4 right-6 font-script text-xl text-primary rotate-2">Healthier, Happier You</span>
+          </div>
+        )}
+        <CardContent className="p-6 relative z-10">
           {isEditing && editForm ? (
             <div className="space-y-4">
               <h2 className="text-xl font-bold">Edit Profile</h2>
@@ -121,7 +129,7 @@ const Profile = () => {
               </div>
             </div>
           ) : (
-            <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
+            <div className="flex flex-col md:flex-row items-center md:items-start gap-6 lg:pr-40">
               <Avatar className="h-24 w-24">
                 <AvatarFallback className="bg-gradient-primary text-white text-3xl font-bold">
                   {initials}

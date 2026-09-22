@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Check, ArrowLeft, Zap, Crown, Sparkles, Loader2 } from "lucide-react";
+import { Check, ArrowLeft, Zap, Crown, Sparkles, Loader2, ShieldCheck, Lock, Smartphone } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { paystackService } from "@/lib/paystackService";
@@ -199,6 +199,25 @@ export default function Pricing() {
           })}
         </div>
 
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-20 max-w-4xl mx-auto">
+          {[
+            { icon: ShieldCheck, title: "Cancel anytime", desc: "No long-term commitment" },
+            { icon: Lock,        title: "Secure checkout", desc: "Paystack keeps payments safe" },
+            { icon: null,        title: "Built for Nigeria", desc: "Designed for our people", emoji: "🇳🇬" },
+            { icon: Smartphone,  title: "Web and mobile", desc: "Fitness wherever you are" },
+          ].map(({ icon: Icon, title, desc, emoji }) => (
+            <div key={title} className="flex items-start gap-3 p-4 rounded-xl glass">
+              <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 text-base">
+                {Icon ? <Icon className="h-4 w-4 text-primary" /> : emoji}
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm font-semibold leading-tight">{title}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">{desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
         <div className="max-w-2xl mx-auto">
           <h2 className="text-2xl font-bold text-center mb-8">Frequently Asked Questions</h2>
           <div className="space-y-4">
@@ -213,6 +232,17 @@ export default function Pricing() {
               </Card>
             ))}
           </div>
+        </div>
+
+        <div className="mt-20 rounded-3xl p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-6 border border-primary/10"
+             style={{ background: "linear-gradient(135deg, hsl(150 45% 95%) 0%, hsl(140 40% 91%) 100%)" }}>
+          <div className="text-center md:text-left">
+            <h3 className="text-2xl md:text-3xl font-display font-black">A Healthier You Starts Today</h3>
+            <p className="text-muted-foreground mt-2">Join thousands of Nigerians building healthier habits with WeFit.</p>
+          </div>
+          <Button size="lg" className="shadow-glow gap-2 shrink-0" onClick={() => handlePlanClick(null)}>
+            Start your wellness journey <Sparkles className="h-4 w-4" />
+          </Button>
         </div>
       </div>
     </div>

@@ -2,13 +2,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { 
-  TrendingUp, Activity, Flame, Droplets, BarChart3, Calendar, Target, Zap
+  TrendingUp, Activity, Flame, Droplets, BarChart3, Calendar, Target
 } from "lucide-react";
 import { AICoachPanel } from "@/components/AICoachPanel";
 import { CircularProgress } from "@/components/CircularProgress";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } from "recharts";
 import { useState, useEffect } from "react";
 import { Goal, userDataService, UserProfile } from "@/lib/userDataService";
+import { PageHero } from "@/components/PageHero";
+import heroImage from "@/assets/hero-fitness.jpg";
 
 const EMPTY_TOTAL_STATS = { totalWorkouts: 0, totalCaloriesBurned: 0, totalActiveMinutes: 0, totalMealsLogged: 0, goalsAchieved: 0, currentStreak: 0 };
 
@@ -76,23 +78,19 @@ const Analytics = () => {
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
-      <div className="glass rounded-3xl p-8 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl -z-10" />
-        <div className="absolute bottom-0 left-0 w-64 h-64 bg-secondary/10 rounded-full blur-3xl -z-10" />
-        <div className="flex items-center justify-between relative z-10">
-          <div>
-            <h1 className="text-4xl font-bold text-gradient">Progress Analytics</h1>
-            <p className="text-muted-foreground mt-2 flex items-center gap-2">
-              <Zap className="h-4 w-4 text-primary" />
-              Track your fitness journey with real data
-            </p>
-          </div>
+      <PageHero
+        title="Progress Analytics"
+        subtitle="Track your fitness journey with real data."
+        image={heroImage}
+        scriptText="Small Steps, Big Results"
+        quote="A healthier you. A brighter tomorrow."
+        actions={
           <Badge className="gradient-premium text-white border-0 h-fit shadow-glow">
             <BarChart3 className="mr-1 h-3 w-3" />
             Live Data
           </Badge>
-        </div>
-      </div>
+        }
+      />
 
       <AICoachPanel />
 

@@ -8,6 +8,8 @@ import { useCommunity, ActivityItem, Challenge, LeaderboardEntry } from "@/hooks
 import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from "date-fns";
 import { EmptyState } from "@/components/EmptyState";
+import { PageHero } from "@/components/PageHero";
+import heroImage from "@/assets/hero-fitness.jpg";
 
 const ACTIVITY_ICONS: Record<string, typeof Flame> = {
   achievement: Award,
@@ -190,10 +192,18 @@ const Community = () => {
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
-      <div>
-        <h1 className="text-4xl font-bold">Community</h1>
-        <p className="text-muted-foreground mt-2">Connect, compete, and grow together</p>
-      </div>
+      <PageHero
+        title="Stronger Together"
+        subtitle="Connect, compete, and grow with a supportive fitness community across Nigeria and beyond."
+        pills={[
+          { icon: Users, label: "Share progress" },
+          { icon: Trophy, label: "Join challenges" },
+          { icon: Zap, label: "Stay motivated" },
+        ]}
+        scriptText="Better People, Healthier Tomorrows"
+        quote="Fitness is better together."
+        image={heroImage}
+      />
 
       {error && (
         <Card className="border-destructive/40 bg-destructive/5">
