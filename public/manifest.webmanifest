@@ -1,0 +1,15 @@
+{
+  "name": "WeFit — AI Fitness Platform",
+  "short_name": "WeFit",
+  "description": "AI-powered workouts, meal plans, and live coaching for your wellness journey.",
+  "theme_color": "#7c3aed",
+  "background_color": "#0f0a1e",
+  "display": "standalone",
+  "orientation": "portrait",
+  "scope": "/",
+  "start_url": "/",
+  "categories": ["health", "fitness", "lifestyle"],
+  "icons": [
+    { "src": "/icons/icon-192.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
