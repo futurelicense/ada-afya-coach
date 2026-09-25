@@ -15,15 +15,16 @@ export default defineConfig(({ mode }) => ({
     react(),
     mode === "development" && componentTagger(),
     VitePWA({
-      registerType: "prompt",
+      // Apply new builds immediately so deploys are visible without a manual "Update now" tap.
+      registerType: "autoUpdate",
       injectRegister: null,
       includeAssets: ["favicon.svg", "icons/icon-192.svg", "robots.txt"],
       manifest: {
         name: "WeFit — AI Fitness Platform",
         short_name: "WeFit",
         description: "AI-powered workouts, meal plans, and live coaching for your wellness journey.",
-        theme_color: "#7c3aed",
-        background_color: "#0f0a1e",
+        theme_color: "#1b9e6f",
+        background_color: "#f8fffb",
         display: "standalone",
         orientation: "portrait",
         scope: "/",
