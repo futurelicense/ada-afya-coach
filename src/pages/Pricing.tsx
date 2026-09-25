@@ -8,6 +8,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { paystackService } from "@/lib/paystackService";
 import { useToast } from "@/hooks/use-toast";
 import { track } from "@/lib/analytics";
+import heroImage from "@/assets/hero-fitness.jpg";
 
 const plans = [
   {
@@ -116,30 +117,37 @@ export default function Pricing() {
 
   return (
     <div className="min-h-screen bg-background">
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border">
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-lg border-b border-border/60">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center h-16 gap-4">
+            <Link to="/" className="mr-3 text-xl font-black tracking-tight text-emerald-700">💚 <span className="text-slate-900">WeFit</span></Link>
             <Link to="/" className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors">
               <ArrowLeft className="w-4 h-4" />
               <span className="text-sm">Back to Home</span>
             </Link>
-            <span className="font-bold text-lg text-gradient ml-auto">WeFit</span>
+            <span className="ml-auto hidden text-sm font-semibold sm:block">Simple plans. Stronger you.</span>
           </div>
         </div>
       </nav>
 
-      <div className="pt-24 pb-16 container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16 space-y-4">
+      <div className="pt-20 pb-10 container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="relative mb-5 overflow-hidden rounded-[2rem] border border-emerald-100 bg-gradient-to-br from-emerald-50 via-white to-teal-50 px-4 py-7 text-center sm:px-8">
+          <span className="absolute -left-5 top-3 text-7xl opacity-20">🌿</span>
+          <span className="absolute -right-3 bottom-0 text-7xl opacity-20">🌱</span>
           <Badge className="bg-primary/10 text-primary border-primary/20">Simple Pricing</Badge>
-          <h1 className="font-display text-4xl md:text-6xl font-bold">
+          <h1 className="mt-3 font-display text-4xl font-black tracking-tight md:text-6xl">
             Invest in Your <span className="text-gradient">Health</span>
           </h1>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          <p className="mx-auto mt-2 max-w-2xl text-sm text-muted-foreground sm:text-base">
             Choose the plan that fits your wellness goals. Start free, upgrade when you&apos;re ready.
           </p>
+          <div className="mx-auto mt-4 flex w-fit rounded-full bg-white p-1 shadow-sm">
+            <Button size="sm" className="h-8 rounded-full px-8">Monthly</Button>
+            <Button size="sm" variant="ghost" className="h-8 rounded-full px-8">Yearly <span className="ml-2 text-[10px] text-emerald-600">Save more</span></Button>
+          </div>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-6 lg:gap-8 mb-20">
+        <div className="grid items-stretch gap-4 md:grid-cols-3 lg:gap-5 mb-5">
           {plans.map((plan) => {
             const Icon      = plan.icon;
             const isLoading = loadingPlan === plan.planKey;
@@ -147,8 +155,8 @@ export default function Pricing() {
             return (
               <Card
                 key={plan.name}
-                className={`relative overflow-hidden transition-all duration-300 hover:shadow-xl ${
-                  plan.popular ? "border-primary ring-2 ring-primary/30 shadow-lg scale-[1.02]" : "border-border"
+                className={`relative flex overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl ${
+                  plan.popular ? "border-primary ring-2 ring-primary/20 shadow-lg" : plan.name === "Elite" ? "border-amber-100 bg-amber-50/40" : "border-border"
                 }`}
               >
                 {plan.popular && (
@@ -161,21 +169,22 @@ export default function Pricing() {
                     </Badge>
                   </div>
                 )}
-                <CardHeader className="pb-4">
+                <div className="flex w-full flex-col">
+                <CardHeader className="pb-3 pt-7">
                   <div className="flex items-center gap-3 mb-3">
                     <div className={`p-2 rounded-lg bg-muted ${plan.color}`}>
                       <Icon className="w-5 h-5" />
                     </div>
                     <Badge className={`text-xs ${plan.badgeColor}`}>{plan.name}</Badge>
                   </div>
-                  <CardTitle className="text-3xl font-bold">
+                  <CardTitle className="text-3xl font-black">
                     {plan.price}
                     <span className="text-sm font-normal text-muted-foreground ml-1">/{plan.period}</span>
                   </CardTitle>
                   <CardDescription>{plan.description}</CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-6">
-                  <ul className="space-y-3">
+                <CardContent className="flex flex-1 flex-col space-y-5">
+                  <ul className="flex-1 space-y-2">
                     {plan.features.map((feature) => (
                       <li key={feature} className="flex items-center gap-2 text-sm">
                         <Check className="w-4 h-4 text-success flex-shrink-0" />
@@ -194,19 +203,20 @@ export default function Pricing() {
                       : plan.cta}
                   </Button>
                 </CardContent>
+                </div>
               </Card>
             );
           })}
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-20 max-w-4xl mx-auto">
+        <div className="mb-8 grid grid-cols-2 gap-2 rounded-2xl border bg-white p-3 shadow-sm md:grid-cols-4">
           {[
             { icon: ShieldCheck, title: "Cancel anytime", desc: "No long-term commitment" },
             { icon: Lock,        title: "Secure checkout", desc: "Paystack keeps payments safe" },
             { icon: null,        title: "Built for Nigeria", desc: "Designed for our people", emoji: "🇳🇬" },
             { icon: Smartphone,  title: "Web and mobile", desc: "Fitness wherever you are" },
           ].map(({ icon: Icon, title, desc, emoji }) => (
-            <div key={title} className="flex items-start gap-3 p-4 rounded-xl glass">
+            <div key={title} className="flex items-start gap-3 p-3">
               <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 text-base">
                 {Icon ? <Icon className="h-4 w-4 text-primary" /> : emoji}
               </div>
@@ -218,13 +228,14 @@ export default function Pricing() {
           ))}
         </div>
 
-        <div className="max-w-2xl mx-auto">
-          <h2 className="text-2xl font-bold text-center mb-8">Frequently Asked Questions</h2>
-          <div className="space-y-4">
+        <div className="mx-auto max-w-5xl">
+          <p className="text-center text-xs font-semibold text-emerald-600">Questions? We&apos;ve got you.</p>
+          <h2 className="mb-5 text-center text-2xl font-black">Frequently Asked Questions</h2>
+          <div className="grid gap-3 md:grid-cols-2">
             {faqs.map((faq, i) => (
-              <Card key={i} className="border-border/50">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-base">{faq.q}</CardTitle>
+              <Card key={i} className="border-border/50 shadow-sm">
+                <CardHeader className="pb-1">
+                  <CardTitle className="text-sm">{faq.q}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-muted-foreground">{faq.a}</p>
@@ -234,15 +245,16 @@ export default function Pricing() {
           </div>
         </div>
 
-        <div className="mt-20 rounded-3xl p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-6 border border-primary/10"
+        <div className="relative mt-7 overflow-hidden rounded-3xl p-7 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6 border border-primary/10"
              style={{ background: "linear-gradient(135deg, hsl(150 45% 95%) 0%, hsl(140 40% 91%) 100%)" }}>
-          <div className="text-center md:text-left">
+          <div className="relative z-10 text-center md:text-left md:max-w-[45%]">
             <h3 className="text-2xl md:text-3xl font-display font-black">A Healthier You Starts Today</h3>
             <p className="text-muted-foreground mt-2">Join thousands of Nigerians building healthier habits with WeFit.</p>
           </div>
-          <Button size="lg" className="shadow-glow gap-2 shrink-0" onClick={() => handlePlanClick(null)}>
+          <Button size="lg" className="relative z-10 shadow-glow gap-2 shrink-0" onClick={() => handlePlanClick(null)}>
             Start your wellness journey <Sparkles className="h-4 w-4" />
           </Button>
+          <img src={heroImage} alt="" className="absolute bottom-0 right-0 hidden h-full w-[34%] object-cover opacity-90 lg:block" />
         </div>
       </div>
     </div>

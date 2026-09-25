@@ -2,7 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { 
-  TrendingUp, Activity, Flame, Droplets, BarChart3, Calendar, Target
+  Activity, Flame, Droplets, BarChart3, Calendar, Target, Dumbbell, Utensils, Clock, Trophy, Leaf
 } from "lucide-react";
 import { AICoachPanel } from "@/components/AICoachPanel";
 import { CircularProgress } from "@/components/CircularProgress";
@@ -10,7 +10,7 @@ import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, R
 import { useState, useEffect } from "react";
 import { Goal, userDataService, UserProfile } from "@/lib/userDataService";
 import { PageHero } from "@/components/PageHero";
-import heroImage from "@/assets/hero-fitness.jpg";
+import heroImage from "@/assets/reference/analytics-hero.png";
 
 const EMPTY_TOTAL_STATS = { totalWorkouts: 0, totalCaloriesBurned: 0, totalActiveMinutes: 0, totalMealsLogged: 0, goalsAchieved: 0, currentStreak: 0 };
 
@@ -94,70 +94,33 @@ const Analytics = () => {
 
       <AICoachPanel />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="card-3d shadow-elevated overflow-hidden group">
-          <CardContent className="p-6 relative">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-2xl group-hover:bg-primary/10 transition-smooth" />
-            <div className="relative z-10">
-              <div className="flex items-center justify-between mb-4">
-                <div className="p-3 rounded-2xl bg-primary/10"><Activity className="h-6 w-6 text-primary" /></div>
-                <Badge variant="outline" className="bg-primary/5 border-primary/20">{totalStats.totalWorkouts} total</Badge>
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        {[
+          { label: "Workouts", value: monthlyStats.totalWorkouts, note: `${totalStats.totalWorkouts} total`, icon: Dumbbell, tone: "text-emerald-600 bg-emerald-50", wash: "from-emerald-50/80" },
+          { label: "Calories Burned", value: monthlyStats.totalCalories.toLocaleString(), note: `${totalStats.currentStreak}d streak`, icon: Flame, tone: "text-orange-500 bg-orange-50", wash: "from-rose-50/80" },
+          { label: "Meals Logged", value: totalStats.totalMealsLogged, note: "healthy choices", icon: Utensils, tone: "text-teal-600 bg-teal-50", wash: "from-sky-50/80" },
+          { label: "Active Minutes", value: monthlyStats.activeMinutes, note: `${monthlyStats.goalProgress}% goals`, icon: Clock, tone: "text-amber-500 bg-amber-50", wash: "from-amber-50/80" },
+        ].map(stat => (
+          <Card key={stat.label} className={`overflow-hidden border-border/60 bg-gradient-to-br ${stat.wash} to-white shadow-sm`}>
+            <CardContent className="flex min-h-[118px] items-center justify-between p-4 sm:p-5">
+              <div>
+                <div className="mb-2 flex items-center gap-2">
+                  <span className={`grid h-9 w-9 place-items-center rounded-xl ${stat.tone}`}><stat.icon className="h-5 w-5" /></span>
+                  <span className="text-xs font-semibold text-muted-foreground sm:text-sm">{stat.label}</span>
+                </div>
+                <p className="text-2xl font-black tracking-tight sm:text-3xl">{stat.value}</p>
+                <p className="mt-1 text-[11px] font-medium text-emerald-600">↑ {stat.note}</p>
               </div>
-              <p className="text-sm text-muted-foreground mb-1">Workouts</p>
-              <p className="text-3xl font-bold">{monthlyStats.totalWorkouts}</p>
-              <div className="mt-4"><CircularProgress value={Math.min(totalStats.totalWorkouts * 10, 100)} size={60} strokeWidth={6} showLabel={false} /></div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="card-3d shadow-elevated overflow-hidden group">
-          <CardContent className="p-6 relative">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-secondary/5 rounded-full blur-2xl group-hover:bg-secondary/10 transition-smooth" />
-            <div className="relative z-10">
-              <div className="flex items-center justify-between mb-4">
-                <div className="p-3 rounded-2xl bg-secondary/10"><Flame className="h-6 w-6 text-secondary" /></div>
-                <Badge variant="outline" className="bg-secondary/5 border-secondary/20">{totalStats.currentStreak}d streak</Badge>
+              <div className="flex h-14 items-end gap-1 opacity-50">
+                {[35, 55, 42, 72].map((h, i) => <i key={i} className="w-2 rounded-t bg-current text-primary" style={{ height: `${h}%` }} />)}
               </div>
-              <p className="text-sm text-muted-foreground mb-1">Calories Burned</p>
-              <p className="text-3xl font-bold">{monthlyStats.totalCalories.toLocaleString()}</p>
-              <div className="mt-4"><CircularProgress value={Math.min(totalStats.totalCaloriesBurned / 100, 100)} size={60} strokeWidth={6} showLabel={false} color="hsl(var(--secondary))" /></div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="card-3d shadow-elevated overflow-hidden group">
-          <CardContent className="p-6 relative">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-info/5 rounded-full blur-2xl group-hover:bg-info/10 transition-smooth" />
-            <div className="relative z-10">
-              <div className="flex items-center justify-between mb-4">
-                <div className="p-3 rounded-2xl bg-info/10"><Activity className="h-6 w-6 text-info" /></div>
-                <Badge variant="outline" className="bg-info/5 border-info/20">Meals</Badge>
-              </div>
-              <p className="text-sm text-muted-foreground mb-1">Meals Logged</p>
-              <p className="text-3xl font-bold">{totalStats.totalMealsLogged}</p>
-              <div className="mt-4"><CircularProgress value={Math.min(totalStats.totalMealsLogged * 5, 100)} size={60} strokeWidth={6} showLabel={false} color="hsl(var(--info))" /></div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="card-3d shadow-elevated overflow-hidden group">
-          <CardContent className="p-6 relative">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-success/5 rounded-full blur-2xl group-hover:bg-success/10 transition-smooth" />
-            <div className="relative z-10">
-              <div className="flex items-center justify-between mb-4">
-                <div className="p-3 rounded-2xl bg-success/10"><Calendar className="h-6 w-6 text-success" /></div>
-                <Badge variant="outline" className="bg-success/5 border-success/20">{monthlyStats.goalProgress}% goals</Badge>
-              </div>
-              <p className="text-sm text-muted-foreground mb-1">Active Minutes</p>
-              <p className="text-3xl font-bold">{monthlyStats.activeMinutes}</p>
-              <div className="mt-4"><CircularProgress value={monthlyStats.goalProgress} size={60} strokeWidth={6} showLabel={false} color="hsl(var(--success))" /></div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        ))}
       </div>
 
       <Tabs defaultValue="weekly" className="w-full">
-        <TabsList className="grid w-full max-w-xl grid-cols-3">
+        <TabsList className="grid w-full max-w-xl grid-cols-3 rounded-xl bg-muted/70 p-1">
           <TabsTrigger value="weekly">Weekly</TabsTrigger>
           <TabsTrigger value="body">Body Metrics</TabsTrigger>
           <TabsTrigger value="nutrition">Nutrition</TabsTrigger>
@@ -165,13 +128,13 @@ const Analytics = () => {
 
         <TabsContent value="weekly" className="space-y-4 mt-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <Card className="shadow-elevated">
+            <Card className="border-border/60 shadow-sm">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2"><Activity className="h-5 w-5 text-primary" />Workouts Completed</CardTitle>
                 <CardDescription>Daily workout frequency this week</CardDescription>
               </CardHeader>
               <CardContent>
-                <ResponsiveContainer width="100%" height={250}>
+                <ResponsiveContainer width="100%" height={210}>
                   <BarChart data={weeklyData}>
                     <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
                     <XAxis dataKey="day" className="text-xs" />
@@ -183,13 +146,13 @@ const Analytics = () => {
               </CardContent>
             </Card>
 
-            <Card className="shadow-elevated">
+            <Card className="border-border/60 shadow-sm">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2"><Flame className="h-5 w-5 text-secondary" />Calories Burned</CardTitle>
                 <CardDescription>Weekly calorie burn trend</CardDescription>
               </CardHeader>
               <CardContent>
-                <ResponsiveContainer width="100%" height={250}>
+                <ResponsiveContainer width="100%" height={210}>
                   <AreaChart data={weeklyData}>
                     <defs>
                       <linearGradient id="colorCalories" x1="0" y1="0" x2="0" y2="1">
@@ -208,23 +171,41 @@ const Analytics = () => {
             </Card>
           </div>
 
-          <Card className="shadow-elevated">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2"><Droplets className="h-5 w-5 text-info" />Water Intake</CardTitle>
-              <CardDescription>Daily hydration tracking (Liters)</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={weeklyData}>
-                  <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-                  <XAxis dataKey="day" className="text-xs" />
-                  <YAxis className="text-xs" domain={[0, 3.5]} />
-                  <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '0.5rem' }} />
-                  <Line type="monotone" dataKey="water" stroke="rgb(59, 130, 246)" strokeWidth={3} dot={{ fill: 'rgb(59, 130, 246)', r: 6 }} activeDot={{ r: 8 }} />
-                </LineChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
+          <div className="grid gap-4 lg:grid-cols-[1.35fr_.75fr_.75fr]">
+            <Card className="border-border/60 shadow-sm">
+              <CardHeader className="pb-2">
+                <CardTitle className="flex items-center gap-2"><Droplets className="h-5 w-5 text-info" />Water Intake</CardTitle>
+                <CardDescription>Daily hydration tracking (Liters)</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={190}>
+                  <BarChart data={weeklyData}>
+                    <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+                    <XAxis dataKey="day" className="text-xs" />
+                    <YAxis className="text-xs" domain={[0, 3.5]} />
+                    <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '0.5rem' }} />
+                    <Bar dataKey="water" fill="rgb(96, 165, 250)" radius={[6, 6, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+            <Card className="border-border/60 shadow-sm">
+              <CardHeader className="pb-2"><CardTitle className="text-base text-emerald-700">Weekly Insights</CardTitle></CardHeader>
+              <CardContent className="space-y-3 text-xs">
+                <p className="rounded-lg bg-amber-50 p-2"><Trophy className="mr-2 inline h-4 w-4 text-amber-500" />Most active workout days</p>
+                <p className="rounded-lg bg-sky-50 p-2"><Droplets className="mr-2 inline h-4 w-4 text-sky-500" />Hydration progress tracked</p>
+                <p className="rounded-lg bg-rose-50 p-2"><Flame className="mr-2 inline h-4 w-4 text-orange-500" />{totalStats.currentStreak}-day streak</p>
+              </CardContent>
+            </Card>
+            <Card className="overflow-hidden border-emerald-100 bg-gradient-to-b from-emerald-50 to-white shadow-sm">
+              <CardContent className="flex h-full min-h-[250px] flex-col items-center justify-center p-6 text-center">
+                <Leaf className="mb-3 h-12 w-12 text-emerald-500" />
+                <h3 className="text-lg font-black text-emerald-900">You&apos;re Doing Great!</h3>
+                <p className="mt-2 text-xs leading-relaxed text-muted-foreground">Consistent effort today builds a healthier, happier you tomorrow.</p>
+                <Badge className="mt-5 bg-emerald-600">Keep Going →</Badge>
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
 
         <TabsContent value="body" className="space-y-4 mt-6">

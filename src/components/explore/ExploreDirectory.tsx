@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Dumbbell, User, Utensils, ShoppingBag, Users, Loader2, Sparkles } from "lucide-react";
+import { Dumbbell, User, Utensils, ShoppingBag, Users, Loader2, Sparkles, ArrowRight } from "lucide-react";
 import { ExploreCard } from "./ExploreCard";
 import { ExploreFilters, CategoryType } from "./ExploreFilters";
 import { GymPaymentDialog } from "@/components/GymPaymentDialog";
@@ -106,9 +106,9 @@ export function ExploreDirectory({ searchQuery }: { searchQuery: string }) {
           description="Vendors, trainers, gyms, and influencers appear here after they publish a listing."
         />
       ) : (
-        <div className="space-y-10">
+        <div className="space-y-7">
           {show("gyms") && gyms.length > 0 && (
-            <Section title="Gyms" count={gyms.length}>
+            <Section title="Popular Gyms" count={gyms.length} icon={<Dumbbell className="h-5 w-5" />}>
               {gyms.map((g) => (
                 <ExploreCard
                   key={g.id}
@@ -129,7 +129,7 @@ export function ExploreDirectory({ searchQuery }: { searchQuery: string }) {
             </Section>
           )}
           {show("trainers") && trainers.length > 0 && (
-            <Section title="Trainers" count={trainers.length}>
+            <Section title="Trainers" count={trainers.length} icon={<User className="h-5 w-5" />}>
               {trainers.map((t) => (
                 <ExploreCard
                   key={t.id}
@@ -149,7 +149,7 @@ export function ExploreDirectory({ searchQuery }: { searchQuery: string }) {
             </Section>
           )}
           {show("nutritionists") && nutritionists.length > 0 && (
-            <Section title="Nutritionists" count={nutritionists.length}>
+            <Section title="Nutritionists" count={nutritionists.length} icon={<Utensils className="h-5 w-5" />}>
               {nutritionists.map((t) => (
                 <ExploreCard
                   key={t.id}
@@ -169,7 +169,7 @@ export function ExploreDirectory({ searchQuery }: { searchQuery: string }) {
             </Section>
           )}
           {show("stores") && vendors.length > 0 && (
-            <Section title="Meal vendors" count={vendors.length}>
+            <Section title="Healthy Kitchens & Meal Vendors" count={vendors.length} icon={<Utensils className="h-5 w-5" />}>
               {vendors.map((v) => (
                 <ExploreCard
                   key={v.id}
@@ -201,7 +201,7 @@ export function ExploreDirectory({ searchQuery }: { searchQuery: string }) {
             </Section>
           )}
           {show("influencers") && influencers.length > 0 && (
-            <Section title="Influencers" count={influencers.length}>
+            <Section title="Fitness Creators & Influencers" count={influencers.length} icon={<Users className="h-5 w-5" />}>
               {influencers.map((i) => (
                 <ExploreCard
                   key={i.id}
@@ -233,14 +233,19 @@ export function ExploreDirectory({ searchQuery }: { searchQuery: string }) {
   );
 }
 
-function Section({ title, count, children }: { title: string; count: number; children: ReactNode }) {
+function Section({ title, count, icon, children }: { title: string; count: number; icon: ReactNode; children: ReactNode }) {
   return (
-    <div className="space-y-4">
+    <section className="space-y-3">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold">{title}</h2>
-        <Badge variant="outline">{count}</Badge>
+        <h2 className="flex items-center gap-2 text-lg font-black text-[#10233f]">
+          <span className="text-primary">{icon}</span>{title}
+          <Badge variant="secondary" className="ml-1 h-5 px-1.5 text-[10px]">{count}</Badge>
+        </h2>
+        <Button variant="ghost" size="sm" className="h-8 gap-1 text-xs text-primary">
+          View all <ArrowRight className="h-3.5 w-3.5" />
+        </Button>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">{children}</div>
-    </div>
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-2">{children}</div>
+    </section>
   );
 }

@@ -1,24 +1,29 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Utensils, Flame, Apple, Sparkles, Clock, ShoppingCart, Scan, Wheat, Dumbbell, Droplet } from "lucide-react";
+import {
+  Apple, ArrowRight, BarChart3, BookOpen, CalendarDays, ChefHat, Droplet,
+  Dumbbell, Flame, Scan, Sparkles, Target, Utensils, Wheat,
+} from "lucide-react";
 import nigerianMeal from "@/assets/nigerian-meal.jpg";
+import nutritionHero from "@/assets/reference/nutrition-hero.png";
 import { AIMealGenerator } from "@/components/AIMealGenerator";
 import { RecipeModal } from "@/components/RecipeModal";
 import { MealDeliverySystem } from "@/components/MealDeliverySystem";
 import { SwipeableMealCarousel } from "@/components/SwipeableMealCarousel";
 import { ScanFoodButton } from "@/components/ScanFoodButton";
-import { PageHero } from "@/components/PageHero";
 import { useUserData } from "@/hooks/useUserData";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 
 const Nutrition = () => {
   const { todayMeals, refreshData } = useUserData();
   const [selectedMeal, setSelectedMeal] = useState<any>(null);
   const [isRecipeModalOpen, setIsRecipeModalOpen] = useState(false);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const openRecipe = (meal: any) => {
     setSelectedMeal(meal);
@@ -37,6 +42,13 @@ const Nutrition = () => {
   const totalProtein = eatenMeals.reduce((sum, m) => sum + m.protein, 0);
   const totalCarbs = eatenMeals.reduce((sum, m) => sum + m.carbs, 0);
   const totalFats = eatenMeals.reduce((sum, m) => sum + m.fats, 0);
+  const targets = { calories: 2500, protein: 150, carbs: 235, fats: 60 };
+  const insightItems = [
+    { label: "Calories", value: totalCalories, target: targets.calories, color: "#16a36a" },
+    { label: "Protein", value: totalProtein, target: targets.protein, color: "#3b82f6" },
+    { label: "Carbs", value: totalCarbs, target: targets.carbs, color: "#8b5cf6" },
+    { label: "Fats", value: totalFats, target: targets.fats, color: "#f97373" },
+  ];
   const mealPlans = todayMeals.map(meal => ({
     id: meal.id,
     name: meal.name,
@@ -97,66 +109,90 @@ const Nutrition = () => {
   ];
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto">
-      <PageHero
-        title="Good Food, Brighter You"
-        subtitle="Eat well. Feel better. Live stronger — Nigerian cuisine meets healthy eating."
-        image={nigerianMeal}
-        scriptText="Healthy Nigerian Meals"
-        quote="Real results, one meal at a time."
-        actions={
-          <>
-            <Button className="shadow-glow gap-2" onClick={() => document.getElementById("ai-meal-generator")?.scrollIntoView({ behavior: "smooth" })}>
+    <div className="mx-auto max-w-[1440px] space-y-4 pb-10 animate-fade-in">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h1 className="font-display text-3xl font-black tracking-tight text-[#10233f] lg:text-4xl">
+            Nutrition <span className="text-primary">Plans</span>
+          </h1>
+          <p className="text-sm text-muted-foreground">Nigerian cuisine meets healthy eating</p>
+        </div>
+        <div className="flex gap-2">
+          <ScanFoodButton className="shadow-glow" onMealLogged={refreshData} />
+          <Button variant="outline" className="gap-2 bg-white">
+            <Sparkles className="h-4 w-4" /> AI Optimized
+          </Button>
+        </div>
+      </div>
+
+      <div className="grid gap-4 xl:grid-cols-[minmax(0,1.8fr)_minmax(340px,1fr)]">
+        <section className="relative min-h-[230px] overflow-hidden rounded-2xl border border-primary/10 bg-[#e9f8ef] shadow-card">
+          <img src={nutritionHero} alt="Healthy Nigerian meal" className="absolute inset-y-0 right-0 h-full w-[58%] object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#e9f8ef] via-[#e9f8ef]/95 to-transparent" />
+          <div className="relative z-10 flex min-h-[230px] max-w-[58%] flex-col justify-center p-6 lg:p-8">
+            <h2 className="font-display text-3xl font-black leading-[1.02] text-[#10233f] lg:text-4xl">
+              Good Food<br /><span className="text-primary">Brighter You</span>
+            </h2>
+            <p className="mt-3 text-sm text-[#536579]">Eat well. Feel better. Live stronger.</p>
+            <Button
+              className="mt-5 w-fit gap-2 shadow-glow"
+              onClick={() => document.getElementById("ai-meal-generator")?.scrollIntoView({ behavior: "smooth" })}
+            >
               <Sparkles className="h-4 w-4" /> Generate My Meal Plan
             </Button>
-            <ScanFoodButton variant="outline" onMealLogged={refreshData} />
-          </>
-        }
-      />
-
-      {/* Daily Summary */}
-      <Card className="glass shadow-premium border-0">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Flame className="h-5 w-5 text-primary" />
-            Your Nutrition Goals
-          </CardTitle>
-          <CardDescription>Your daily macronutrient breakdown</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {[
-              { icon: Flame, label: "Calories", value: totalCalories, tone: "primary" },
-              { icon: Wheat, label: "Carbs", value: `${totalCarbs}g`, tone: "secondary" },
-              { icon: Dumbbell, label: "Protein", value: `${totalProtein}g`, tone: "info" },
-              { icon: Droplet, label: "Fats", value: `${totalFats}g`, tone: "success" },
-            ].map(({ icon: Icon, label, value, tone }) => (
-              <div key={label} className="text-center p-4 glass rounded-xl group hover:shadow-elevated transition-all duration-300">
-                <div className={`w-14 h-14 rounded-full bg-${tone}/10 flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform`}>
-                  <Icon className={`h-6 w-6 text-${tone}`} />
-                </div>
-                <p className="text-2xl font-bold">{value}</p>
-                <p className="text-sm text-muted-foreground">{label}</p>
-              </div>
-            ))}
           </div>
-        </CardContent>
-      </Card>
+          <div className="absolute right-[31%] top-7 hidden -rotate-6 text-center font-script text-xl leading-tight text-[#10233f] lg:block">
+            Healthy<br />Nigerian Meals
+          </div>
+        </section>
+
+        <Card className="border-0 shadow-card">
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-base">Your Nutrition Goals</CardTitle>
+              <Button variant="ghost" size="sm" className="h-7 text-xs text-primary">Edit</Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 xl:grid-cols-2 2xl:grid-cols-4">
+              {[
+                { icon: Flame, label: "Calories", value: targets.calories.toLocaleString(), bg: "bg-red-50", fg: "text-red-500" },
+                { icon: Wheat, label: "Carbs", value: `${targets.carbs}g`, bg: "bg-emerald-50", fg: "text-emerald-600" },
+                { icon: Dumbbell, label: "Protein", value: `${targets.protein}g`, bg: "bg-violet-50", fg: "text-violet-600" },
+                { icon: Droplet, label: "Fats", value: `${targets.fats}g`, bg: "bg-amber-50", fg: "text-amber-500" },
+              ].map(({ icon: Icon, label, value, bg, fg }) => (
+                <div key={label} className="text-center">
+                  <div className={`mx-auto mb-2 flex h-11 w-11 items-center justify-center rounded-full ${bg}`}>
+                    <Icon className={`h-5 w-5 ${fg}`} />
+                  </div>
+                  <p className="text-sm font-black text-[#10233f]">{value}</p>
+                  <p className="text-[11px] text-muted-foreground">{label}</p>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
 
       <Tabs defaultValue="meals" className="w-full">
-        <TabsList className="grid w-full max-w-md grid-cols-2">
-          <TabsTrigger value="meals">Today</TabsTrigger>
-          <TabsTrigger value="foods">Food Library</TabsTrigger>
-        </TabsList>
+        <div className="flex flex-col gap-3 rounded-2xl border bg-white p-2 shadow-card sm:flex-row sm:items-center sm:justify-between">
+          <TabsList className="grid h-10 w-full grid-cols-3 bg-muted/50 sm:max-w-lg">
+            <TabsTrigger value="meals">Today</TabsTrigger>
+            <TabsTrigger value="plan">My Plan</TabsTrigger>
+            <TabsTrigger value="foods">Meal Library</TabsTrigger>
+          </TabsList>
+          <div className="flex items-center justify-center gap-2 px-3 text-xs font-medium text-[#294056]">
+            <CalendarDays className="h-4 w-4" />
+            {new Intl.DateTimeFormat("en-NG", { weekday: "short", month: "short", day: "numeric", year: "numeric" }).format(new Date())}
+          </div>
+        </div>
 
         <TabsContent value="meals" className="space-y-6 mt-6">
-          {/* AI Generator and Delivery System */}
-          <div id="ai-meal-generator" className="grid grid-cols-1 lg:grid-cols-2 gap-6 scroll-mt-24">
+          <div id="ai-meal-generator" className="grid grid-cols-1 gap-5 scroll-mt-24 xl:grid-cols-[minmax(0,1.65fr)_minmax(360px,1fr)]">
             <AIMealGenerator onGenerated={refreshData} />
             <MealDeliverySystem />
           </div>
-          
-          {/* Swipeable Meal Cards */}
+
           {mealPlans.length > 0 && (
             <SwipeableMealCarousel 
               meals={mealPlans}
@@ -164,6 +200,54 @@ const Nutrition = () => {
               onOrderMeal={handleOrderMeal}
             />
           )}
+
+          <div className="grid gap-5 lg:grid-cols-[1.15fr_.85fr]">
+            <Card className="border-0 shadow-card">
+              <CardHeader className="pb-2">
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <BarChart3 className="h-5 w-5 text-primary" /> Nutrition Insights
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+                {insightItems.map((item) => {
+                  const pct = Math.min(100, Math.round((item.value / item.target) * 100) || 0);
+                  return (
+                    <div key={item.label} className="text-center">
+                      <div
+                        className="mx-auto flex h-16 w-16 items-center justify-center rounded-full"
+                        style={{ background: `conic-gradient(${item.color} ${pct * 3.6}deg, #edf2ef 0)` }}
+                      >
+                        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white text-xs font-black">{pct}%</div>
+                      </div>
+                      <p className="mt-2 text-xs font-semibold">{item.label}</p>
+                      <p className="text-[10px] text-muted-foreground">{item.value} / {item.target}{item.label === "Calories" ? " kcal" : "g"}</p>
+                    </div>
+                  );
+                })}
+              </CardContent>
+            </Card>
+            <Card className="border-0 shadow-card">
+              <CardHeader className="pb-2"><CardTitle className="text-base">Quick Tools</CardTitle></CardHeader>
+              <CardContent className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-2 xl:grid-cols-4">
+                {[
+                  { icon: Scan, label: "Scan Food", action: () => undefined },
+                  { icon: BookOpen, label: "Find Recipes", action: () => navigate("/nutrition") },
+                  { icon: ChefHat, label: "Create Plan", action: () => document.getElementById("ai-meal-generator")?.scrollIntoView({ behavior: "smooth" }) },
+                  { icon: Target, label: "Track Meals", action: () => navigate("/dashboard") },
+                ].map(({ icon: Icon, label, action }) => (
+                  <button key={label} onClick={action} className="rounded-xl bg-primary/5 p-4 text-center transition hover:bg-primary/10">
+                    <Icon className="mx-auto h-5 w-5 text-primary" />
+                    <span className="mt-2 block text-[11px] font-semibold">{label}</span>
+                  </button>
+                ))}
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="plan" className="mt-6 space-y-6">
+          <div id="ai-meal-generator-plan"><AIMealGenerator onGenerated={refreshData} /></div>
+          {mealPlans.length > 0 && <SwipeableMealCarousel meals={mealPlans} onViewRecipe={openRecipe} onOrderMeal={handleOrderMeal} />}
         </TabsContent>
 
         <TabsContent value="foods" className="space-y-4 mt-6">
@@ -196,6 +280,9 @@ const Nutrition = () => {
                       <span className="text-muted-foreground">{food.benefits}</span>
                     </p>
                   </div>
+                  <Button variant="ghost" className="w-full justify-between text-primary" onClick={() => toast({ title: food.name, description: food.benefits })}>
+                    View nutrition <ArrowRight className="h-4 w-4" />
+                  </Button>
                 </CardContent>
               </Card>
             ))}
@@ -203,7 +290,6 @@ const Nutrition = () => {
         </TabsContent>
       </Tabs>
 
-      {/* Recipe Modal */}
       {selectedMeal && (
         <RecipeModal
           open={isRecipeModalOpen}

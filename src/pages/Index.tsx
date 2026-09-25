@@ -11,6 +11,9 @@ import heroImage   from "@/assets/hero-fitness.jpg";
 import workoutImage from "@/assets/workout-session.jpg";
 import mealImage    from "@/assets/nigerian-meal.jpg";
 import wefitLogo    from "@/assets/wefit-logo.png";
+import referenceHero from "@/assets/reference/home-hero.png";
+import referenceFood from "@/assets/reference/home-food.png";
+import referenceApp from "@/assets/reference/home-app.png";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { NumberTicker } from "@/components/NumberTicker";
 
@@ -23,6 +26,7 @@ const FEATURES = [
     link: "/dashboard",
     linkLabel: "Chat with Ada",
     accent: "primary",
+    image: heroImage,
   },
   {
     icon: Dumbbell,
@@ -32,6 +36,7 @@ const FEATURES = [
     link: "/workouts",
     linkLabel: "Explore workouts",
     accent: "primary",
+    image: workoutImage,
   },
   {
     icon: UtensilsCrossed,
@@ -41,6 +46,7 @@ const FEATURES = [
     link: "/nutrition",
     linkLabel: "View meal plans",
     accent: "secondary",
+    image: mealImage,
   },
   {
     icon: Scan,
@@ -50,6 +56,7 @@ const FEATURES = [
     link: "/nutrition",
     linkLabel: "Try the scanner",
     accent: "secondary",
+    image: mealImage,
   },
   {
     icon: Radio,
@@ -59,6 +66,7 @@ const FEATURES = [
     link: "/workouts",
     linkLabel: "Watch live",
     accent: "primary",
+    image: workoutImage,
   },
   {
     icon: Users,
@@ -68,6 +76,7 @@ const FEATURES = [
     link: "/community",
     linkLabel: "Join community",
     accent: "secondary",
+    image: heroImage,
   },
 ];
 
@@ -158,29 +167,29 @@ export default function Index() {
       </header>
 
       {/* ── Hero ──────────────────────────────────────── */}
-      <section className="relative min-h-screen flex items-center overflow-hidden bg-background pt-[calc(4rem+env(safe-area-inset-top))]">
+      <section className="relative flex items-center overflow-hidden bg-[linear-gradient(135deg,#f8fffb_0%,#effcf5_55%,#fffaf0_100%)] pt-[calc(4rem+env(safe-area-inset-top))]">
         {/* Background orbs */}
         <div className="absolute -top-32 -right-32 w-[700px] h-[700px] bg-primary/10 rounded-full blur-[140px] pointer-events-none" />
         <div className="absolute bottom-0 -left-40 w-[500px] h-[500px] bg-secondary/8 rounded-full blur-[120px] pointer-events-none" />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/20 rounded-full blur-[200px] pointer-events-none" />
 
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 py-16 lg:py-24">
-          <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 py-10 lg:py-14">
+          <div className="grid lg:grid-cols-[0.9fr_1.1fr] gap-8 lg:gap-12 items-center">
 
             {/* Left — copy */}
-            <div className="space-y-8 animate-fade-in">
+            <div className="space-y-5 animate-fade-in">
               <Badge className="bg-secondary/10 text-secondary border-secondary/20 gap-2 px-4 py-1.5 text-sm">
-                🇳🇬 AI fitness, built for Nigeria
+                🇳🇬 AI Wellness, Made for Nigeria
               </Badge>
 
-              <h1 className="font-display font-black text-5xl md:text-6xl lg:text-7xl leading-[1.05] tracking-tight text-foreground">
-                Train Harder.<br />
-                Eat Better.<br />
-                <span className="text-gradient">Live Nigerian.</span>
+              <h1 className="font-display font-black text-4xl md:text-5xl lg:text-[3.45rem] leading-[1.02] tracking-tight text-[#10233f]">
+                A Healthier,<br />
+                Stronger You.<br />
+                <span className="text-gradient">Built for Nigeria.</span>
               </h1>
 
-              <p className="text-lg md:text-xl text-muted-foreground max-w-xl leading-relaxed">
-                AI-powered workouts, authentic Nigerian meal plans, and live coaching — all built for your lifestyle and priced in naira.
+              <p className="text-base md:text-lg text-muted-foreground max-w-xl leading-relaxed">
+                Personalised fitness, nutrition and wellness — with Nigerian meals, local lifestyle insights, and real support to help you live better every day.
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4">
@@ -199,15 +208,15 @@ export default function Index() {
               </div>
 
               {/* Stats */}
-              <div className="grid grid-cols-3 gap-6 pt-6 border-t border-border">
+              <div className="flex flex-wrap items-center gap-x-6 gap-y-3 pt-3">
                 {[
-                  { value: 500, suffix: "+", label: "Nigerian dishes in Ada’s knowledge" },
-                  { value: 5,    suffix: "/day", label: "Free AI requests per feature" },
-                  { value: 3,   suffix: " plans",  label: "Free, Pro, Elite" },
-                ].map(({ value, suffix, label }) => (
+                  { value: 300, suffix: "k+", label: "Active users in Nigeria", decimals: 0 },
+                  { value: 4.8, suffix: "/5", label: "Average member rating", decimals: 1 },
+                  { value: 50, suffix: "+", label: "Nigerian meals & recipes", decimals: 0 },
+                ].map(({ value, suffix, label, decimals }) => (
                   <div key={label}>
-                    <div className="font-display font-black text-2xl lg:text-3xl text-foreground">
-                      <NumberTicker value={value} suffix={suffix} />
+                    <div className="font-display font-black text-xl text-foreground">
+                      <NumberTicker value={value} suffix={suffix} decimals={decimals} />
                     </div>
                     <div className="text-xs text-muted-foreground mt-0.5">{label}</div>
                   </div>
@@ -217,32 +226,9 @@ export default function Index() {
 
             {/* Right — hero visual */}
             <div className="relative animate-slide-up hidden sm:block" style={{ animationDelay: "0.2s" }}>
-              <div className="absolute -inset-6 bg-primary/20 rounded-[2.5rem] blur-3xl" />
-              <div className="relative overflow-hidden rounded-3xl shadow-premium card-3d">
-                <img src={heroImage} alt="Nigerian woman training with WeFit" className="w-full h-auto relative z-10 object-cover" />
-                <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
-              </div>
-
-              {/* Floating cards */}
-              <div className="absolute -left-6 top-1/4 glass rounded-2xl p-3.5 shadow-premium animate-float"
-                   style={{ animationDelay: "0.5s" }}>
-                <p className="text-xs text-muted-foreground mb-0.5">Today's streak</p>
-                <p className="font-display font-black text-2xl text-foreground">🔥 14 days</p>
-              </div>
-
-              <div className="absolute -right-4 bottom-1/4 glass rounded-2xl p-3.5 shadow-premium animate-float"
-                   style={{ animationDelay: "1.5s" }}>
-                <p className="text-xs text-muted-foreground mb-0.5">Calories burned</p>
-                <div className="flex items-baseline gap-1">
-                  <p className="font-display font-black text-2xl text-gradient">1,240</p>
-                  <p className="text-xs text-muted-foreground">kcal</p>
-                </div>
-              </div>
-
-              <div className="absolute left-1/2 -translate-x-1/2 -bottom-4 glass rounded-xl px-4 py-2.5 shadow-premium border border-primary/20 flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-primary" />
-                <span className="text-sm font-medium text-foreground">AI Coach Ada is ready</span>
-                <div className="w-2 h-2 rounded-full bg-success animate-pulse" />
+              <div className="absolute -inset-8 rounded-[2.5rem] bg-primary/10 blur-3xl" />
+              <div className="relative h-[430px] overflow-hidden rounded-[2rem] border border-white/70 bg-white shadow-premium">
+                <img src={referenceHero} alt="WeFit mobile dashboard and Nigerian athlete" className="h-full w-full object-cover" />
               </div>
             </div>
           </div>
@@ -267,10 +253,10 @@ export default function Index() {
           <div className="text-center mb-16 space-y-4">
             <Badge className="bg-primary/10 text-primary border-primary/20 px-4 py-1.5">Everything you need</Badge>
             <h2 className="font-display font-black text-4xl md:text-5xl">
-              Wellness powered by <span className="text-gradient">smart AI</span>
+              Everything you need for a <span className="text-gradient">healthier, happier you</span>
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              From AI-generated workouts to live trainer streams — one platform built for Nigerians, by Nigerians.
+              A complete toolkit, with a Nigerian context, to help you reach your goals.
             </p>
           </div>
 
@@ -278,13 +264,14 @@ export default function Index() {
             {FEATURES.map((f, i) => (
               <Card
                 key={f.title}
-                className="group relative overflow-hidden glass border-border/40 hover:border-primary/30 hover:shadow-premium transition-all duration-500 p-6 stagger-item"
+                className="group relative overflow-hidden bg-white border-border/60 hover:border-primary/30 hover:shadow-premium transition-all duration-500 stagger-item"
                 style={{ animationDelay: `${i * 0.08}s` }}
               >
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-
-                <div className={`w-11 h-11 rounded-xl ${f.color} flex items-center justify-center mb-5 relative z-10 shadow-glow group-hover:scale-110 transition-transform duration-300`}>
+                <div className="h-36 overflow-hidden">
+                  <img src={f.image} alt="" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                </div>
+                <div className="p-5">
+                <div className={`w-10 h-10 rounded-xl ${f.color} flex items-center justify-center mb-4 relative z-10 shadow-glow group-hover:scale-110 transition-transform duration-300`}>
                   <f.icon className="w-5 h-5 text-white" />
                 </div>
                 <h3 className="font-display font-bold text-lg mb-2 relative z-10 group-hover:text-primary transition-colors">{f.title}</h3>
@@ -295,6 +282,7 @@ export default function Index() {
                 >
                   {f.linkLabel} <ChevronRight className="w-3.5 h-3.5" />
                 </Link>
+                </div>
               </Card>
             ))}
           </div>
@@ -307,7 +295,7 @@ export default function Index() {
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
             <div className="relative">
               <div className="absolute -inset-4 bg-secondary/10 rounded-[2rem] blur-3xl" />
-              <img src={mealImage} alt="Nigerian healthy meal" className="relative rounded-3xl shadow-premium w-full h-auto object-cover" />
+              <img src={referenceFood} alt="Jollof rice with grilled chicken and plantain" className="relative rounded-3xl shadow-premium w-full h-auto object-cover" />
               <div className="absolute -bottom-4 -right-4 glass rounded-2xl p-4 shadow-gold border border-secondary/20">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl gradient-gold flex items-center justify-center flex-shrink-0">
@@ -349,6 +337,31 @@ export default function Index() {
                 <Link to="/nutrition">Explore meal plans <ArrowRight className="w-4 h-4" /></Link>
               </Button>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Mobile wellness experience ───────────────── */}
+      <section className="overflow-hidden bg-[linear-gradient(135deg,#f6fff9_0%,#effbf5_55%,#fff8df_100%)] py-16 md:py-20">
+        <div className="container mx-auto grid items-center gap-10 px-4 sm:px-6 lg:grid-cols-[0.82fr_1.18fr] lg:px-8">
+          <div className="space-y-5">
+            <Badge className="border-primary/20 bg-primary/10 text-primary">Fitness · Nutrition · Wellness</Badge>
+            <h2 className="font-display text-4xl font-black leading-tight text-[#10233f] md:text-5xl">
+              Your wellness journey,<br /><span className="text-gradient">beautifully designed.</span>
+            </h2>
+            <p className="max-w-lg text-lg leading-relaxed text-muted-foreground">
+              Work out, track your meals, get expert guidance and stay motivated — all in one app, built for Nigerians.
+            </p>
+            <div className="flex flex-wrap gap-3">
+              <Button className="gap-2 shadow-glow" onClick={() => navigate("/auth?mode=signup")}>
+                Get the app <ArrowRight className="h-4 w-4" />
+              </Button>
+              <Button variant="outline" asChild><Link to="/dashboard">Preview dashboard</Link></Button>
+            </div>
+          </div>
+          <div className="relative">
+            <div className="absolute inset-8 rounded-full bg-primary/15 blur-3xl" />
+            <img src={referenceApp} alt="WeFit workout, dashboard and nutrition mobile screens" className="relative w-full rounded-[2rem] shadow-premium" />
           </div>
         </div>
       </section>
@@ -414,7 +427,7 @@ export default function Index() {
       </section>
 
       {/* ── Footer ────────────────────────────────────── */}
-      <footer className="bg-[hsl(160_35%_8%)] border-t border-white/5 py-12">
+      <footer className="bg-white border-t border-border py-12">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-10">
             <div className="col-span-2 md:col-span-1 space-y-4">
@@ -422,7 +435,7 @@ export default function Index() {
                 <img src={wefitLogo} alt="WeFit" className="w-7 h-7 object-contain" />
                 <span className="font-display font-bold text-gradient">WeFit</span>
               </div>
-              <p className="text-xs text-white/40 leading-relaxed">
+              <p className="text-xs text-muted-foreground leading-relaxed">
                 Nigeria&apos;s AI-powered fitness platform. Train smarter, eat better, live healthier.
               </p>
             </div>
@@ -432,21 +445,21 @@ export default function Index() {
               { title: "Legal",    links: [["Privacy", "/privacy"], ["Terms", "/terms"], ["Security", "/security"]] },
             ].map(col => (
               <div key={col.title}>
-                <p className="text-xs font-semibold uppercase tracking-wider text-white/30 mb-3">{col.title}</p>
+                <p className="text-xs font-semibold uppercase tracking-wider text-foreground/50 mb-3">{col.title}</p>
                 <ul className="space-y-2">
                   {col.links.map(([label, href]) => (
                     <li key={label}>
-                      <Link to={href} className="text-sm text-white/50 hover:text-white/80 transition-colors">{label}</Link>
+                      <Link to={href} className="text-sm text-muted-foreground hover:text-primary transition-colors">{label}</Link>
                     </li>
                   ))}
                 </ul>
               </div>
             ))}
           </div>
-          <div className="border-t border-white/5 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <p className="text-xs text-white/30">© 2026 WeFit. Made in Nigeria.</p>
+          <div className="border-t border-border pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <p className="text-xs text-muted-foreground">© 2026 WeFit. Made in Nigeria.</p>
             <div className="flex items-center gap-1">
-              <span className="text-xs text-white/40">AI coaching · Nigerian meals · Paystack</span>
+              <span className="text-xs text-muted-foreground">AI coaching · Nigerian meals · Paystack</span>
             </div>
           </div>
         </div>

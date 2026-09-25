@@ -1,100 +1,79 @@
-import { Search, Users, CalendarCheck, CreditCard, BarChart3 } from "lucide-react";
+import { Search, CalendarCheck, CreditCard, BarChart3, MapPin, Heart } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
-import heroImage from "@/assets/hero-fitness.jpg";
+import heroImage from "@/assets/reference/explore-hero.png";
 
 interface ExploreHeroProps {
   searchQuery: string;
   onSearchChange: (query: string) => void;
 }
 
-const quickSearches = [
-  "Gyms in Lekki",
-  "Personal Trainer",
-  "Yoga Classes",
-  "Weight Loss",
-  "CrossFit",
-];
-
 const INFO_CARDS = [
-  { icon: Search, title: "Browse", desc: "Discover verified fitness partners" },
-  { icon: CalendarCheck, title: "Book", desc: "Schedule and reserve easily" },
-  { icon: CreditCard, title: "Pay", desc: "Secure checkout with Paystack" },
-  { icon: BarChart3, title: "Track", desc: "Manage your activity & bookings" },
+  { icon: Search, title: "Browse", desc: "Discover verified fitness partners", tone: "bg-emerald-50 text-emerald-600" },
+  { icon: CalendarCheck, title: "Book", desc: "Schedule and reserve easily", tone: "bg-amber-50 text-amber-500" },
+  { icon: CreditCard, title: "Pay", desc: "Secure checkout with Paystack", tone: "bg-blue-50 text-blue-600" },
+  { icon: BarChart3, title: "Track", desc: "Manage your activity & bookings", tone: "bg-violet-50 text-violet-600" },
 ];
 
 export const ExploreHeroOptimized = ({ searchQuery, onSearchChange }: ExploreHeroProps) => {
   return (
-    <div className="relative overflow-hidden rounded-3xl shadow-premium border border-primary/10"
-         style={{ background: "linear-gradient(135deg, hsl(150 45% 94%) 0%, hsl(140 40% 90%) 100%)" }}>
-      <div className="absolute -top-16 -right-16 w-72 h-72 bg-primary/15 rounded-full blur-[80px] pointer-events-none" />
-      <div className="absolute -bottom-16 -left-16 w-72 h-72 bg-secondary/10 rounded-full blur-[80px] pointer-events-none" />
+    <div className="space-y-4">
+      <section
+        className="relative min-h-[330px] overflow-hidden rounded-2xl border border-primary/10 shadow-card"
+        style={{ background: "linear-gradient(120deg, #ecfaf2 0%, #ddf6e8 100%)" }}
+      >
+        <div className="absolute inset-y-0 right-0 hidden w-[48%] lg:block">
+          <img src={heroImage} alt="WeFit community" className="h-full w-full object-cover object-center mix-blend-multiply" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#e5f8ed] via-[#e5f8ed]/20 to-transparent" />
+        </div>
+        <div className="absolute bottom-4 right-6 hidden rotate-3 font-script text-xl leading-tight text-[#174b3a] lg:block">
+          Stronger<br />Healthier<br />Happier<br />Together
+        </div>
+        <Heart className="absolute right-8 top-8 h-7 w-7 text-primary/50 lg:right-10" />
 
-      <div className="relative z-10 p-4 sm:p-6 md:p-10">
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-          <div className="space-y-3 sm:space-y-4 flex-1">
-            <Badge className="bg-primary/15 text-primary border-0 text-xs">Nigeria's fitness community</Badge>
-            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-display font-black leading-tight">
-              Find your <span className="text-gradient">wellness people</span>
-            </h1>
-            <p className="text-sm sm:text-base text-muted-foreground max-w-xl">
-              Discover gyms, trainers, healthy kitchens and creators across Nigeria. Book, pay and connect — all on WeFit.
-            </p>
+        <div className="relative z-10 flex min-h-[330px] max-w-3xl flex-col justify-center p-6 sm:p-8 lg:w-[66%] lg:p-10">
+          <Badge className="mb-3 w-fit border-0 bg-primary/10 text-[10px] uppercase tracking-wide text-primary">
+            Nigeria's fitness community
+          </Badge>
+          <h1 className="font-display text-4xl font-black leading-[.95] tracking-tight text-[#10233f] sm:text-5xl">
+            Find your<br /><span className="text-primary">wellness people</span>
+          </h1>
+          <p className="mt-4 max-w-xl text-sm text-[#536579]">
+            Discover gyms, trainers, healthy kitchens and creators across Nigeria. Book, pay and connect — all on WeFit.
+          </p>
 
-            <div className="flex flex-col sm:flex-row gap-2 max-w-xl">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  type="text"
-                  placeholder="Search gyms, trainers, meals or creators..."
-                  value={searchQuery}
-                  onChange={(e) => onSearchChange(e.target.value)}
-                  className="pl-10 h-11 bg-background/90 backdrop-blur-sm"
-                />
-              </div>
-              <Button className="h-11 px-6 shadow-glow gap-2"><Search className="h-4 w-4" /> Search</Button>
+          <div className="mt-6 flex max-w-2xl flex-col overflow-hidden rounded-xl bg-white p-1.5 shadow-elevated sm:flex-row">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                type="text"
+                placeholder="Search gyms, trainers, meals, or creators in Nigeria..."
+                value={searchQuery}
+                onChange={(e) => onSearchChange(e.target.value)}
+                className="h-11 border-0 bg-transparent pl-10 shadow-none focus-visible:ring-0"
+              />
             </div>
-
-            <div className="flex flex-wrap gap-1.5 items-center">
-              <span className="text-xs text-muted-foreground mr-0.5">Popular:</span>
-              {quickSearches.map((term) => (
-                <Badge
-                  key={term}
-                  variant="outline"
-                  className={cn(
-                    "cursor-pointer transition-all text-xs bg-background/70 hover:bg-primary hover:text-primary-foreground hover:border-primary",
-                    searchQuery === term && "bg-primary text-primary-foreground border-primary"
-                  )}
-                  onClick={() => onSearchChange(term)}
-                >
-                  {term}
-                </Badge>
-              ))}
+            <div className="hidden items-center gap-1 border-l px-3 text-xs text-muted-foreground sm:flex">
+              <MapPin className="h-3.5 w-3.5 text-primary" /> Lagos, Nigeria
             </div>
-          </div>
-
-          <div className="hidden lg:block shrink-0">
-            <div className="relative w-48 h-56 rounded-2xl overflow-hidden shadow-premium border-4 border-white">
-              <img src={heroImage} alt="" className="w-full h-full object-cover" />
-            </div>
+            <Button className="h-11 gap-2 px-6 shadow-glow"><Search className="h-4 w-4" /> Search</Button>
           </div>
         </div>
+      </section>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-6">
-          {INFO_CARDS.map(({ icon: Icon, title, desc }) => (
-            <div key={title} className="glass rounded-xl p-3 flex items-start gap-2.5 shadow-card">
-              <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                <Icon className="h-4 w-4 text-primary" />
-              </div>
-              <div className="min-w-0">
-                <p className="text-sm font-semibold">{title}</p>
-                <p className="text-[11px] text-muted-foreground leading-tight">{desc}</p>
-              </div>
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+        {INFO_CARDS.map(({ icon: Icon, title, desc, tone }) => (
+          <div key={title} className="flex items-center gap-3 rounded-xl border bg-white p-3.5 shadow-card">
+            <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${tone}`}>
+              <Icon className="h-5 w-5" />
             </div>
-          ))}
-        </div>
+            <div className="min-w-0">
+              <p className="text-sm font-bold text-[#10233f]">{title}</p>
+              <p className="text-[10px] leading-tight text-muted-foreground">{desc}</p>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );

@@ -27,7 +27,6 @@ const userNavItems: NavItem[] = [
   { title: "Nutrition",  url: "/nutrition",  icon: Utensils },
   { title: "Analytics",  url: "/analytics",  icon: BarChart3 },
   { title: "Explore",    url: "/explore",    icon: Compass },
-  { title: "My Bookings", url: "/my-bookings", icon: CalendarDays },
   { title: "Community",  url: "/community",  icon: Users },
   { title: "Profile",    url: "/profile",    icon: User },
 ];
@@ -105,15 +104,18 @@ export function AppSidebar() {
     : "U";
 
   return (
-    <Sidebar collapsible="icon" className="border-r border-sidebar-border bg-sidebar">
-      <SidebarContent className="bg-sidebar">
+    <Sidebar collapsible="icon" className="border-r border-emerald-950/[0.06] bg-white">
+      <SidebarContent className="bg-white">
         {/* Logo */}
-        <div className={`flex items-center gap-3 px-4 pt-5 pb-4 ${collapsed ? "justify-center" : ""}`}>
-          <div className="w-8 h-8 rounded-xl bg-primary/20 flex items-center justify-center flex-shrink-0">
-            <img src={wefitLogo} alt="WeFit" className="w-5 h-5 object-contain" />
+        <div className={`flex items-center gap-2.5 px-4 pt-5 pb-4 ${collapsed ? "justify-center" : ""}`}>
+          <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+            <img src={wefitLogo} alt="WeFit" className="w-6 h-6 object-contain" />
           </div>
           {!collapsed && (
-            <span className="font-display font-bold text-lg text-gradient">WeFit</span>
+            <div>
+              <span className="block font-display font-black text-xl leading-none text-[#10233f]">WeFit</span>
+              <span className="text-[9px] text-muted-foreground">A Healthier You</span>
+            </div>
           )}
         </div>
 
@@ -141,7 +143,7 @@ export function AppSidebar() {
                       className={({ isActive }) =>
                         `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all duration-200 ${
                           isActive
-                            ? "bg-primary/15 text-primary font-semibold shadow-[inset_0_0_0_1px_hsl(var(--primary)/0.2)]"
+                            ? "bg-emerald-50 text-primary font-semibold shadow-[inset_3px_0_0_hsl(var(--primary))]"
                             : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground"
                         }`
                       }
@@ -159,7 +161,7 @@ export function AppSidebar() {
         {/* Upgrade nudge */}
         {!collapsed && (
           <div className="mx-3 mt-auto mb-2">
-            <div className="rounded-xl bg-primary/10 border border-primary/20 p-3 space-y-2">
+            <div className="rounded-2xl bg-gradient-to-br from-emerald-50 to-teal-50 border border-primary/15 p-3.5 space-y-2.5">
               <div className="flex items-center gap-2">
                 <Sparkles className="h-3.5 w-3.5 text-primary" />
                 <p className="text-xs font-semibold text-primary">Pro features</p>
@@ -177,10 +179,20 @@ export function AppSidebar() {
             </div>
           </div>
         )}
+        {!collapsed && roleKey === "user" && (
+          <div className="mx-3 mb-3 mt-2 overflow-hidden rounded-2xl bg-[linear-gradient(145deg,#e4faf1,#f3fff9)] p-4">
+            <p className="font-display text-base font-extrabold leading-tight text-primary">
+              A Healthier You,<br />A Brighter Nigeria 🇳🇬
+            </p>
+            <p className="mt-2 text-[11px] leading-relaxed text-muted-foreground">
+              Wellness for a stronger tomorrow.
+            </p>
+          </div>
+        )}
       </SidebarContent>
 
       {/* Footer */}
-      <SidebarFooter className="bg-sidebar border-t border-sidebar-border p-3">
+      <SidebarFooter className="bg-white border-t border-sidebar-border p-3">
         {collapsed ? (
           <div className="flex flex-col items-center gap-2">
             <Avatar className="w-8 h-8">

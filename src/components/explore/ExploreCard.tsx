@@ -43,25 +43,24 @@ export const ExploreCard = ({
   return (
     <Card 
       className={cn(
-        "group h-full overflow-hidden border-border/50 transition-all duration-300",
-        "hover:shadow-elevated hover:border-primary/20 hover:-translate-y-1",
+        "group flex h-full min-h-[190px] overflow-hidden border-border/60 bg-white transition-all duration-300",
+        "hover:border-primary/20 hover:shadow-elevated",
         featured && "ring-2 ring-primary/20"
       )}
     >
-      {/* Image Header */}
       {image && (
-        <div className="relative h-32 sm:h-40 overflow-hidden bg-gradient-to-br from-primary/10 to-secondary/10">
+        <div className="relative w-[38%] min-w-[120px] overflow-hidden bg-gradient-to-br from-primary/10 to-secondary/10 sm:min-w-[150px]">
           <img 
             src={image} 
             alt={title}
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
           
           {/* Category badge */}
           {category && (
             <Badge 
-              className="absolute top-3 left-3 gap-1.5 bg-background/90 backdrop-blur-sm text-foreground border-0"
+              className="absolute left-2 top-2 gap-1 bg-background/90 px-2 text-[10px] text-foreground backdrop-blur-sm border-0"
             >
               {categoryIcon}
               {category}
@@ -77,18 +76,18 @@ export const ExploreCard = ({
           
           {/* Verified badge on image */}
           {verified && (
-            <div className="absolute bottom-3 right-3 bg-primary rounded-full p-1">
+            <div className="absolute bottom-2 right-2 bg-primary rounded-full p-1">
               <CheckCircle2 className="h-4 w-4 text-primary-foreground" />
             </div>
           )}
         </div>
       )}
 
-      <CardContent className={cn("p-4 space-y-3", !image && "pt-5")}>
+      <CardContent className={cn("flex min-w-0 flex-1 flex-col space-y-2.5 p-4", !image && "pt-5")}>
         {/* Title and verification */}
         <div className="space-y-1">
           <div className="flex items-start justify-between gap-2">
-            <h3 className="font-semibold text-lg leading-tight group-hover:text-primary transition-colors line-clamp-1">
+            <h3 className="line-clamp-1 text-sm font-bold leading-tight text-[#10233f] transition-colors group-hover:text-primary sm:text-base">
               {title}
             </h3>
             {!image && verified && (
@@ -96,42 +95,40 @@ export const ExploreCard = ({
             )}
           </div>
           {subtitle && (
-            <p className="text-sm text-muted-foreground line-clamp-2">{subtitle}</p>
+            <p className="line-clamp-2 text-xs text-muted-foreground">{subtitle}</p>
           )}
         </div>
 
         {/* Quick info row */}
-        <div className="flex items-center gap-4 text-sm">
+        <div className="flex items-center gap-3 text-xs">
           {rating && (
             <div className="flex items-center gap-1">
-              <Star className="h-4 w-4 fill-secondary text-secondary" />
+              <Star className="h-3.5 w-3.5 fill-secondary text-secondary" />
               <span className="font-medium">{rating}</span>
             </div>
           )}
           {location && (
             <div className="flex items-center gap-1 text-muted-foreground truncate">
-              <MapPin className="h-3.5 w-3.5 flex-shrink-0" />
+              <MapPin className="h-3 w-3 flex-shrink-0" />
               <span className="truncate">{location}</span>
             </div>
           )}
         </div>
 
-        {/* Phone */}
         {phone && (
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <Phone className="h-3.5 w-3.5" />
             <span>{phone}</span>
           </div>
         )}
 
-        {/* Badges */}
         {badges && badges.length > 0 && (
           <div className="flex flex-wrap gap-1.5">
             {badges.slice(0, 3).map((badge, index) => (
               <Badge 
                 key={index} 
                 variant="secondary" 
-                className="text-xs px-2 py-0.5 bg-muted/50"
+                className="bg-muted/60 px-1.5 py-0 text-[9px] font-medium"
               >
                 {badge}
               </Badge>
@@ -144,15 +141,12 @@ export const ExploreCard = ({
           </div>
         )}
 
-        {/* Custom content */}
         {children}
 
-        {/* Action button */}
         {onAction && (
           <Button 
             onClick={onAction}
-            variant="outline"
-            className="w-full group/btn hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all"
+            className="group/btn mt-auto h-8 w-full bg-primary text-xs hover:bg-primary/90"
             size="sm"
           >
             <span className="flex-1 text-left">{actionLabel}</span>

@@ -7,7 +7,7 @@ export default function Explore() {
   const [searchQuery, setSearchQuery] = useState("");
 
   return (
-    <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6 md:space-y-8 animate-fade-in px-0 sm:px-4 md:px-6 lg:px-8 pb-24 md:pb-8 overflow-x-hidden">
+    <div className="mx-auto max-w-[1440px] space-y-5 overflow-x-hidden pb-24 animate-fade-in md:pb-8">
       <ExploreHeroOptimized
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}

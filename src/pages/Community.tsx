@@ -9,7 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from "date-fns";
 import { EmptyState } from "@/components/EmptyState";
 import { PageHero } from "@/components/PageHero";
-import heroImage from "@/assets/hero-fitness.jpg";
+import heroImage from "@/assets/reference/community-hero.png";
 
 const ACTIVITY_ICONS: Record<string, typeof Flame> = {
   achievement: Award,
@@ -35,32 +35,27 @@ function LeaderboardRow({ entry }: { entry: LeaderboardEntry }) {
   const medal  = entry.rank === 1 ? "bg-yellow-500" : entry.rank === 2 ? "bg-gray-400" : "bg-orange-600";
 
   return (
-    <div className={`flex items-center justify-between p-4 rounded-lg border transition-all hover:shadow-md ${isTop3 ? "bg-gradient-card shadow-card" : "bg-card"}`}>
-      <div className="flex items-center gap-4">
+    <div className={`grid grid-cols-[2rem_1fr_auto] items-center gap-2 border-b px-3 py-3 last:border-0 sm:grid-cols-[2rem_1fr_5rem_5rem_6rem] ${entry.rank === 1 ? "bg-emerald-50/80" : "bg-card"}`}>
+      <span className={`grid h-6 w-6 place-items-center rounded-full text-xs font-black ${isTop3 ? `${medal} text-white` : "text-muted-foreground"}`}>{entry.rank}</span>
+      <div className="flex min-w-0 items-center gap-3">
         <div className="relative">
-          <Avatar className="h-12 w-12">
+          <Avatar className="h-10 w-10">
             <AvatarFallback className="bg-primary text-primary-foreground font-bold">
               {entry.name.slice(0, 2).toUpperCase()}
             </AvatarFallback>
           </Avatar>
-          {isTop3 && (
-            <div className={`absolute -top-1 -right-1 ${medal} rounded-full p-1`}>
-              <Trophy className="h-3 w-3 text-white" />
-            </div>
-          )}
         </div>
-        <div>
+        <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <p className="font-bold">{entry.name}</p>
-            {isTop3 && <Badge variant="outline" className="text-xs">#{entry.rank}</Badge>}
+            <p className="truncate text-sm font-bold">{entry.name}</p>
+            {entry.rank === 1 && <Badge className="h-5 bg-emerald-100 px-1.5 text-[10px] text-emerald-700">Top</Badge>}
           </div>
-          <p className="text-sm text-muted-foreground">{entry.total_workouts} workouts • {entry.streak} day streak</p>
+          <p className="truncate text-xs text-muted-foreground">{entry.total_workouts} workouts completed</p>
         </div>
       </div>
-      <div className="text-right">
-        <p className="text-xl font-bold text-primary">{(entry.points ?? 0).toLocaleString()}</p>
-        <p className="text-xs text-muted-foreground">points</p>
-      </div>
+      <span className="hidden text-center text-xs text-muted-foreground sm:block">{entry.total_workouts}</span>
+      <span className="hidden text-center text-xs sm:block">🔥 {entry.streak}d</span>
+      <p className="text-right text-sm font-black text-emerald-600">{(entry.points ?? 0).toLocaleString()}</p>
     </div>
   );
 }
@@ -221,16 +216,17 @@ const Community = () => {
       )}
 
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         {communityStats.map(stat => (
-          <Card key={stat.label} className="hover-scale shadow-card">
-            <CardContent className="p-6">
+          <Card key={stat.label} className="overflow-hidden border-border/60 bg-gradient-to-br from-white to-emerald-50/40 shadow-sm">
+            <CardContent className="p-4 sm:p-5">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">{stat.label}</p>
-                  <p className="text-3xl font-bold mt-2">{stat.value}</p>
+                  <p className="text-xs font-medium text-muted-foreground sm:text-sm">{stat.label}</p>
+                  <p className="mt-1 text-2xl font-black sm:text-3xl">{stat.value}</p>
+                  <p className="mt-1 text-[10px] font-semibold text-emerald-600">↑ live community data</p>
                 </div>
-                <stat.icon className={`h-8 w-8 ${stat.color}`} />
+                <div className="grid h-11 w-11 place-items-center rounded-xl bg-white shadow-sm"><stat.icon className={`h-6 w-6 ${stat.color}`} /></div>
               </div>
             </CardContent>
           </Card>
@@ -238,23 +234,24 @@ const Community = () => {
       </div>
 
       <Tabs defaultValue="leaderboard" className="w-full">
-        <TabsList className="grid w-full max-w-lg grid-cols-3">
+        <TabsList className="grid w-full max-w-2xl grid-cols-3 rounded-xl bg-muted/70 p-1">
           <TabsTrigger value="leaderboard">Leaderboard</TabsTrigger>
           <TabsTrigger value="challenges">Challenges</TabsTrigger>
           <TabsTrigger value="activity">Activity</TabsTrigger>
         </TabsList>
 
         {/* Leaderboard */}
-        <TabsContent value="leaderboard" className="mt-6">
-          <Card className="shadow-glow">
+        <TabsContent value="leaderboard" className="mt-4">
+          <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_320px]">
+          <Card className="overflow-hidden border-border/60 shadow-sm">
             <CardHeader>
               <CardTitle className="text-2xl flex items-center gap-2">
-                <Trophy className="h-6 w-6 text-primary" />
+                <Trophy className="h-6 w-6 text-amber-500" />
                 All-Time Leaderboard
               </CardTitle>
               <CardDescription>Top performers ranked by total points</CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-0">
               {loading ? (
                 <div className="flex justify-center py-12">
                   <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -262,12 +259,45 @@ const Community = () => {
               ) : leaderboard.length === 0 ? (
                 <EmptyState icon={Trophy} title="No rankings yet" description="Complete a workout to appear on the leaderboard." />
               ) : (
-                <div className="space-y-3">
+                <div>
+                  <div className="hidden grid-cols-[2rem_1fr_5rem_5rem_6rem] gap-2 border-y bg-muted/40 px-3 py-2 text-[10px] font-bold uppercase tracking-wide text-muted-foreground sm:grid">
+                    <span>#</span><span>Member</span><span className="text-center">Workouts</span><span className="text-center">Streak</span><span className="text-right">Points</span>
+                  </div>
                   {leaderboard.map(entry => <LeaderboardRow key={entry.rank} entry={entry} />)}
                 </div>
               )}
             </CardContent>
           </Card>
+          <aside className="space-y-4">
+            <Card className="overflow-hidden border-violet-100 shadow-sm">
+              <CardHeader className="pb-2"><CardTitle className="flex items-center gap-2 text-base"><Target className="h-5 w-5 text-violet-600" />Featured Challenge</CardTitle></CardHeader>
+              <CardContent>
+                {challenges[0] ? (
+                  <div className="rounded-2xl bg-gradient-to-br from-emerald-50 via-white to-violet-50 p-4 text-center">
+                    <div className="mx-auto mb-3 grid h-16 w-16 place-items-center rounded-full bg-emerald-100 text-3xl">🏃🏾</div>
+                    <h3 className="text-xl font-black">{challenges[0].title}</h3>
+                    <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{challenges[0].description}</p>
+                    {challenges[0].joined ? <Badge className="mt-4 bg-emerald-600">Joined</Badge> : (
+                      <Button className="mt-4 w-full" size="sm" disabled={joiningChallengeId === challenges[0].id} onClick={() => handleJoin(challenges[0].id)}>
+                        {joiningChallengeId === challenges[0].id ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}Join Challenge →
+                      </Button>
+                    )}
+                    <div className="mt-4 flex justify-between border-t pt-3 text-[11px] text-muted-foreground">
+                      <span>👥 {challenges[0].participant_count.toLocaleString()} joining</span><span>🎯 {daysLeft(challenges[0].ends_at)} days</span>
+                    </div>
+                  </div>
+                ) : <EmptyState icon={Target} title="Coming soon" description="A featured challenge will appear here." />}
+              </CardContent>
+            </Card>
+            <Card className="border-border/60 shadow-sm">
+              <CardHeader className="pb-2"><CardTitle className="flex items-center gap-2 text-base"><Star className="h-5 w-5 text-amber-500" />Community Highlights</CardTitle></CardHeader>
+              <CardContent className="space-y-3">
+                {activityFeed.slice(0, 4).map(item => <ActivityRow key={item.id} item={item} />)}
+                {!activityFeed.length && <p className="py-4 text-center text-xs text-muted-foreground">Highlights will appear as members get active.</p>}
+              </CardContent>
+            </Card>
+          </aside>
+          </div>
         </TabsContent>
 
         {/* Challenges */}

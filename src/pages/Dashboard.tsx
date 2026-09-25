@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import {
-  Activity, Flame, Droplets, TrendingUp, Sparkles, Plus, Zap, Target, Scan, Trash2,
+  Activity, Flame, Droplets, TrendingUp, Plus, Zap, Target, Trash2,
   Clock, BarChart3, Coffee, Soup, Moon, Apple, Leaf,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -17,8 +17,8 @@ import { cn } from "@/lib/utils";
 import { userDataService } from "@/lib/userDataService";
 import { useToast } from "@/hooks/use-toast";
 import { NumberTicker } from "@/components/NumberTicker";
-import heroImage from "@/assets/hero-fitness.jpg";
 import workoutImage from "@/assets/workout-session.jpg";
+import dashboardHero from "@/assets/reference/dashboard-hero.png";
 
 const MEAL_ICON: Record<string, typeof Coffee> = {
   breakfast: Coffee,
@@ -83,56 +83,40 @@ const Dashboard = () => {
   const mealProgress = totalCalories > 0 ? (consumedCalories / totalCalories) * 100 : 0;
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto animate-fade-in">
+    <div className="mx-auto max-w-7xl space-y-3.5 pb-8 animate-fade-in md:space-y-4">
       <DataUpdatePrompt />
 
       {/* Greeting */}
-      <div className="relative overflow-hidden rounded-3xl shadow-premium border border-primary/10"
-           style={{ background: "linear-gradient(135deg, hsl(150 45% 94%) 0%, hsl(140 40% 90%) 100%)" }}>
-        <div className="absolute -top-16 -right-16 w-72 h-72 bg-primary/15 rounded-full blur-[80px] pointer-events-none" />
-        <div className="absolute -bottom-16 -left-16 w-72 h-72 bg-secondary/10 rounded-full blur-[80px] pointer-events-none float" style={{ animationDelay: "2s" }} />
-        {/* Dot pattern */}
-        <div className="absolute inset-0 opacity-[0.05]"
-             style={{ backgroundImage: "radial-gradient(circle at 2px 2px, hsl(158 60% 20%) 1px, transparent 0)", backgroundSize: "28px 28px" }} />
+      <div className="relative min-h-[184px] overflow-hidden rounded-[1.35rem] border border-primary/10 bg-[#eaf9f1] shadow-card">
+        <img src={dashboardHero} alt="" className="absolute inset-0 hidden h-full w-full object-cover object-center lg:block" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#eaf9f1] via-[#eaf9f1]/95 via-35% to-transparent" />
 
-        <div className="relative z-10 p-6 lg:p-8 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-          <div className="space-y-2 flex-1">
+        <div className="relative z-10 flex min-h-[184px] items-center p-6 lg:px-8">
+          <div className="space-y-2 lg:max-w-[38%]">
             <div className="flex items-center gap-3 flex-wrap">
-              <h1 className="text-3xl lg:text-4xl font-display font-black text-foreground">
+              <h1 className="text-3xl font-display font-black text-[#10233f] lg:text-[2rem]">
                 {greeting}! 👋
               </h1>
-              <Badge className="bg-primary/20 text-primary border-primary/30 gap-1.5">
-                <Sparkles className="h-3 w-3" /> AI Powered
-              </Badge>
             </div>
-            <p className="text-muted-foreground text-base lg:text-lg">
+            <p className="text-sm font-medium text-[#294056]">
               {streak > 0 ? `${streak}-day streak — keep it going! 🔥` : "Ready to crush your fitness goals today?"}
             </p>
-            <div className="flex flex-wrap gap-3 pt-2">
-              <Button onClick={() => navigate("/workouts")} className="shadow-glow gap-2 bg-primary hover:bg-primary/90">
+            <p className="hidden text-xs text-muted-foreground sm:block">A healthier you. A brighter tomorrow.</p>
+            <div className="flex flex-wrap gap-2 pt-2">
+              <Button size="sm" onClick={() => navigate("/workouts")} className="h-8 gap-1.5 rounded-lg bg-primary px-3 text-xs shadow-glow hover:bg-primary/90">
                 <Target className="h-4 w-4" /> Start Workout
               </Button>
-              <ScanFoodButton variant="secondary" className="shadow-gold" />
-              <Button variant="outline" onClick={() => navigate("/nutrition")} className="gap-2">
+              <ScanFoodButton variant="secondary" className="h-8 rounded-lg px-3 text-xs shadow-gold" />
+              <Button size="sm" variant="outline" onClick={() => navigate("/nutrition")} className="h-8 rounded-lg px-3 text-xs">
                 Meal Plan
               </Button>
-            </div>
-          </div>
-
-          <div className="hidden lg:flex flex-col items-center gap-2 shrink-0">
-            <span className="font-script text-2xl text-primary -rotate-2">Stronger, Happier You</span>
-            <div className="relative w-40 h-40 rounded-2xl overflow-hidden shadow-premium border-4 border-white">
-              <img src={heroImage} alt="" className="w-full h-full object-cover" />
-            </div>
-            <div className="glass rounded-xl px-3 py-2 text-center max-w-[10rem] -mt-4 shadow-card">
-              <p className="text-[11px] text-muted-foreground leading-snug">"Small steps today, big results tomorrow."</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         {stats.map((stat, idx) => (
           <Card
             key={stat.label}
@@ -142,14 +126,14 @@ const Dashboard = () => {
             <div className={cn("absolute inset-0 bg-gradient-to-br opacity-60", stat.bgGradient)} />
             <div className="absolute top-0 right-0 w-20 h-20 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
                  style={{ background: `var(--gradient-${idx < 2 ? "primary" : "gold"})` }} />
-            <CardContent className="p-4 lg:p-5 relative z-10">
-              <div className="flex items-start justify-between mb-3">
-                <p className="text-xs font-medium text-muted-foreground leading-tight">{stat.label}</p>
-                <div className={cn("p-1.5 rounded-lg group-hover:scale-110 transition-transform duration-300", stat.iconBg)}>
+            <CardContent className="relative z-10 p-3.5">
+              <div className="mb-1.5 flex items-center gap-2">
+                <div className={cn("rounded-lg p-1.5 transition-transform duration-300 group-hover:scale-110", stat.iconBg)}>
                   <stat.icon className={cn("h-4 w-4", stat.color)} />
                 </div>
+                <p className="text-[11px] font-medium leading-tight text-muted-foreground">{stat.label}</p>
               </div>
-              <p className={cn("text-2xl lg:text-3xl font-display font-black", stat.color)}>
+              <p className={cn("pl-0.5 text-xl font-display font-black lg:text-2xl", stat.color)}>
                 <NumberTicker value={stat.numValue} suffix={stat.suffix} decimals={(stat as any).decimals} />
               </p>
             </CardContent>
@@ -158,72 +142,74 @@ const Dashboard = () => {
       </div>
 
       {/* Progress + Water Intake */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
         <Card className="glass shadow-card hover:shadow-premium transition-all duration-300 border-0">
-          <CardContent className="p-6 flex flex-col items-center gap-4">
+          <CardContent className="flex flex-col items-center gap-2.5 p-4">
             <div className="flex items-center gap-2 self-stretch">
               <Activity className="h-5 w-5 text-primary" />
               <h3 className="font-semibold">Workout Progress</h3>
             </div>
-            <CircularProgress value={workoutProgress} gradient />
-            <p className="text-sm text-muted-foreground text-center">
+            <CircularProgress value={workoutProgress} size={88} strokeWidth={7} gradient />
+            <p className="text-xs text-muted-foreground text-center">
               {allExercises.filter(ex => ex.completed).length} of {allExercises.length} exercises completed
             </p>
-            <Button size="sm" className="w-full" onClick={() => navigate("/workouts")}>Continue Workout</Button>
+            <Button size="sm" className="h-8 w-full rounded-lg text-xs" onClick={() => navigate("/workouts")}>Continue Workout →</Button>
           </CardContent>
         </Card>
 
         <Card className="glass shadow-card hover:shadow-premium transition-all duration-300 border-0">
-          <CardContent className="p-6 flex flex-col items-center gap-4">
+          <CardContent className="flex flex-col items-center gap-2.5 p-4">
             <div className="flex items-center gap-2 self-stretch">
               <Flame className="h-5 w-5 text-secondary" />
               <h3 className="font-semibold">Nutrition Goals</h3>
             </div>
-            <CircularProgress value={mealProgress} color="hsl(var(--secondary))" />
-            <p className="text-sm text-muted-foreground text-center">
+            <CircularProgress value={mealProgress} size={88} strokeWidth={7} color="hsl(var(--secondary))" />
+            <p className="text-xs text-muted-foreground text-center">
               {consumedCalories} / {totalCalories} calories consumed
             </p>
-            <Button size="sm" variant="secondary" className="w-full" onClick={() => navigate("/nutrition")}>Log a Meal</Button>
+            <Button size="sm" variant="secondary" className="h-8 w-full rounded-lg text-xs" onClick={() => navigate("/nutrition")}>Log a Meal ＋</Button>
           </CardContent>
         </Card>
 
         <Card className="glass shadow-card hover:shadow-premium transition-all duration-300 border-0">
-          <CardContent className="p-6 flex flex-col items-center gap-4">
+          <CardContent className="flex flex-col items-center gap-2.5 p-4">
             <div className="flex items-center gap-2 self-stretch">
               <Droplets className="h-5 w-5 text-info" />
               <h3 className="font-semibold">Hydration</h3>
             </div>
-            <CircularProgress value={todayStats ? (todayStats.waterIntake / 3) * 100 : 0} color="hsl(var(--info))" />
-            <p className="text-sm text-muted-foreground text-center">
+            <CircularProgress value={todayStats ? (todayStats.waterIntake / 3) * 100 : 0} size={88} strokeWidth={7} color="hsl(var(--info))" />
+            <p className="text-xs text-muted-foreground text-center">
               {todayStats?.waterIntake?.toFixed(1) || 0}L of 3L daily goal
             </p>
             <div className="flex gap-2 w-full">
-              <Button size="sm" variant="outline" className="flex-1 text-xs" onClick={() => handleAddWater(0.25)}>+0.25L</Button>
-              <Button size="sm" variant="outline" className="flex-1 text-xs" onClick={() => handleAddWater(0.5)}>+0.5L</Button>
-              <Button size="sm" className="flex-1 text-xs" onClick={() => handleAddWater(1)}>+1L</Button>
+              <Button size="sm" variant="outline" className="h-8 flex-1 text-[11px]" onClick={() => handleAddWater(0.25)}>+250ml</Button>
+              <Button size="sm" variant="outline" className="h-8 flex-1 text-[11px]" onClick={() => handleAddWater(0.5)}>+500ml</Button>
+              <Button size="sm" className="h-8 flex-1 text-[11px]" onClick={() => handleAddWater(1)}>+1L</Button>
             </div>
           </CardContent>
         </Card>
       </div>
 
       {/* Gamification */}
-      <GamificationPanel />
+      <div className="[&>div]:border-0 [&>div]:shadow-card [&_[class*='CardHeader']]:p-4">
+        <GamificationPanel />
+      </div>
 
       {/* Today's Workout */}
       <Card className="glass shadow-card hover:shadow-premium transition-all duration-300 border-0 overflow-hidden">
-        <CardHeader>
+        <CardHeader className="p-4 pb-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="p-2 rounded-xl bg-primary/10"><Activity className="h-5 w-5 text-primary" /></div>
               <div>
-                <CardTitle className="text-2xl">Today's Workout Plan</CardTitle>
+                <CardTitle className="text-base">Today's Workout Plan</CardTitle>
                 <CardDescription>AI-generated based on your goals</CardDescription>
               </div>
             </div>
-            <Button onClick={() => navigate("/workouts")} className="shadow-glow">View All</Button>
+            <Button size="sm" variant="ghost" onClick={() => navigate("/workouts")} className="h-8 text-xs text-primary">View All ›</Button>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-4 pb-4">
           {!featuredWorkout || featuredExercises.length === 0 ? (
             <div className="text-center py-12">
               <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
@@ -235,8 +221,8 @@ const Dashboard = () => {
               </Button>
             </div>
           ) : (
-            <div className="grid md:grid-cols-[220px_1fr] gap-5">
-              <div className="relative rounded-2xl overflow-hidden h-40 md:h-full min-h-[160px]">
+            <div className="grid gap-4 md:grid-cols-[240px_1fr]">
+              <div className="relative h-40 min-h-[150px] overflow-hidden rounded-xl md:h-full">
                 <img src={workoutImage} alt="" className="w-full h-full object-cover" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
                 <div className="absolute bottom-3 left-3 right-3">
@@ -249,18 +235,18 @@ const Dashboard = () => {
               </div>
 
               <div>
-                <div className="space-y-3">
+                <div className="grid gap-2 sm:grid-cols-2">
                   {featuredExercises.map((exercise, idx) => (
                     <div
                       key={`${exercise.workoutId}-${exercise.name}`}
                       className={cn(
-                        "flex items-center justify-between p-4 rounded-xl border transition-all duration-300 group stagger-item",
+                        "flex items-center justify-between rounded-lg border p-2.5 transition-all duration-300 group stagger-item",
                         exercise.completed ? "glass bg-secondary/5 border-secondary/30 shadow-card" : "glass hover:shadow-elevated hover:border-primary/30"
                       )}
                       style={{ animationDelay: `${idx * 0.05}s` }}
                     >
                       <div className="flex items-center gap-4 cursor-pointer flex-1" onClick={() => completeExercise(exercise.workoutId, exercise.name)}>
-                        <div className={cn("w-10 h-10 rounded-full border-2 flex items-center justify-center transition-all duration-300", exercise.completed ? "bg-secondary border-secondary shadow-glow" : "border-muted group-hover:border-primary group-hover:scale-110")}>
+                        <div className={cn("w-6 h-6 rounded-full border flex items-center justify-center transition-all duration-300", exercise.completed ? "bg-secondary border-secondary shadow-glow" : "border-muted group-hover:border-primary group-hover:scale-110")}>
                           {exercise.completed ? <span className="text-white text-sm font-bold">✓</span> : <span className="text-muted-foreground text-xl group-hover:scale-110 transition-transform">•</span>}
                         </div>
                         <div>
@@ -294,19 +280,19 @@ const Dashboard = () => {
 
       {/* Today's Meals */}
       <Card className="glass shadow-card hover:shadow-premium transition-all duration-300 border-0">
-        <CardHeader>
+        <CardHeader className="p-4 pb-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="p-2 rounded-xl bg-secondary/10"><Flame className="h-5 w-5 text-secondary" /></div>
               <div>
-                <CardTitle className="text-2xl">Today's Meal Plan</CardTitle>
+                <CardTitle className="text-base">Today's Meal Plan</CardTitle>
                 <CardDescription>Nigerian-inspired nutrition</CardDescription>
               </div>
             </div>
-            <Button onClick={() => navigate("/nutrition")} className="shadow-glow">View All</Button>
+            <Button size="sm" variant="ghost" onClick={() => navigate("/nutrition")} className="h-8 text-xs text-primary">View All ›</Button>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-4 pb-4">
           {todayMeals.length === 0 ? (
             <div className="text-center py-12">
               <div className="w-16 h-16 rounded-full bg-secondary/10 flex items-center justify-center mx-auto mb-4">
@@ -326,7 +312,7 @@ const Dashboard = () => {
                     <div
                       key={meal.id}
                       className={cn(
-                        "relative rounded-2xl border p-4 flex flex-col gap-3 transition-all duration-300 group stagger-item cursor-pointer",
+                        "relative rounded-xl border p-3 flex flex-col gap-2 transition-all duration-300 group stagger-item cursor-pointer",
                         meal.eaten ? "glass bg-primary/5 border-primary/30 shadow-card" : "glass hover:shadow-elevated hover:border-secondary/30"
                       )}
                       style={{ animationDelay: `${idx * 0.05}s` }}
@@ -339,10 +325,10 @@ const Dashboard = () => {
                         <Trash2 className="h-3 w-3 text-muted-foreground" />
                       </Button>
                       <div className={cn(
-                        "w-12 h-12 rounded-xl flex items-center justify-center",
+                        "w-9 h-9 rounded-lg flex items-center justify-center",
                         meal.eaten ? "bg-primary text-white shadow-glow" : "bg-secondary/10 text-secondary"
                       )}>
-                        <MealIcon className="h-6 w-6" />
+                        <MealIcon className="h-4 w-4" />
                       </div>
                       <div>
                         <Badge variant="outline" className="text-[10px] capitalize mb-1">{meal.mealType}</Badge>
@@ -369,16 +355,16 @@ const Dashboard = () => {
       </Card>
 
       {/* Weekly Progress */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
         <Card className="glass shadow-card hover:shadow-premium transition-all duration-300 border-0 lg:col-span-2">
-          <CardHeader>
+          <CardHeader className="p-4 pb-2">
             <CardTitle className="flex items-center gap-3">
               <div className="p-2 rounded-xl bg-secondary/10"><TrendingUp className="h-5 w-5 text-secondary" /></div>
               Weekly Summary
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
+          <CardContent className="p-4 pt-2">
+            <div className="space-y-3">
               <div>
                 <div className="flex justify-between text-sm mb-2"><span>Workout Completion</span><span className="font-medium">{Math.round(workoutProgress)}%</span></div>
                 <Progress value={workoutProgress} />
@@ -398,7 +384,7 @@ const Dashboard = () => {
         <Card className="border-0 shadow-card overflow-hidden relative flex flex-col justify-center"
               style={{ background: "linear-gradient(160deg, hsl(150 45% 95%) 0%, hsl(140 40% 91%) 100%)" }}>
           <div className="absolute -bottom-8 -right-8 w-32 h-32 bg-primary/10 rounded-full blur-2xl" />
-          <CardContent className="p-6 relative z-10 text-center space-y-2">
+          <CardContent className="relative z-10 space-y-2 p-5 text-center">
             <Leaf className="h-8 w-8 text-primary mx-auto" />
             <p className="font-display font-bold text-lg">You're doing great!</p>
             <p className="text-sm text-muted-foreground">Consistent effort today builds a healthier, happier you tomorrow.</p>

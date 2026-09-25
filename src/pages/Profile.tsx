@@ -16,7 +16,7 @@ import { userDataService, UserProfile, Goal } from "@/lib/userDataService";
 import { gamificationService } from "@/lib/gamificationService";
 import { useToast } from "@/hooks/use-toast";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
-import heroImage from "@/assets/hero-fitness.jpg";
+import heroImage from "@/assets/reference/profile-hero.png";
 
 const Profile = () => {
   const { toast } = useToast();
@@ -81,15 +81,18 @@ const Profile = () => {
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
       {/* Profile Header */}
-      <Card className="shadow-card overflow-hidden relative">
+      <Card
+        className="relative min-h-[190px] overflow-hidden rounded-2xl border-primary/10 shadow-sm"
+        style={{ background: "linear-gradient(110deg, hsl(150 55% 96%) 0%, hsl(145 52% 92%) 58%, hsl(158 48% 88%) 100%)" }}
+      >
         {!isEditing && (
-          <div className="hidden lg:block absolute top-0 right-0 bottom-0 w-56">
+          <div className="absolute bottom-0 right-[12%] top-0 hidden w-[34%] lg:block">
             <img src={heroImage} alt="" className="w-full h-full object-cover" />
-            <div className="absolute inset-0 bg-gradient-to-r from-card via-card/60 to-transparent" />
-            <span className="absolute top-4 right-6 font-script text-xl text-primary rotate-2">Healthier, Happier You</span>
+            <div className="absolute inset-0 bg-gradient-to-r from-[#eaf9f1] via-transparent to-transparent" />
           </div>
         )}
-        <CardContent className="p-6 relative z-10">
+        {!isEditing && <span className="absolute right-6 top-8 hidden max-w-[9rem] text-center font-script text-2xl leading-tight text-primary lg:block">Better People, Healthier Tomorrows</span>}
+        <CardContent className="p-6 lg:p-8 relative z-10">
           {isEditing && editForm ? (
             <div className="space-y-4">
               <h2 className="text-xl font-bold">Edit Profile</h2>
@@ -129,8 +132,8 @@ const Profile = () => {
               </div>
             </div>
           ) : (
-            <div className="flex flex-col md:flex-row items-center md:items-start gap-6 lg:pr-40">
-              <Avatar className="h-24 w-24">
+            <div className="flex flex-col md:flex-row items-center md:items-start gap-6 lg:pr-[48%]">
+              <Avatar className="h-28 w-28 border-4 border-white shadow-card">
                 <AvatarFallback className="bg-gradient-primary text-white text-3xl font-bold">
                   {initials}
                 </AvatarFallback>
@@ -151,7 +154,7 @@ const Profile = () => {
                   {profile?.location && <Badge variant="outline">{profile.location}</Badge>}
                 </div>
               </div>
-              <Button onClick={startEditing}>
+              <Button onClick={startEditing} className="shrink-0 bg-emerald-600 hover:bg-emerald-700">
                 <Edit className="mr-2 h-4 w-4" />
                 Edit Profile
               </Button>
@@ -161,66 +164,66 @@ const Profile = () => {
       </Card>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         {userStats.map((stat) => (
-          <Card key={stat.label} className="hover-scale shadow-card">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <stat.icon className={`h-6 w-6 ${stat.color}`} />
-                <Badge variant="secondary" className="text-xs">
-                  {stat.change}
-                </Badge>
+          <Card key={stat.label} className="overflow-hidden border-border/60 bg-gradient-to-br from-white to-emerald-50/30 shadow-sm">
+            <CardContent className="flex min-h-[112px] items-center justify-between p-4 sm:p-5">
+              <div>
+                <p className="text-xs text-muted-foreground sm:text-sm">{stat.label}</p>
+                <p className="mt-1 text-2xl font-black sm:text-3xl">{stat.value}</p>
+                <p className="mt-1 text-[10px] font-semibold text-emerald-600">↑ {stat.change}</p>
               </div>
-              <p className="text-sm text-muted-foreground">{stat.label}</p>
-              <p className="text-3xl font-bold mt-2">{stat.value}</p>
+              <span className="grid h-11 w-11 place-items-center rounded-xl bg-white shadow-sm"><stat.icon className={`h-6 w-6 ${stat.color}`} /></span>
             </CardContent>
           </Card>
         ))}
       </div>
 
       <Tabs defaultValue="progress" className="w-full">
-        <TabsList className="grid w-full max-w-md grid-cols-3">
+        <TabsList className="grid w-full max-w-md grid-cols-3 rounded-xl bg-muted/70 p-1">
           <TabsTrigger value="progress">Progress</TabsTrigger>
           <TabsTrigger value="goals">Goals</TabsTrigger>
           <TabsTrigger value="achievements">Achievements</TabsTrigger>
         </TabsList>
 
         <TabsContent value="progress" className="space-y-4 mt-6">
-          <Card className="shadow-card">
+          <div className="grid items-start gap-4 lg:grid-cols-[1.05fr_.95fr]">
+          <Card className="border-border/60 shadow-sm">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Target className="h-5 w-5 text-primary" />
                 Current Goals
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
+            <CardContent className="space-y-5">
+              <div className="rounded-xl bg-emerald-50/60 p-3">
                 <div className="flex justify-between text-sm mb-2">
                   <span>Weekly Workout Goal</span>
                   <span className="font-medium">{weekWorkoutGoal.current} / {weekWorkoutGoal.target} workouts</span>
                 </div>
-                <Progress value={Math.min((weekWorkoutGoal.current / weekWorkoutGoal.target) * 100, 100)} />
+                <Progress className="h-2.5" value={Math.min((weekWorkoutGoal.current / weekWorkoutGoal.target) * 100, 100)} />
               </div>
               {profile && (
-                <div>
+                <div className="rounded-xl bg-sky-50/60 p-3">
                   <div className="flex justify-between text-sm mb-2">
                     <span>Weight Goal Progress</span>
                     <span className="font-medium">{weightGoal.current}kg / {weightGoal.target}kg</span>
                   </div>
-                  <Progress value={weightGoal.target > 0 ? Math.min((weightGoal.current / weightGoal.target) * 100, 100) : 0} />
+                  <Progress className="h-2.5" value={weightGoal.target > 0 ? Math.min((weightGoal.current / weightGoal.target) * 100, 100) : 0} />
                 </div>
               )}
-              <div>
+              <div className="rounded-xl bg-amber-50/60 p-3">
                 <div className="flex justify-between text-sm mb-2">
                   <span>Total Calories Burned</span>
                   <span className="font-medium">{totalStats.totalCaloriesBurned.toLocaleString()} cal</span>
                 </div>
-                <Progress value={Math.min(totalStats.totalCaloriesBurned / 300, 100)} />
+                <Progress className="h-2.5" value={Math.min(totalStats.totalCaloriesBurned / 300, 100)} />
               </div>
             </CardContent>
           </Card>
 
-          <Card className="shadow-card">
+          <div className="space-y-4">
+          <Card className="border-border/60 shadow-sm">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <TrendingUp className="h-5 w-5 text-secondary" />
@@ -229,7 +232,7 @@ const Profile = () => {
               <CardDescription>Your workout consistency</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-7 gap-2">
+              <div className="grid grid-cols-7 gap-1.5">
                 {weeklyData.map((day, index) => (
                   <div key={index} className="text-center">
                     <div
@@ -242,7 +245,7 @@ const Profile = () => {
                       {day.workouts > 0 ? (
                         <div>
                           <Flame className="h-6 w-6 mx-auto mb-1" />
-                          <p className="text-xs">{day.calories}</p>
+                          <p className="text-[10px]">{day.workouts} workout{day.workouts === 1 ? "" : "s"}</p>
                         </div>
                       ) : (
                         <p className="text-xs text-muted-foreground">-</p>
@@ -251,6 +254,31 @@ const Profile = () => {
                     <p className="text-xs text-muted-foreground">{day.day}</p>
                   </div>
                 ))}
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="border-border/60 shadow-sm">
+            <CardHeader className="pb-2">
+              <CardTitle className="flex items-center justify-between text-base"><span className="flex items-center gap-2"><Award className="h-5 w-5 text-amber-500" />Achievements &amp; Milestones</span><Badge variant="outline">{achievements.filter(a => a.earned).length} earned</Badge></CardTitle>
+            </CardHeader>
+            <CardContent className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+              {achievements.slice(0, 4).map(a => (
+                <div key={a.id} className={`rounded-xl p-3 text-center ${a.earned ? "bg-amber-50" : "bg-muted/50 opacity-60"}`}>
+                  <Award className={`mx-auto mb-1 h-6 w-6 ${a.earned ? "text-amber-500" : "text-muted-foreground"}`} />
+                  <p className="line-clamp-2 text-[11px] font-bold">{a.name}</p>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+          </div>
+          </div>
+
+          <Card className="overflow-hidden border-violet-100 bg-gradient-to-r from-violet-50 via-white to-emerald-50 shadow-sm">
+            <CardContent className="flex items-start gap-4 p-5">
+              <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-violet-100 text-xl">✨</span>
+              <div>
+                <h3 className="font-black">Personal Insights</h3>
+                <p className="mt-1 text-sm text-muted-foreground">Great progress this week, {profile?.name?.split(" ")[0] || "champ"}! You completed {totalStats.totalWorkouts} total workouts and built a {totalStats.currentStreak}-day streak. Keep moving toward your goals.</p>
               </div>
             </CardContent>
           </Card>

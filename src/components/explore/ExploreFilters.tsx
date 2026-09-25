@@ -1,7 +1,6 @@
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { 
-  Dumbbell, User, Utensils, ShoppingBag, TrendingUp, Filter, X
+  Dumbbell, User, Utensils, ShoppingBag, TrendingUp, LayoutGrid
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -15,7 +14,7 @@ interface ExploreFiltersProps {
 }
 
 const categories = [
-  { id: "all" as CategoryType, label: "All", icon: Filter },
+  { id: "all" as CategoryType, label: "All", icon: LayoutGrid },
   { id: "gyms" as CategoryType, label: "Gyms", icon: Dumbbell },
   { id: "trainers" as CategoryType, label: "Trainers", icon: User },
   { id: "nutritionists" as CategoryType, label: "Nutrition", icon: Utensils },
@@ -27,9 +26,8 @@ export const ExploreFilters = ({
   activeCategory, onCategoryChange, searchQuery 
 }: ExploreFiltersProps) => {
   return (
-    <div className="space-y-3">
-      {/* Category Pills - horizontal scroll on mobile */}
-      <div className="flex gap-1.5 sm:gap-2 overflow-x-auto pb-2 scrollbar-hide -mx-3 px-3 sm:-mx-4 sm:px-4 md:mx-0 md:px-0 md:flex-wrap">
+    <div>
+      <div className="flex gap-1.5 overflow-x-auto rounded-xl border bg-white p-1.5 shadow-card scrollbar-hide">
         {categories.map((category) => {
           const Icon = category.icon;
           const isActive = activeCategory === category.id;
@@ -37,14 +35,14 @@ export const ExploreFilters = ({
           return (
             <Button
               key={category.id}
-              variant={isActive ? "default" : "outline"}
+              variant={isActive ? "default" : "ghost"}
               size="sm"
               onClick={() => onCategoryChange(category.id)}
               className={cn(
-                "flex-shrink-0 gap-1 sm:gap-2 transition-all duration-200 h-8 sm:h-9 px-2.5 sm:px-3 text-xs sm:text-sm",
+                "h-9 flex-shrink-0 gap-1.5 rounded-lg px-3 text-xs transition-all duration-200",
                 isActive 
                   ? "shadow-glow" 
-                  : "hover:border-primary/50 hover:bg-primary/5"
+                  : "text-[#405268] hover:bg-primary/5 hover:text-primary"
               )}
             >
               <Icon className="h-3.5 w-3.5" />
@@ -54,27 +52,7 @@ export const ExploreFilters = ({
         })}
       </div>
 
-      {/* Active filters indicator */}
-      {(searchQuery || activeCategory !== "all") && (
-        <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
-          <span className="text-xs sm:text-sm text-muted-foreground">Filters:</span>
-          {searchQuery && (
-            <Badge variant="secondary" className="gap-1 text-xs">
-              "{searchQuery}"
-              <X className="h-3 w-3 cursor-pointer" />
-            </Badge>
-          )}
-          {activeCategory !== "all" && (
-            <Badge variant="secondary" className="gap-1 capitalize text-xs">
-              {activeCategory}
-              <X 
-                className="h-3 w-3 cursor-pointer" 
-                onClick={() => onCategoryChange("all")}
-              />
-            </Badge>
-          )}
-        </div>
-      )}
+      {searchQuery && <p className="mt-2 text-xs text-muted-foreground">Showing results for “{searchQuery}”</p>}
     </div>
   );
 };
