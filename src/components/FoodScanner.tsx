@@ -85,7 +85,7 @@ export const FoodScanner = ({ open, onOpenChange, onFoodSelected }: FoodScannerP
 
   // Auto-start camera when dialog opens and tab is a camera tab
   useEffect(() => {
-    if (open && (activeTab === 'photo' || activeTab === 'barcode' || activeTab === 'label') && !capturedImage) {
+    if (open && (activeTab === 'photo' || activeTab === 'barcode') && !capturedImage) {
       startCamera();
     }
     
@@ -148,30 +148,11 @@ export const FoodScanner = ({ open, onOpenChange, onFoodSelected }: FoodScannerP
       if (scanType === 'barcode') {
         return;
       } else if (scanType === 'label') {
-        const extracted = await foodScanService.extractNutritionLabel(imageData);
-        if (extracted) {
-          const mockFood: FoodItem = {
-            id: 'scanned-' + Date.now(),
-            name: extracted.name || 'Scanned Food',
-            category: 'packaged',
-            origin: 'international',
-            calories: extracted.calories || 0,
-            protein: extracted.protein || 0,
-            carbs: extracted.carbs || 0,
-            fats: extracted.fats || 0,
-            fiber: extracted.fiber || 0,
-            sugar: extracted.sugar || 0,
-            sodium: extracted.sodium || 0,
-            saturatedFat: extracted.saturatedFat || 0,
-            ingredients: extracted.ingredients || [],
-            allergens: extracted.allergens || [],
-            commonPreparations: [],
-            healthFlags: [],
-            portionSize: extracted.portionSize || 'Per serving',
-          };
-          onFoodSelected(mockFood);
-          onOpenChange(false);
-        }
+        toast({
+          title: "Label scan isn't in this beta",
+          description: "Photograph the meal or search by name. Packaged foods can be looked up from the barcode number.",
+        });
+        return;
       } else {
         // Photo recognition for meals
         const result = await foodScanService.recognizeMealPhoto(imageData);
@@ -420,79 +401,17 @@ export const FoodScanner = ({ open, onOpenChange, onFoodSelected }: FoodScannerP
             </TabsContent>
 
             <TabsContent value="label" className="mt-0 space-y-4">
-              <p className="text-sm text-muted-foreground">
-                Capture the nutrition facts label for detailed analysis
-              </p>
-              
-              {!capturedImage ? (
-                <>
-                  <div className="relative aspect-[4/3] bg-muted rounded-xl overflow-hidden">
-                    <video
-                      ref={videoRef}
-                      autoPlay
-                      playsInline
-                      className="w-full h-full object-cover"
-                    />
-                    {isCameraActive ? (
-                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                        <div className="w-48 h-64 border-2 border-primary/50 rounded-lg" />
-                      </div>
-                    ) : (
-                      <div className="absolute inset-0 flex flex-col items-center justify-center gap-4">
-                        <FileText className="h-12 w-12 text-muted-foreground" />
-                        <p className="text-muted-foreground text-sm text-center px-4">
-                          Position the nutrition label in frame
-                        </p>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="flex gap-3">
-                    {!isCameraActive ? (
-                      <>
-                        <Button onClick={startCamera} className="flex-1 gap-2">
-                          <Camera className="h-4 w-4" />
-                          Open Camera
-                        </Button>
-                        <Button 
-                          variant="outline" 
-                          onClick={() => fileInputRef.current?.click()}
-                          className="flex-1 gap-2"
-                        >
-                          <ImageIcon className="h-4 w-4" />
-                          Upload
-                        </Button>
-                      </>
-                    ) : (
-                      <>
-                        <Button onClick={capturePhoto} className="flex-1 gap-2">
-                          <Camera className="h-4 w-4" />
-                          Capture
-                        </Button>
-                        <Button variant="outline" onClick={stopCamera} className="gap-2">
-                          <X className="h-4 w-4" />
-                        </Button>
-                      </>
-                    )}
-                  </div>
-                </>
-              ) : (
-                <div className="space-y-4">
-                  <div className="relative aspect-[4/3] bg-muted rounded-xl overflow-hidden">
-                    <img src={capturedImage} alt="Label" className="w-full h-full object-cover" />
-                    {isProcessing && (
-                      <div className="absolute inset-0 bg-background/80 flex flex-col items-center justify-center gap-3">
-                        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                        <p className="text-sm font-medium">Extracting nutrition info...</p>
-                      </div>
-                    )}
-                  </div>
-                  <Button variant="outline" onClick={resetScanner} className="w-full gap-2">
-                    <RotateCcw className="h-4 w-4" />
-                    Scan Again
-                  </Button>
-                </div>
-              )}
+              <div className="rounded-xl border border-dashed bg-muted/40 p-6 text-center">
+                <FileText className="mx-auto mb-3 h-10 w-10 text-muted-foreground" />
+                <p className="font-medium">Nutrition-label reading isn't in this beta</p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Photograph the meal, search Nigerian foods by name, or type the barcode number. Those paths use real data.
+                </p>
+              </div>
+              <div className="flex gap-3">
+                <Button className="flex-1" onClick={() => setActiveTab("photo")}>Photograph meal</Button>
+                <Button variant="outline" className="flex-1" onClick={() => setActiveTab("search")}>Search foods</Button>
+              </div>
             </TabsContent>
 
             <TabsContent value="search" className="mt-0 space-y-4">

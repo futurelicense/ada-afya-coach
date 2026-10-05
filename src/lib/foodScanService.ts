@@ -474,13 +474,7 @@ const HEALTH_PROFILE_KEY = 'fitnaija_health_profile';
 const SCAN_HISTORY_KEY = 'fitnaija_scan_history';
 
 export const foodScanService = {
-  // Get or create user health profile
-  getHealthProfile(): UserHealthProfile {
-    const stored = localStorage.getItem(HEALTH_PROFILE_KEY);
-    if (stored) {
-      return JSON.parse(stored);
-    }
-    // Default profile
+  defaultHealthProfile(): UserHealthProfile {
     return {
       dietPreference: 'balanced',
       healthConditions: [],
@@ -492,8 +486,33 @@ export const foodScanService = {
     };
   },
 
+  // Immediate read from this device. Call hydrateHealthProfile to pull the account copy.
+  getHealthProfile(): UserHealthProfile {
+    const stored = localStorage.getItem(HEALTH_PROFILE_KEY);
+    if (stored) {
+      try { return JSON.parse(stored); } catch { /* fall through */ }
+    }
+    return this.defaultHealthProfile();
+  },
+
+  async hydrateHealthProfile(): Promise<UserHealthProfile> {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return this.getHealthProfile();
+    const { data } = await supabase.from('profiles').select('health_profile').eq('id', user.id).maybeSingle();
+    const remote = data?.health_profile as UserHealthProfile | null;
+    if (remote && typeof remote === 'object') {
+      localStorage.setItem(HEALTH_PROFILE_KEY, JSON.stringify(remote));
+      return remote;
+    }
+    return this.getHealthProfile();
+  },
+
   saveHealthProfile(profile: UserHealthProfile): void {
     localStorage.setItem(HEALTH_PROFILE_KEY, JSON.stringify(profile));
+    void supabase.auth.getUser().then(({ data }) => {
+      if (!data.user) return;
+      return supabase.from('profiles').update({ health_profile: profile }).eq('id', data.user.id);
+    });
   },
 
   // Search food by name (for manual search and photo recognition)
@@ -806,40 +825,21 @@ export const foodScanService = {
     return flags;
   },
 
-  // Simulate nutrition label OCR
-  async extractNutritionLabel(imageData: string): Promise<Partial<FoodItem> | null> {
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    // Mock OCR result
-    return {
-      name: 'Packaged Food',
-      category: 'packaged',
-      origin: 'international',
-      calories: 250,
-      protein: 8,
-      carbs: 35,
-      fats: 10,
-      fiber: 2,
-      sugar: 12,
-      sodium: 450,
-      saturatedFat: 3,
-      ingredients: [],
-      allergens: [],
-      commonPreparations: [],
-      healthFlags: [],
-      portionSize: 'Per serving',
-    };
+  // Label OCR is not part of the beta. Callers must not invent nutrition numbers.
+  async extractNutritionLabel(_imageData: string): Promise<Partial<FoodItem> | null> {
+    return null;
   },
 
-  // Save scan to history
+  // Save scan to this device and to the signed-in account.
   saveScanToHistory(result: ScanResult): void {
     const history = this.getScanHistory();
-    history.unshift({
-      ...result,
-      timestamp: new Date().toISOString(),
-    });
-    // Keep only last 50 scans
+    const entry = { ...result, timestamp: new Date().toISOString() };
+    history.unshift(entry);
     localStorage.setItem(SCAN_HISTORY_KEY, JSON.stringify(history.slice(0, 50)));
+    void supabase.auth.getUser().then(({ data }) => {
+      if (!data.user) return;
+      return supabase.from('food_scans').insert({ user_id: data.user.id, result: entry });
+    });
   },
 
   getScanHistory(): (ScanResult & { timestamp: string })[] {

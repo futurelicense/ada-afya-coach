@@ -25,6 +25,7 @@ export function ListingEditor({ kind, userId }: ListingEditorProps) {
   const [phone, setPhone] = useState("");
   const [bio, setBio] = useState("");
   const [price, setPrice] = useState("");
+  const [listingKind, setListingKind] = useState<"trainer" | "nutritionist">("trainer");
 
   const table =
     kind === "vendor" ? "vendors" :
@@ -48,6 +49,7 @@ export function ListingEditor({ kind, userId }: ListingEditorProps) {
           kind === "influencer" ? data.partnership_rate_naira :
           Array.isArray(data.membership_plans) ? data.membership_plans[0]?.amount_naira : 25000;
         setPrice(String(p ?? ""));
+        if (kind === "trainer") setListingKind(data.kind === "nutritionist" ? "nutritionist" : "trainer");
       }
       setLoading(false);
     })();
@@ -62,7 +64,7 @@ export function ListingEditor({ kind, userId }: ListingEditorProps) {
       if (kind === "vendor") {
         Object.assign(patch, { city, address: city, phone, description: bio, delivery_fee_naira: amount });
       } else if (kind === "trainer") {
-        Object.assign(patch, { city, bio, price_per_session_naira: amount });
+        Object.assign(patch, { city, bio, price_per_session_naira: amount, kind: listingKind });
       } else if (kind === "gym") {
         Object.assign(patch, {
           city,
@@ -135,6 +137,15 @@ export function ListingEditor({ kind, userId }: ListingEditorProps) {
             <Input inputMode="numeric" value={price} onChange={(e) => setPrice(e.target.value)} />
           </div>
         </div>
+        {kind === "trainer" && (
+          <div className="space-y-1.5">
+            <Label>Listing type</Label>
+            <div className="flex gap-2">
+              <Button type="button" size="sm" variant={listingKind === "trainer" ? "default" : "outline"} onClick={() => setListingKind("trainer")}>Trainer</Button>
+              <Button type="button" size="sm" variant={listingKind === "nutritionist" ? "default" : "outline"} onClick={() => setListingKind("nutritionist")}>Nutritionist</Button>
+            </div>
+          </div>
+        )}
         <div className="space-y-2">
           <Label>{kind === "influencer" ? "Niche" : "Bio"}</Label>
           <Textarea value={bio} onChange={(e) => setBio(e.target.value)} rows={3} />

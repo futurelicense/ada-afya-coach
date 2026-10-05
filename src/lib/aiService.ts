@@ -36,6 +36,7 @@ export const aiService = {
     targetMuscles?: string[]
     equipment?:     string
     durationMinutes?: number
+    journeyBrief?:  string
   } = {}) {
     return callFunction<any>('generate-workout', options)
   },
@@ -48,6 +49,7 @@ export const aiService = {
     calorieTarget?:  number
     dietPreference?: string
     healthNotes?:    string
+    journeyBrief?:   string
   } = {}) {
     return callFunction<any>('generate-meal-plan', options)
   },

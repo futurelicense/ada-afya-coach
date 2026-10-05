@@ -10,6 +10,7 @@ import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, R
 import { useState, useEffect } from "react";
 import { Goal, userDataService, UserProfile } from "@/lib/userDataService";
 import { PageHero } from "@/components/PageHero";
+import { nutritionTargetsFor } from "@/lib/nutritionTargets";
 import heroImage from "@/assets/reference/analytics-hero.png";
 
 const EMPTY_TOTAL_STATS = { totalWorkouts: 0, totalCaloriesBurned: 0, totalActiveMinutes: 0, totalMealsLogged: 0, goalsAchieved: 0, currentStreak: 0 };
@@ -65,11 +66,12 @@ const Analytics = () => {
 
   const today = new Date().toISOString().split("T")[0];
   const todayMeals = allMeals.filter(meal => meal.date === today);
+  const macroTargets = nutritionTargetsFor(profile);
   const nutritionBreakdown = {
-    protein: { current: todayMeals.reduce((s, m) => s + m.protein, 0), target: 150, percentage: 0 },
-    carbs: { current: todayMeals.reduce((s, m) => s + m.carbs, 0), target: 250, percentage: 0 },
-    fats: { current: todayMeals.reduce((s, m) => s + m.fats, 0), target: 65, percentage: 0 },
-    calories: { current: todayMeals.reduce((s, m) => s + m.calories, 0), target: 2600, percentage: 0 },
+    protein: { current: todayMeals.reduce((s, m) => s + m.protein, 0), target: macroTargets.protein, percentage: 0 },
+    carbs: { current: todayMeals.reduce((s, m) => s + m.carbs, 0), target: macroTargets.carbs, percentage: 0 },
+    fats: { current: todayMeals.reduce((s, m) => s + m.fats, 0), target: macroTargets.fats, percentage: 0 },
+    calories: { current: todayMeals.reduce((s, m) => s + m.calories, 0), target: macroTargets.calories, percentage: 0 },
   };
   Object.keys(nutritionBreakdown).forEach(key => {
     const k = key as keyof typeof nutritionBreakdown;
@@ -102,7 +104,7 @@ const Analytics = () => {
           { label: "Active Minutes", value: monthlyStats.activeMinutes, note: `${monthlyStats.goalProgress}% goals`, icon: Clock, tone: "text-amber-500 bg-amber-50", wash: "from-amber-50/80" },
         ].map(stat => (
           <Card key={stat.label} className={`overflow-hidden border-border/60 bg-gradient-to-br ${stat.wash} to-white shadow-sm`}>
-            <CardContent className="flex min-h-[118px] items-center justify-between p-4 sm:p-5">
+            <CardContent className="flex min-h-[96px] items-center justify-between p-4 sm:min-h-[118px] sm:p-5">
               <div>
                 <div className="mb-2 flex items-center gap-2">
                   <span className={`grid h-9 w-9 place-items-center rounded-xl ${stat.tone}`}><stat.icon className="h-5 w-5" /></span>
@@ -134,7 +136,7 @@ const Analytics = () => {
                 <CardDescription>Daily workout frequency this week</CardDescription>
               </CardHeader>
               <CardContent>
-                <ResponsiveContainer width="100%" height={210}>
+                <ResponsiveContainer width="100%" height={160} className="sm:!h-[210px]">
                   <BarChart data={weeklyData}>
                     <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
                     <XAxis dataKey="day" className="text-xs" />
@@ -152,7 +154,7 @@ const Analytics = () => {
                 <CardDescription>Weekly calorie burn trend</CardDescription>
               </CardHeader>
               <CardContent>
-                <ResponsiveContainer width="100%" height={210}>
+                <ResponsiveContainer width="100%" height={160} className="sm:!h-[210px]">
                   <AreaChart data={weeklyData}>
                     <defs>
                       <linearGradient id="colorCalories" x1="0" y1="0" x2="0" y2="1">
@@ -178,7 +180,7 @@ const Analytics = () => {
                 <CardDescription>Daily hydration tracking (Liters)</CardDescription>
               </CardHeader>
               <CardContent>
-                <ResponsiveContainer width="100%" height={190}>
+                <ResponsiveContainer width="100%" height={150} className="sm:!h-[190px]">
                   <BarChart data={weeklyData}>
                     <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
                     <XAxis dataKey="day" className="text-xs" />

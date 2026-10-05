@@ -75,7 +75,7 @@ export function InquiryInbox({ listingId }: { listingId: string | null }) {
         ) : (
           <ul className="space-y-3">
             {rows.map((row) => {
-              const contact = [row.payload?.name, row.payload?.phone, row.payload?.email, row.payload?.message]
+              const contact = [row.payload?.name, row.payload?.phone, row.payload?.email, row.payload?.message, row.payload?.focus]
                 .filter(Boolean).join(" · ");
               const next = NEXT[row.status];
               return (

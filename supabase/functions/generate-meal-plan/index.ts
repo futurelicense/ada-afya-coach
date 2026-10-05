@@ -76,7 +76,7 @@ Deno.serve(async (req: Request) => {
     const { userId, profile, supabase } = await requireAuth(req)
     await checkAndIncrementUsage(supabase, userId, 'meal')
 
-    const { calorieTarget, dietPreference, healthNotes } = await req.json()
+    const { calorieTarget, dietPreference, healthNotes, journeyBrief } = await req.json()
 
     const plan = await llmStructured<any>({
       maxTokens: 2600,
@@ -93,7 +93,8 @@ Deno.serve(async (req: Request) => {
 - Diet restriction: ${dietPreference ?? profile.diet_preference ?? 'none'}
 - Fitness level: ${profile.fitness_level ?? 'intermediate'}
 - Weight: ${profile.weight ?? '?'}kg → Target: ${profile.target_weight ?? '?'}kg
-- Health notes: ${healthNotes ?? 'none'}`,
+- Health notes: ${healthNotes ?? 'none'}
+- Journey: ${journeyBrief ?? 'none'}`,
         },
       ],
     })

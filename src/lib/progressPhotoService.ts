@@ -7,6 +7,14 @@ export interface ProgressPhoto {
   date: string;
   note: string;
   angle: string | null;
+  checkinId?: string | null;
+}
+
+interface UploadOptions {
+  note?: string;
+  angle?: string;
+  journeyId?: string;
+  checkinId?: string;
 }
 
 async function currentUserId(): Promise<string> {
@@ -47,23 +55,29 @@ export const progressPhotoService = {
     );
   },
 
-  async upload(file: File, note = "Progress photo"): Promise<void> {
+  async upload(file: File, noteOrOptions: string | UploadOptions = "Progress photo"): Promise<void> {
+    const options: UploadOptions = typeof noteOrOptions === "string" ? { note: noteOrOptions } : noteOrOptions;
     const userId = await currentUserId();
     const ext = (file.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "");
     const safeExt = ["jpg", "jpeg", "png", "webp"].includes(ext) ? ext : "jpg";
-    const storagePath = `${userId}/${Date.now()}.${safeExt}`;
+    const storagePath = `${userId}/${Date.now()}-${options.angle ?? "photo"}.${safeExt}`;
 
     const { error: uploadError } = await supabase.storage
       .from("progress-photos")
       .upload(storagePath, file, { contentType: file.type, upsert: false });
     if (uploadError) throw uploadError;
 
-    const { error: insertError } = await supabase.from("progress_photos").insert({
+    const row: Record<string, unknown> = {
       user_id: userId,
       storage_path: storagePath,
-      notes: note,
+      notes: options.note ?? "Progress photo",
       taken_at: new Date().toISOString().split("T")[0],
-    });
+    };
+    if (options.angle) row.angle = options.angle;
+    if (options.journeyId) row.journey_id = options.journeyId;
+    if (options.checkinId) row.checkin_id = options.checkinId;
+
+    const { error: insertError } = await supabase.from("progress_photos").insert(row);
     if (insertError) {
       await supabase.storage.from("progress-photos").remove([storagePath]);
       throw insertError;

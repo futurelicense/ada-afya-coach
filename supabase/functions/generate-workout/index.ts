@@ -90,7 +90,7 @@ Deno.serve(async (req: Request) => {
     const { userId, profile, supabase } = await requireAuth(req)
     await checkAndIncrementUsage(supabase, userId, 'workout')
 
-    const { targetMuscles, equipment, durationMinutes } = await req.json()
+    const { targetMuscles, equipment, durationMinutes, journeyBrief } = await req.json()
 
     const w = await llmStructured<any>({
       maxTokens: 2800,
@@ -108,7 +108,8 @@ Deno.serve(async (req: Request) => {
 - Equipment available: ${equipment ?? 'bodyweight only'}
 - Requested duration: ${durationMinutes ?? 30} minutes
 - Age: ${profile.age ?? 'not provided'}
-- Weight: ${profile.weight ?? 'not provided'}kg`,
+- Weight: ${profile.weight ?? 'not provided'}kg
+- Journey: ${journeyBrief ?? 'none'}`,
         },
       ],
     })

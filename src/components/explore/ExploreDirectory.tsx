@@ -22,6 +22,10 @@ import {
 import { naira, startMarketplaceCheckout } from "@/lib/marketplaceService";
 import { useToast } from "@/hooks/use-toast";
 
+function matchQuery<T extends { name: string; location?: string }>(items: T[], q: string) {
+  return items.filter((i) => i.name.toLowerCase().includes(q) || (i.location ?? "").toLowerCase().includes(q));
+}
+
 export function ExploreDirectory({ searchQuery }: { searchQuery: string }) {
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -45,14 +49,12 @@ export function ExploreDirectory({ searchQuery }: { searchQuery: string }) {
   }, [toast]);
 
   const q = searchQuery.toLowerCase();
-  const match = <T extends { name: string; location?: string }>(items: T[]) =>
-    items.filter((i) => i.name.toLowerCase().includes(q) || (i.location ?? "").toLowerCase().includes(q));
 
-  const gyms = useMemo(() => match(dir?.gyms ?? []), [dir, q]);
-  const trainers = useMemo(() => match(dir?.trainers ?? []), [dir, q]);
-  const nutritionists = useMemo(() => match(dir?.nutritionists ?? []), [dir, q]);
-  const vendors = useMemo(() => match(dir?.vendors ?? []), [dir, q]);
-  const influencers = useMemo(() => match(dir?.influencers ?? []), [dir, q]);
+  const gyms = useMemo(() => matchQuery(dir?.gyms ?? [], q), [dir, q]);
+  const trainers = useMemo(() => matchQuery(dir?.trainers ?? [], q), [dir, q]);
+  const nutritionists = useMemo(() => matchQuery(dir?.nutritionists ?? [], q), [dir, q]);
+  const vendors = useMemo(() => matchQuery(dir?.vendors ?? [], q), [dir, q]);
+  const influencers = useMemo(() => matchQuery(dir?.influencers ?? [], q), [dir, q]);
 
   const show = (cat: CategoryType) => activeCategory === "all" || activeCategory === cat;
 
@@ -245,7 +247,7 @@ function Section({ title, count, icon, children }: { title: string; count: numbe
           View all <ArrowRight className="h-3.5 w-3.5" />
         </Button>
       </div>
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-2">{children}</div>
+      <div className="-mx-3 flex snap-x snap-mandatory gap-3 overflow-x-auto px-3 pb-2 [&>*]:min-w-[82%] [&>*]:snap-center md:mx-0 md:grid md:grid-cols-2 md:overflow-visible md:px-0 md:[&>*]:min-w-0">{children}</div>
     </section>
   );
 }

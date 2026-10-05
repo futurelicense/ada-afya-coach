@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ArrowRight, ArrowLeft, Loader2, Dumbbell, UtensilsCrossed, Target, Sparkles, CheckCircle2 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
 import wefitLogo from "@/assets/wefit-logo.png";
 
 const STEPS = [
@@ -39,8 +40,10 @@ const DIET_OPTIONS = [
 
 const Onboarding = () => {
   const navigate  = useNavigate();
+  const { toast } = useToast();
   const [step,    setStep]    = useState(1);
   const [saving,  setSaving]  = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     name: "", gender: "", age: "", location: "",
     weight: "", height: "",
@@ -54,6 +57,7 @@ const Onboarding = () => {
 
   const finish = async (dest: string) => {
     setSaving(true);
+    setSaveError(null);
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       setSaving(false);
@@ -77,7 +81,13 @@ const Onboarding = () => {
     }, { onConflict: "id" });
 
     setSaving(false);
-    if (error) { console.error(error); return; }
+    if (error) {
+      console.error(error);
+      const message = "We couldn't save your profile. Check your connection and try again.";
+      setSaveError(message);
+      toast({ title: "Couldn't finish setup", description: message, variant: "destructive" });
+      return;
+    }
     navigate(dest);
   };
 
@@ -306,6 +316,12 @@ const Onboarding = () => {
                   ))}
                 </div>
               </div>
+            )}
+
+            {saveError && (
+              <p className="mt-6 rounded-xl border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive" role="alert">
+                {saveError}
+              </p>
             )}
 
             {/* Navigation */}

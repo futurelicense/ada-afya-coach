@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Scan, Settings2 } from "lucide-react";
 import { FoodScanner } from './FoodScanner';
@@ -27,6 +27,13 @@ export const ScanFoodButton = ({
   const [showProfileSetup, setShowProfileSetup] = useState(false);
   const [scanResult, setScanResult] = useState<ScanResult | null>(null);
   const [selectedFood, setSelectedFood] = useState<FoodItem | null>(null);
+
+  useEffect(() => {
+    void foodScanService.hydrateHealthProfile();
+    const open = () => setShowScanner(true);
+    window.addEventListener("wefit:open-scanner", open);
+    return () => window.removeEventListener("wefit:open-scanner", open);
+  }, []);
 
   const handleFoodSelected = (food: FoodItem) => {
     setSelectedFood(food);

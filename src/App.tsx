@@ -10,11 +10,13 @@ import { ScrollToTop } from "./components/ScrollToTop";
 import { Layout } from "./components/Layout";
 import { FloatingAIChat } from "./components/FloatingAIChat";
 import { AuthProvider } from "./contexts/AuthContext";
+import { UserDataProvider } from "./contexts/UserDataContext";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { ProtectedRoute, GuestOnly } from "./components/ProtectedRoute";
 import { PaymentReturnHandler } from "./components/PaymentReturnHandler";
 import { trackPageView } from "./lib/analytics";
 import { AppStatusBanner } from "./components/AppStatusBanner";
+import { InstallPrompt } from "./components/InstallPrompt";
 
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
@@ -22,6 +24,8 @@ import NotFound from "./pages/NotFound";
 
 const Onboarding           = lazy(() => import("./pages/Onboarding"));
 const Dashboard            = lazy(() => import("./pages/Dashboard"));
+const Journey              = lazy(() => import("./pages/Journey"));
+const Groups               = lazy(() => import("./pages/Groups"));
 const Workouts             = lazy(() => import("./pages/Workouts"));
 const Nutrition            = lazy(() => import("./pages/Nutrition"));
 const Analytics            = lazy(() => import("./pages/Analytics"));
@@ -76,11 +80,13 @@ const App = () => (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
         <AuthProvider>
+          <UserDataProvider>
           <TooltipProvider>
             <Toaster />
             <Sonner />
             <BrowserRouter>
               <AppStatusBanner />
+              <InstallPrompt />
               <ScrollToTop />
               <PageViewTracker />
               <PaymentReturnHandler />
@@ -100,6 +106,8 @@ const App = () => (
                     <Route path="/security"                element={<Security />} />
                     <Route path="/creator/:id"            element={<CreatorProfile />} />
                     <Route path="/dashboard"               element={<AppShell><Dashboard /></AppShell>} />
+                    <Route path="/journey"                 element={<AppShell><Journey /></AppShell>} />
+                    <Route path="/groups"                  element={<AppShell><Groups /></AppShell>} />
                     <Route path="/vendor"                 element={<ProtectedRoute allowedRoles={["vendor"]}><Layout><VendorWorkspace /></Layout></ProtectedRoute>} />
                     <Route path="/vendor/:section"         element={<ProtectedRoute allowedRoles={["vendor"]}><Layout><VendorWorkspace /></Layout></ProtectedRoute>} />
                     <Route path="/trainer"                element={<ProtectedRoute allowedRoles={["trainer"]}><Layout><TrainerWorkspace /></Layout></ProtectedRoute>} />
@@ -127,6 +135,7 @@ const App = () => (
               <FloatingAIChat />
             </BrowserRouter>
           </TooltipProvider>
+          </UserDataProvider>
         </AuthProvider>
       </ThemeProvider>
     </QueryClientProvider>

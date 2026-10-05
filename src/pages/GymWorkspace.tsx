@@ -12,7 +12,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useBusinessStats } from "@/hooks/useBusinessStats";
 import { naira } from "@/lib/marketplaceService";
 import { supabase } from "@/lib/supabase";
-import { ROLE_THEME } from "@/lib/roleTheme";
+import { RolePageHeader, RoleStatGrid } from "@/components/RoleWorkspace";
 
 interface ExpiringMember { id: string; name: string; ends_at: string; }
 
@@ -35,10 +35,10 @@ function ExpiringSoonCard({ gymId }: { gymId: string | null }) {
   const members = useExpiringSoon(gymId);
   if (members.length === 0) return null;
   return (
-    <Card className={ROLE_THEME.gym_owner.border}>
+    <Card className="border-0 shadow-card">
       <CardHeader className="pb-2">
         <CardTitle className="text-base flex items-center gap-2">
-          <CalendarClock className={`h-4 w-4 ${ROLE_THEME.gym_owner.icon}`} /> Expiring this week
+          <CalendarClock className="h-4 w-4 text-primary" /> Expiring this week
         </CardTitle>
         <CardDescription>Reach out before these memberships lapse.</CardDescription>
       </CardHeader>
@@ -72,34 +72,19 @@ export default function GymWorkspace() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div>
-        <h1 className="text-4xl font-bold text-gradient mb-2">{head.title}</h1>
-        <p className="text-muted-foreground">{head.sub}</p>
-      </div>
+      <RolePageHeader title={head.title} subtitle={head.sub} />
 
       {section === "home" && (
         <>
-          <div className="grid gap-4 md:grid-cols-3">
-            {[
-              { label: "Active members", value: stats.loading ? "…" : String(stats.countA), icon: Users },
-              { label: "Revenue this month", value: stats.loading ? "…" : naira(stats.revenue), icon: DollarSign },
-              { label: "Rating", value: stats.rating, icon: Star },
-            ].map(({ label, value, icon: Icon }) => (
-              <Card key={label} className={ROLE_THEME.gym_owner.border}>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">{label}</CardTitle>
-                  <div className={`h-7 w-7 rounded-lg ${ROLE_THEME.gym_owner.bg} flex items-center justify-center`}>
-                    <Icon className={`h-4 w-4 ${ROLE_THEME.gym_owner.icon}`} />
-                  </div>
-                </CardHeader>
-                <CardContent><div className="text-2xl font-bold">{value}</div></CardContent>
-              </Card>
-            ))}
-          </div>
-          <Card className={ROLE_THEME.gym_owner.border}>
+          <RoleStatGrid items={[
+            { label: "Active members", value: stats.loading ? "…" : String(stats.countA), icon: Users },
+            { label: "Revenue this month", value: stats.loading ? "…" : naira(stats.revenue), icon: DollarSign },
+            { label: "Rating", value: stats.rating, icon: Star },
+          ]} />
+          <Card className="border-0 shadow-card">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium flex items-center gap-2">
-                <Dumbbell className={`h-4 w-4 ${ROLE_THEME.gym_owner.icon}`} /> Occupancy
+                <Dumbbell className="h-4 w-4 text-primary" /> Occupancy
               </CardTitle>
             </CardHeader>
             <CardContent>

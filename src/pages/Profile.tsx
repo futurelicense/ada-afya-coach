@@ -207,7 +207,7 @@ const Profile = () => {
                 <div className="rounded-xl bg-sky-50/60 p-3">
                   <div className="flex justify-between text-sm mb-2">
                     <span>Weight Goal Progress</span>
-                    <span className="font-medium">{weightGoal.current}kg / {weightGoal.target}kg</span>
+                    <span className="font-medium">{weightGoal.target > 0 ? `${weightGoal.current}kg / ${weightGoal.target}kg` : "Set a target weight in Edit profile"}</span>
                   </div>
                   <Progress className="h-2.5" value={weightGoal.target > 0 ? Math.min((weightGoal.current / weightGoal.target) * 100, 100) : 0} />
                 </div>

@@ -1,5 +1,6 @@
 // Supabase-backed gamification system for badges, streaks, and points
 import { supabase } from '@/lib/supabase';
+import { scoreFromWorkouts } from '@/lib/activityScore';
 
 export interface Badge {
   id: string;
@@ -86,12 +87,69 @@ function emptyData(): UserGamification {
   };
 }
 
+function badgeEarned(
+  id: string,
+  category: Badge['category'],
+  requirement: number,
+  score: { level: number; longestStreak: number },
+  workoutCount: number,
+): boolean {
+  if (id === 'first_workout' || id === 'workout_warrior' || id === 'fitness_master') {
+    return workoutCount >= requirement;
+  }
+  if (category === 'streak') return score.longestStreak >= requirement;
+  if (id === 'level_5' || id === 'level_10') return score.level >= requirement;
+  return false;
+}
+
 class GamificationService {
   async getData(): Promise<UserGamification> {
     const userId = await currentUserId();
     if (!userId) return emptyData();
-    const { data } = await supabase.from('gamification').select('*').eq('user_id', userId).maybeSingle();
-    return data ? rowToData(data) : emptyData();
+
+    const [{ data }, { data: sessions }] = await Promise.all([
+      supabase.from('gamification').select('*').eq('user_id', userId).maybeSingle(),
+      supabase.from('workout_sessions').select('date').eq('user_id', userId).eq('completed', true),
+    ]);
+
+    const dates = (sessions ?? []).map(row => row.date as string);
+    const score = scoreFromWorkouts(dates.length, dates);
+    const base = data ? rowToData(data) : emptyData();
+    const reconciled: UserGamification = {
+      ...base,
+      points: score.points,
+      level: score.level,
+      currentStreak: score.currentStreak,
+      longestStreak: score.longestStreak,
+      badges: base.badges.map(badge => {
+        const earned = badgeEarned(badge.id, badge.category, badge.requirement, score, dates.length);
+        return earned
+          ? { ...badge, earned: true, earnedDate: badge.earned ? badge.earnedDate : undefined }
+          : { ...badge, earned: false, earnedDate: undefined };
+      }),
+    };
+
+    const storedDiffers = !data
+      || data.points !== score.points
+      || data.level !== score.level
+      || data.current_streak !== score.currentStreak
+      || data.longest_streak !== score.longestStreak;
+    if (storedDiffers) {
+      const patch = {
+        user_id: userId,
+        points: score.points,
+        level: score.level,
+        current_streak: score.currentStreak,
+        longest_streak: score.longestStreak,
+        updated_at: new Date().toISOString(),
+      };
+      const { error } = data
+        ? await supabase.from('gamification').update(patch).eq('user_id', userId)
+        : await supabase.from('gamification').insert(patch);
+      if (error) console.error('Could not store activity score', error.message);
+    }
+
+    return reconciled;
   }
 
   private async save(userId: string, data: UserGamification): Promise<void> {

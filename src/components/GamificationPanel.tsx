@@ -22,21 +22,11 @@ export const GamificationPanel = () => {
   const { todayStats, weeklyStats } = useUserData();
 
   useEffect(() => {
-    (async () => {
-      // Update gamification data based on user activity
-      const totalWorkouts = weeklyStats.reduce((sum, s) => sum + s.workoutsCompleted, 0);
-
-      // Check badges
-      await gamificationService.checkWorkoutBadges(totalWorkouts);
-      await gamificationService.checkCalorieBadge(todayStats?.caloriesBurned || 0);
-
-      // Update streak if there's activity
-      if (totalWorkouts > 0) {
-        await gamificationService.updateStreak();
-      }
-
-      setGamification(await gamificationService.getData());
-    })();
+    let cancelled = false;
+    gamificationService.getData().then(data => {
+      if (!cancelled) setGamification(data);
+    });
+    return () => { cancelled = true; };
   }, [todayStats, weeklyStats]);
 
   const pointsToNextLevel = (gamification.level * 1000) - gamification.points;
@@ -56,11 +46,11 @@ export const GamificationPanel = () => {
       </CardHeader>
       <CardContent>
         {/* Level & Points Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div className="grid grid-cols-3 gap-2 md:gap-4 mb-6">
           <Card className="bg-gradient-to-br from-primary/10 to-primary/5">
             <CardContent className="p-4 text-center">
               <Star className="h-8 w-8 text-primary mx-auto mb-2" />
-              <p className="text-3xl font-bold text-primary">Level {gamification.level}</p>
+              <p className="text-xl md:text-3xl font-bold text-primary">Level {gamification.level}</p>
               <p className="text-sm text-muted-foreground mt-1">{pointsToNextLevel} XP to next level</p>
               <Progress value={levelProgress} className="mt-3" />
             </CardContent>
@@ -69,7 +59,7 @@ export const GamificationPanel = () => {
           <Card className="bg-gradient-to-br from-secondary/10 to-secondary/5">
             <CardContent className="p-4 text-center">
               <Flame className="h-8 w-8 text-secondary mx-auto mb-2" />
-              <p className="text-3xl font-bold text-secondary">{gamification.currentStreak}</p>
+              <p className="text-xl md:text-3xl font-bold text-secondary">{gamification.currentStreak}</p>
               <p className="text-sm text-muted-foreground mt-1">Day Streak</p>
               <p className="text-xs text-muted-foreground mt-2">Longest: {gamification.longestStreak} days</p>
             </CardContent>
@@ -78,7 +68,7 @@ export const GamificationPanel = () => {
           <Card className="bg-gradient-to-br from-accent/10 to-accent/5">
             <CardContent className="p-4 text-center">
               <TrendingUp className="h-8 w-8 text-accent mx-auto mb-2" />
-              <p className="text-3xl font-bold">{gamification.points.toLocaleString()}</p>
+              <p className="text-xl md:text-3xl font-bold">{gamification.points.toLocaleString()}</p>
               <p className="text-sm text-muted-foreground mt-1">Total XP</p>
               <p className="text-xs text-muted-foreground mt-2">{earnedBadges.length} badges earned</p>
             </CardContent>

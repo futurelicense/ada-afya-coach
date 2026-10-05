@@ -8,6 +8,8 @@ import { ListingEditor } from "@/components/ListingEditor";
 import { InquiryInbox } from "@/components/InquiryInbox";
 import { TrainerAvailabilityEditor } from "@/components/TrainerAvailabilityEditor";
 import { ClientRoster } from "@/components/ClientRoster";
+import { RoutineStudio } from "@/components/RoutineStudio";
+import { PackageStudio } from "@/components/PackageStudio";
 import { EmptyState } from "@/components/EmptyState";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserData } from "@/hooks/useUserData";
@@ -15,7 +17,7 @@ import { useBusinessStats } from "@/hooks/useBusinessStats";
 import { naira } from "@/lib/marketplaceService";
 import { supabase } from "@/lib/supabase";
 import { useToast } from "@/hooks/use-toast";
-import { ROLE_THEME } from "@/lib/roleTheme";
+import { RolePageHeader, RoleStatGrid } from "@/components/RoleWorkspace";
 
 const LiveStreamStudio = lazy(() =>
   import("@/components/LiveStreamStudio").then((module) => ({ default: module.LiveStreamStudio })),
@@ -54,10 +56,10 @@ function useNextSession(trainerId: string | null) {
 function NextSessionCard({ trainerId }: { trainerId: string | null }) {
   const session = useNextSession(trainerId);
   return (
-    <Card className={ROLE_THEME.trainer.border}>
+    <Card className="border-0 shadow-card">
       <CardHeader className="pb-2">
         <CardTitle className="text-base flex items-center gap-2">
-          <Clock3 className={`h-4 w-4 ${ROLE_THEME.trainer.icon}`} /> Next session
+          <Clock3 className="h-4 w-4 text-primary" /> Next session
         </CardTitle>
       </CardHeader>
       <CardContent className="flex flex-wrap items-center justify-between gap-3">
@@ -109,31 +111,16 @@ export default function TrainerWorkspace() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div>
-        <h1 className="text-4xl font-bold text-gradient mb-2">{head.title}</h1>
-        <p className="text-muted-foreground">{head.sub}</p>
-      </div>
+      <RolePageHeader title={head.title} subtitle={head.sub} />
 
       {section === "home" && (
         <>
-          <div className="grid gap-4 md:grid-cols-4">
-            {[
-              { label: "Paying clients", value: stats.loading ? "…" : String(stats.countA), icon: Users },
-              { label: "Sessions this week", value: stats.loading ? "…" : String(stats.countB), icon: Calendar },
-              { label: "Revenue (paid)", value: stats.loading ? "…" : naira(stats.revenue), icon: DollarSign },
-              { label: "Rating", value: stats.rating, icon: Star },
-            ].map(({ label, value, icon: Icon }) => (
-              <Card key={label} className={ROLE_THEME.trainer.border}>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">{label}</CardTitle>
-                  <div className={`h-7 w-7 rounded-lg ${ROLE_THEME.trainer.bg} flex items-center justify-center`}>
-                    <Icon className={`h-4 w-4 ${ROLE_THEME.trainer.icon}`} />
-                  </div>
-                </CardHeader>
-                <CardContent><div className="text-2xl font-bold">{value}</div></CardContent>
-              </Card>
-            ))}
-          </div>
+          <RoleStatGrid items={[
+            { label: "Paying clients", value: stats.loading ? "…" : String(stats.countA), icon: Users },
+            { label: "Sessions this week", value: stats.loading ? "…" : String(stats.countB), icon: Calendar },
+            { label: "Revenue (paid)", value: stats.loading ? "…" : naira(stats.revenue), icon: DollarSign },
+            { label: "Rating", value: stats.rating, icon: Star },
+          ]} />
           <NextSessionCard trainerId={stats.listingId} />
           <BookingList rows={stats.rows} loading={stats.loading} complete={complete} limit={5} />
         </>
@@ -141,6 +128,8 @@ export default function TrainerWorkspace() {
 
       {section === "bookings" && <BookingList rows={stats.rows} loading={stats.loading} complete={complete} />}
       {section === "clients" && <ClientRoster trainerId={stats.listingId} />}
+      {section === "routines" && user?.id && <RoutineStudio userId={user.id} />}
+      {section === "packages" && user?.id && <PackageStudio userId={user.id} />}
       {section === "availability" && <TrainerAvailabilityEditor trainerId={stats.listingId} />}
       {section === "live" && (
         <Suspense fallback={<div className="py-12 text-center text-sm text-muted-foreground" role="status">Loading broadcast studio…</div>}>

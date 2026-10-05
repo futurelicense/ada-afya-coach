@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
+import { isSeededCommunityPost, rankByCompletedWorkouts } from '@/lib/activityScore'
 
 export interface LeaderboardEntry {
   rank:           number
@@ -48,7 +49,7 @@ export function useCommunity() {
   const fetchLeaderboard = useCallback(async () => {
     const { data, error: queryError } = await supabase.from('leaderboard').select('*').limit(20)
     if (queryError) throw queryError
-    setLeaderboard(data ?? [])
+    setLeaderboard(rankByCompletedWorkouts(data ?? []))
   }, [])
 
   const fetchChallenges = useCallback(async () => {
@@ -90,7 +91,7 @@ export function useCommunity() {
       .order('created_at', { ascending: false })
       .limit(20)
     if (queryError) throw queryError
-    setActivityFeed(data ?? [])
+    setActivityFeed((data ?? []).filter(row => !isSeededCommunityPost(row.action_description ?? '')))
   }, [])
 
   const refresh = useCallback(async (showLoading = false) => {
@@ -117,6 +118,7 @@ export function useCommunity() {
         { event: 'INSERT', schema: 'public', table: 'activity_feed' },
         payload => {
           const item = payload.new as ActivityItem
+          if (isSeededCommunityPost(item.action_description ?? '')) return
           setActivityFeed(prev => [item, ...prev.filter(existing => existing.id !== item.id)].slice(0, 20))
           void fetchLeaderboard().catch(() => setError('Could not refresh the leaderboard.'))
         },

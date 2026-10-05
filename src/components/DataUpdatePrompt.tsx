@@ -17,13 +17,11 @@ export const DataUpdatePrompt = () => {
   const [targetWeight, setTargetWeight] = useState("");
 
   useEffect(() => {
-    const lastUpdate = localStorage.getItem("last_stats_update");
-    const now = Date.now();
-    if (!lastUpdate || now - parseInt(lastUpdate, 10) > 604800000) {
-      const timer = setTimeout(() => setOpen(true), 5000);
-      return () => clearTimeout(timer);
-    }
-  }, []);
+    if (!profile) return;
+    if (profile.weight > 0 && profile.height > 0) return;
+    if (sessionStorage.getItem("wefit_stats_prompt") === "1") return;
+    setOpen(true);
+  }, [profile]);
 
   useEffect(() => {
     if (profile) {
@@ -52,18 +50,18 @@ export const DataUpdatePrompt = () => {
       height: parseFloat(height),
       targetWeight: targetWeight ? parseFloat(targetWeight) : current.targetWeight,
     });
-    localStorage.setItem("last_stats_update", Date.now().toString());
+    sessionStorage.setItem("wefit_stats_prompt", "1");
     toast({ title: "Stats updated", description: "Saved to your profile." });
     setOpen(false);
   };
 
   const handleSkip = () => {
-    localStorage.setItem("last_stats_update", Date.now().toString());
+    sessionStorage.setItem("wefit_stats_prompt", "1");
     setOpen(false);
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={(next) => { if (!next) sessionStorage.setItem("wefit_stats_prompt", "1"); setOpen(next); }}>
       <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">

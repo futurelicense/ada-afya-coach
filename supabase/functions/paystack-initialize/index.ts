@@ -19,6 +19,8 @@ type MarketplaceKind = typeof MARKETPLACE_KINDS[number]
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders })
 
+  let pendingRecord: { client: any; kind: MarketplaceKind; id: string; userId: string } | null = null
+
   try {
     if (!PAYSTACK_SECRET) throw Object.assign(new Error('Payment service is not configured'), { status: 503 })
 
@@ -55,6 +57,7 @@ Deno.serve(async (req: Request) => {
       const prepared = await prepareMarketplace(supabase, userId, kind as MarketplaceKind, bodyIn)
       marketplaceKind = kind as MarketplaceKind
       marketplaceRecordId = prepared.recordId
+      pendingRecord = { client: supabase, kind: marketplaceKind, id: prepared.recordId, userId }
       paystackBody.amount = prepared.amountKobo
       paystackBody.callback_url = callbackUrl ?? `${site}/explore?payment=success`
       paystackBody.metadata = {
@@ -97,6 +100,7 @@ Deno.serve(async (req: Request) => {
     })
 
   } catch (err: any) {
+    if (pendingRecord) await removePendingRecord(pendingRecord)
     const status = err.status ?? (err.message?.includes('Unauthorized') ? 401 : 500)
     return new Response(JSON.stringify({ error: err.message }), {
       status,
@@ -104,6 +108,15 @@ Deno.serve(async (req: Request) => {
     })
   }
 })
+
+async function removePendingRecord({ client, kind, id, userId }: { client: any; kind: MarketplaceKind; id: string; userId: string }) {
+  const table = kind === 'meal_order' ? 'orders'
+    : kind === 'trainer_booking' ? 'bookings'
+    : kind === 'gym_membership' ? 'gym_memberships'
+    : 'influencer_partnerships'
+  const owner = kind === 'partnership' ? 'brand_user_id' : 'user_id'
+  await client.from(table).delete().eq('id', id).eq(owner, userId).eq('status', 'pending').is('paystack_reference', null)
+}
 
 async function prepareMarketplace(supabase: any, userId: string, kind: MarketplaceKind, body: any) {
   if (kind === 'meal_order') {

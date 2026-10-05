@@ -40,11 +40,7 @@ const SEED_USERS = [
       diet_preference: "everything", onboarding_done: true,
       join_date: daysAgo(60),
     },
-    gamification: {
-      points: 4200, level: 8, current_streak: 14,
-      longest_streak: 21, last_active: today(),
-      earned_badges: ["first_workout", "week_warrior", "calorie_crusher"],
-    },
+    gamification: emptyGamification(),
   },
   {
     email: "vendor@wefit.ng",
@@ -57,11 +53,7 @@ const SEED_USERS = [
       diet_preference: "vegetarian", onboarding_done: true,
       join_date: daysAgo(45),
     },
-    gamification: {
-      points: 850, level: 3, current_streak: 3,
-      longest_streak: 7, last_active: today(),
-      earned_badges: ["first_workout"],
-    },
+    gamification: emptyGamification(),
   },
   {
     email: "trainer@wefit.ng",
@@ -74,11 +66,7 @@ const SEED_USERS = [
       diet_preference: "everything", onboarding_done: true,
       join_date: daysAgo(90),
     },
-    gamification: {
-      points: 9800, level: 15, current_streak: 45,
-      longest_streak: 60, last_active: today(),
-      earned_badges: ["first_workout", "iron_will", "inferno_week", "early_bird", "hydration_hero"],
-    },
+    gamification: emptyGamification(),
   },
   {
     email: "gymowner@wefit.ng",
@@ -91,11 +79,7 @@ const SEED_USERS = [
       diet_preference: "everything", onboarding_done: true,
       join_date: daysAgo(120),
     },
-    gamification: {
-      points: 3100, level: 6, current_streak: 7,
-      longest_streak: 14, last_active: today(),
-      earned_badges: ["first_workout", "week_warrior"],
-    },
+    gamification: emptyGamification(),
   },
   {
     email: "influencer@wefit.ng",
@@ -108,11 +92,7 @@ const SEED_USERS = [
       diet_preference: "everything", onboarding_done: true,
       join_date: daysAgo(30),
     },
-    gamification: {
-      points: 6750, level: 11, current_streak: 21,
-      longest_streak: 30, last_active: today(),
-      earned_badges: ["first_workout", "week_warrior", "iron_will"],
-    },
+    gamification: emptyGamification(),
   },
   {
     email: "admin@wefit.ng",
@@ -125,17 +105,23 @@ const SEED_USERS = [
       diet_preference: "everything", onboarding_done: true,
       join_date: daysAgo(365),
     },
-    gamification: {
-      points: 99999, level: 99, current_streak: 99,
-      longest_streak: 99, last_active: today(),
-      earned_badges: ["first_workout", "iron_will", "inferno_week", "early_bird", "hydration_hero", "admin"],
-    },
+    gamification: emptyGamification(),
   },
 ];
 
 // ── helpers ──────────────────────────────────────────────────────────
 function today() {
   return new Date().toISOString().split("T")[0];
+}
+function emptyGamification() {
+  return {
+    points: 0,
+    level: 1,
+    current_streak: 0,
+    longest_streak: 0,
+    last_active: today(),
+    earned_badges: [],
+  };
 }
 function daysAgo(n) {
   const d = new Date();
@@ -301,33 +287,6 @@ async function seed() {
     if (error) console.error(`    ❌  influencer: ${error.message}`);
     else console.log("    ✓  Tunde Oladele");
   }
-
-  // ── Activity Feed ──────────────────────────────────────────────────
-  console.log("\n  Seeding activity feed…");
-  const trainerUid    = byEmail["trainer@wefit.ng"];
-  const userUid       = byEmail["user@wefit.ng"];
-  const influencerUid = byEmail["influencer@wefit.ng"];
-  const gymownerUid   = byEmail["gymowner@wefit.ng"];
-  const vendorUid     = byEmail["vendor@wefit.ng"];
-
-  const hoursAgo = h => new Date(Date.now() - h * 3600_000).toISOString();
-
-  const feed = [
-    { user_id: trainerUid,    username: "Emeka Nwosu",    action_type: "achievement", action_description: "earned the Iron Will badge 🏆",               created_at: hoursAgo(1)  },
-    { user_id: trainerUid,    username: "Emeka Nwosu",    action_type: "workout",     action_description: "completed HIIT Finisher — 440 kcal burned 💪", created_at: hoursAgo(2)  },
-    { user_id: userUid,       username: "Chidi Okonkwo",  action_type: "streak",      action_description: "hit a 14-day workout streak 🔥",               created_at: hoursAgo(3)  },
-    { user_id: influencerUid, username: "Tunde Oladele",  action_type: "workout",     action_description: "crushed Leg Day — 410 kcal burned 💪",         created_at: hoursAgo(5)  },
-    { user_id: gymownerUid,   username: "Bola Adebisi",   action_type: "challenge",   action_description: "joined the Burn 5,000 Calories challenge ⚡",  created_at: hoursAgo(8)  },
-    { user_id: userUid,       username: "Chidi Okonkwo",  action_type: "meal",        action_description: "logged Jollof Rice + Grilled Chicken 🍽️",      created_at: hoursAgo(10) },
-    { user_id: vendorUid,     username: "Kemi Adeyemi",   action_type: "joined",      action_description: "joined WeFit — welcome to the movement! 🎉",   created_at: hoursAgo(24) },
-    { user_id: trainerUid,    username: "Emeka Nwosu",    action_type: "rank",        action_description: "reached Rank #1 on the leaderboard 👑",        created_at: hoursAgo(25) },
-    { user_id: influencerUid, username: "Tunde Oladele",  action_type: "achievement", action_description: "hit a 21-day streak — unstoppable! 🔥",        created_at: hoursAgo(48) },
-    { user_id: gymownerUid,   username: "Bola Adebisi",   action_type: "workout",     action_description: "completed Gym Circuit — 350 kcal burned 💪",   created_at: hoursAgo(50) },
-  ].filter(e => e.user_id);
-
-  const { error: fe } = await supabase.from("activity_feed").insert(feed);
-  if (fe) console.error(`    ❌  activity_feed: ${fe.message}`);
-  else    console.log(`    ✓  ${feed.length} entries`);
 
   console.log("\n✅  Done!\n");
   console.log("  Seed accounts (password: OneFitness):");

@@ -17,6 +17,7 @@ import { cn } from "@/lib/utils";
 import { userDataService } from "@/lib/userDataService";
 import { useToast } from "@/hooks/use-toast";
 import { NumberTicker } from "@/components/NumberTicker";
+import { ActiveJourneyCard } from "@/components/ActiveJourneyCard";
 import workoutImage from "@/assets/workout-session.jpg";
 import dashboardHero from "@/assets/reference/dashboard-hero.png";
 
@@ -95,13 +96,12 @@ const Dashboard = () => {
           <div className="space-y-2 lg:max-w-[38%]">
             <div className="flex items-center gap-3 flex-wrap">
               <h1 className="text-3xl font-display font-black text-[#10233f] lg:text-[2rem]">
-                {greeting}! 👋
+                {greeting}
               </h1>
             </div>
             <p className="text-sm font-medium text-[#294056]">
-              {streak > 0 ? `${streak}-day streak — keep it going! 🔥` : "Ready to crush your fitness goals today?"}
+              {streak > 0 ? `${streak}-day streak. Your plan for today is below.` : "Your workouts, meals, and water for today."}
             </p>
-            <p className="hidden text-xs text-muted-foreground sm:block">A healthier you. A brighter tomorrow.</p>
             <div className="flex flex-wrap gap-2 pt-2">
               <Button size="sm" onClick={() => navigate("/workouts")} className="h-8 gap-1.5 rounded-lg bg-primary px-3 text-xs shadow-glow hover:bg-primary/90">
                 <Target className="h-4 w-4" /> Start Workout
@@ -114,6 +114,8 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
+
+      <ActiveJourneyCard />
 
       {/* Stats Grid */}
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
@@ -142,7 +144,7 @@ const Dashboard = () => {
       </div>
 
       {/* Progress + Water Intake */}
-      <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
+      <div className="-mx-3 flex snap-x snap-mandatory gap-3 overflow-x-auto px-3 pb-2 [&>*]:min-w-[80%] [&>*]:snap-center sm:[&>*]:min-w-[46%] lg:mx-0 lg:grid lg:grid-cols-3 lg:overflow-visible lg:px-0 lg:[&>*]:min-w-0">
         <Card className="glass shadow-card hover:shadow-premium transition-all duration-300 border-0">
           <CardContent className="flex flex-col items-center gap-2.5 p-4">
             <div className="flex items-center gap-2 self-stretch">

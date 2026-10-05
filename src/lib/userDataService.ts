@@ -1,5 +1,6 @@
 // Supabase-backed user data service
 import { supabase } from '@/lib/supabase';
+import { streakFromDates } from '@/lib/activityScore';
 
 export type UserRole = 'user' | 'vendor' | 'trainer' | 'gym_owner' | 'influencer' | 'admin';
 
@@ -190,11 +191,17 @@ function goalToRow(goal: Partial<Goal>) {
 
 class UserDataService {
   // ── Profile ──────────────────────────────────────────────
-  async getProfile(): Promise<UserProfile | null> {
+  async getProfileResult(): Promise<{ ok: true; profile: UserProfile | null } | { ok: false; error: string }> {
     const userId = await currentUserId();
-    if (!userId) return null;
-    const { data } = await supabase.from('profiles').select('*').eq('id', userId).maybeSingle();
-    return data ? profileFromRow(data) : null;
+    if (!userId) return { ok: true, profile: null };
+    const { data, error } = await supabase.from('profiles').select('*').eq('id', userId).maybeSingle();
+    if (error) return { ok: false, error: error.message };
+    return { ok: true, profile: data ? profileFromRow(data) : null };
+  }
+
+  async getProfile(): Promise<UserProfile | null> {
+    const result = await this.getProfileResult();
+    return result.ok ? result.profile : null;
   }
 
   async saveProfile(profile: UserProfile): Promise<void> {
@@ -243,7 +250,8 @@ class UserDataService {
   async addWorkout(workout: Omit<WorkoutSession, 'id'> & { id?: string }): Promise<void> {
     const userId = await currentUserId();
     if (!userId) return;
-    await supabase.from('workout_sessions').insert({ user_id: userId, ...workoutToRow(workout) });
+    const { error } = await supabase.from('workout_sessions').insert({ user_id: userId, ...workoutToRow(workout) });
+    if (error) throw error;
   }
 
   async updateWorkout(id: string, updates: Partial<WorkoutSession>): Promise<void> {
@@ -353,25 +361,7 @@ class UserDataService {
     const userId = await currentUserId();
     if (!userId) return 0;
     const { data } = await supabase.from('workout_sessions').select('date').eq('user_id', userId).eq('completed', true);
-    const uniqueDates = [...new Set((data ?? []).map(r => r.date as string))].sort().reverse();
-    if (uniqueDates.length === 0) return 0;
-
-    const todayStr = today();
-    const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
-    if (uniqueDates[0] !== todayStr && uniqueDates[0] !== yesterday) return 0;
-
-    let streak = 1;
-    for (let i = 0; i < uniqueDates.length - 1; i++) {
-      const current = new Date(uniqueDates[i]);
-      const next = new Date(uniqueDates[i + 1]);
-      const diff = (current.getTime() - next.getTime()) / 86400000;
-      if (diff === 1) {
-        streak++;
-      } else {
-        break;
-      }
-    }
-    return streak;
+    return streakFromDates((data ?? []).map(r => r.date as string)).current;
   }
 
   // ── Aggregate stats ──────────────────────────────────────

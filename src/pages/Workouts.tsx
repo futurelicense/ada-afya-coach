@@ -14,6 +14,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { lazy, Suspense, useState, useEffect, useRef, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
 import { userDataService, WorkoutSession } from "@/lib/userDataService";
+import { useToast } from "@/hooks/use-toast";
 
 const LiveStreamViewer = lazy(() =>
   import("@/components/LiveStreamViewer").then((module) => ({ default: module.LiveStreamViewer })),
@@ -21,6 +22,8 @@ const LiveStreamViewer = lazy(() =>
 
 const Workouts = () => {
   const { todayWorkouts, profile, refreshData } = useUserData();
+  const { toast } = useToast();
+  const [savedWorkouts, setSavedWorkouts] = useState<WorkoutSession[]>([]);
   const { session } = useAuth();
   const [userPlan, setUserPlan] = useState<'free'|'pro'|'elite'>('free');
   const [activeTab, setActiveTab] = useState("plans");
@@ -31,6 +34,10 @@ const Workouts = () => {
   useEffect(() => {
     if (profile?.plan) setUserPlan(profile.plan);
   }, [profile]);
+
+  useEffect(() => {
+    void userDataService.getWorkouts().then(setSavedWorkouts);
+  }, [todayWorkouts]);
 
   // Fetch real plan from Supabase subscriptions
   useEffect(() => {
@@ -50,40 +57,47 @@ const Workouts = () => {
     image: workoutImage,
   }));
 
-  const exercises = [
-    {
-      name: "Push-ups",
-      sets: "3 sets",
-      reps: "12 reps",
-      rest: "60s rest",
-      tip: "Keep your body in a straight line",
-      muscles: "Chest, Triceps, Shoulders",
-    },
-    {
-      name: "Bodyweight Squats",
-      sets: "4 sets",
-      reps: "15 reps",
-      rest: "45s rest",
-      tip: "Keep knees behind toes",
-      muscles: "Quadriceps, Glutes, Hamstrings",
-    },
-    {
-      name: "Plank Hold",
-      sets: "3 sets",
-      reps: "45s hold",
-      rest: "60s rest",
-      tip: "Engage your core throughout",
-      muscles: "Core, Shoulders",
-    },
-    {
-      name: "Mountain Climbers",
-      sets: "3 sets",
-      reps: "20 reps",
-      rest: "30s rest",
-      tip: "Maintain steady breathing",
-      muscles: "Full Body, Cardio",
-    },
+  const starterMoves = [
+    { name: "Push-ups", sets: 3, reps: 12, rest: "60s", tip: "Keep your body in a straight line", muscles: "Chest, Triceps, Shoulders" },
+    { name: "Bodyweight Squats", sets: 4, reps: 15, rest: "45s", tip: "Keep knees behind toes", muscles: "Quadriceps, Glutes, Hamstrings" },
+    { name: "Plank Hold", sets: 3, reps: 45, rest: "60s", tip: "Engage your core throughout", muscles: "Core, Shoulders" },
+    { name: "Mountain Climbers", sets: 3, reps: 20, rest: "30s", tip: "Maintain steady breathing", muscles: "Full Body, Cardio" },
   ];
+
+  const exercises = (() => {
+    const seen = new Set<string>();
+    const fromPlans = savedWorkouts.flatMap((workout) => workout.exercises).filter((exercise) => {
+      const key = exercise.name.trim().toLowerCase();
+      if (!key || seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    }).map((exercise) => ({
+      name: exercise.name,
+      sets: exercise.sets,
+      reps: exercise.reps,
+      rest: "60s",
+      tip: `From your saved plan · ${exercise.muscles || "full body"}`,
+      muscles: exercise.muscles || "Full body",
+    }));
+    const starters = starterMoves.filter((move) => !seen.has(move.name.toLowerCase()));
+    return [...fromPlans, ...starters];
+  })();
+
+  const addExerciseToday = async (exercise: { name: string; sets: number; reps: number; muscles: string }) => {
+    await userDataService.addWorkout({
+      date: new Date().toISOString().split("T")[0],
+      name: exercise.name,
+      duration: 20,
+      difficulty: profile?.fitnessLevel ?? "intermediate",
+      calories: 80,
+      caloriesBurned: 0,
+      completed: false,
+      exercises: [{ name: exercise.name, sets: exercise.sets, reps: exercise.reps, muscles: exercise.muscles, completed: false }],
+    });
+    await refreshData();
+    toast({ title: "Added to today", description: `${exercise.name} is on today's workout plan.` });
+    setActiveTab("plans");
+  };
 
   const startGuidedWorkout = (workout: WorkoutSession) => {
     setGuidedWorkout(workout);
@@ -133,8 +147,8 @@ const Workouts = () => {
         </TabsList>
 
         <TabsContent value="plans" className="mt-0 space-y-4 md:space-y-5">
-          <div className="grid items-stretch gap-4 lg:grid-cols-2">
-            <div className="overflow-hidden rounded-xl border border-border/50 bg-white shadow-card [&>div]:rounded-b-none [&>div]:border-0 [&>div]:shadow-none">
+          <div className="grid grid-cols-1 items-stretch gap-4 lg:grid-cols-2">
+            <div className="min-w-0 overflow-hidden rounded-xl border border-border/50 bg-white shadow-card [&>div]:rounded-b-none [&>div]:border-0 [&>div]:shadow-none">
               <AIWorkoutGenerator onGenerated={refreshData} />
               <div className="relative hidden h-[235px] overflow-hidden sm:block">
                 <img src={workoutImage} alt="" className="h-full w-full object-cover object-[50%_42%]" />
@@ -149,7 +163,7 @@ const Workouts = () => {
             </div>
             <div
               ref={guidedRef}
-              className="[&>div]:h-full [&>div]:rounded-xl [&>div]:border-border/50 [&>div]:shadow-card [&_[class*='CardHeader']]:px-5 [&_[class*='CardHeader']]:py-4 [&_[class*='CardContent']]:px-5 [&_[class*='CardContent']]:pb-4"
+              className="min-w-0 [&>div]:h-full [&>div]:rounded-xl [&>div]:border-border/50 [&>div]:shadow-card [&_[class*='CardHeader']]:px-5 [&_[class*='CardHeader']]:py-4 [&_[class*='CardContent']]:px-5 [&_[class*='CardContent']]:pb-4"
             >
               <VoiceGuidedWorkout workout={guidedWorkout} onComplete={finishGuidedWorkout} />
             </div>
@@ -273,15 +287,15 @@ const Workouts = () => {
                   <div className="grid grid-cols-3 gap-2">
                     <div className="text-center p-3 rounded-lg bg-muted/50 space-y-1">
                       <p className="text-xs text-muted-foreground font-medium">Sets</p>
-                      <p className="text-base font-bold">{exercise.sets.split(' ')[0]}</p>
+                      <p className="text-base font-bold">{exercise.sets}</p>
                     </div>
                     <div className="text-center p-3 rounded-lg bg-muted/50 space-y-1">
                       <p className="text-xs text-muted-foreground font-medium">Reps</p>
-                      <p className="text-base font-bold">{exercise.reps.split(' ')[0]}</p>
+                      <p className="text-base font-bold">{exercise.reps}</p>
                     </div>
                     <div className="text-center p-3 rounded-lg bg-muted/50 space-y-1">
                       <p className="text-xs text-muted-foreground font-medium">Rest</p>
-                      <p className="text-base font-bold">{exercise.rest.split(' ')[0]}</p>
+                      <p className="text-base font-bold">{exercise.rest}</p>
                     </div>
                   </div>
                   <div className="p-3 rounded-lg bg-muted/30 space-y-2">
@@ -291,6 +305,9 @@ const Workouts = () => {
                     </div>
                     <p className="text-sm leading-relaxed text-muted-foreground">{exercise.tip}</p>
                   </div>
+                  <Button size="sm" className="w-full" onClick={() => void addExerciseToday(exercise)}>
+                    Add to today
+                  </Button>
                 </CardContent>
               </Card>
             ))}

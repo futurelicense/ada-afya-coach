@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -8,6 +9,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Clock, Users, Flame } from "lucide-react";
+import { loadFoodCatalog, recipeForMeal, type RecipeView } from "@/lib/foodCatalog";
 
 interface RecipeModalProps {
   open: boolean;
@@ -22,86 +24,18 @@ interface RecipeModalProps {
   };
 }
 
-const recipes: Record<string, any> = {
-  "Moi Moi & Pap": {
-    prep: "30 mins",
-    servings: 2,
-    ingredients: [
-      "2 cups beans (peeled)",
-      "2 red bell peppers",
-      "1 onion",
-      "2 tbsp palm oil",
-      "2 eggs",
-      "Seasoning cubes",
-      "Salt to taste",
-      "Pap (Ogi) - 2 cups prepared",
-    ],
-    instructions: [
-      "Blend beans with peppers and onions until smooth",
-      "Add palm oil, seasoning, and salt",
-      "Pour into moi moi containers or leaves",
-      "Steam for 45 minutes until firm",
-      "Prepare pap by mixing with hot water",
-      "Serve moi moi with warm pap",
-    ],
-    tips: "You can add fish, crayfish, or corned beef for extra flavor",
-  },
-  "Jollof Rice & Grilled Chicken": {
-    prep: "1 hour",
-    servings: 4,
-    ingredients: [
-      "3 cups parboiled rice",
-      "4 chicken pieces",
-      "400g tomato paste",
-      "2 onions",
-      "3 scotch bonnet peppers",
-      "Curry, thyme, bay leaves",
-      "Knorr cubes",
-      "Vegetable oil",
-    ],
-    instructions: [
-      "Marinate chicken with spices and grill until golden",
-      "Blend tomatoes, peppers, and onions",
-      "Fry the mixture until oil separates",
-      "Add stock, seasoning, and bring to boil",
-      "Add rice, cover and cook on low heat",
-      "Serve with grilled chicken",
-    ],
-    tips: "The secret to perfect jollof is low heat and patience!",
-  },
-  "Egusi Soup & Fufu": {
-    prep: "45 mins",
-    servings: 4,
-    ingredients: [
-      "2 cups ground egusi (melon seeds)",
-      "Assorted meat and fish",
-      "2 cups spinach or bitter leaf",
-      "Palm oil",
-      "Crayfish",
-      "Seasoning",
-      "Fufu (cassava/yam)",
-    ],
-    instructions: [
-      "Cook meat with seasoning until tender",
-      "Add palm oil and let it heat",
-      "Mix egusi with water and pour into pot",
-      "Add crayfish and stir occasionally",
-      "Add washed vegetables last",
-      "Prepare fufu by pounding or using instant mix",
-      "Serve hot together",
-    ],
-    tips: "Don't over-stir the egusi to maintain its grainy texture",
-  },
-};
-
 export const RecipeModal = ({ open, onOpenChange, meal }: RecipeModalProps) => {
-  const recipe = recipes[meal.name] || {
-    prep: "30 mins",
-    servings: 2,
-    ingredients: ["Recipe details coming soon..."],
-    instructions: ["Full recipe will be available soon!"],
-    tips: "Check back later for detailed instructions",
-  };
+  const [recipe, setRecipe] = useState<RecipeView>(() => recipeForMeal(meal, []));
+
+  useEffect(() => {
+    if (!open) return;
+    let cancelled = false;
+    setRecipe(recipeForMeal(meal, []));
+    void loadFoodCatalog().then((foods) => {
+      if (!cancelled) setRecipe(recipeForMeal(meal, foods));
+    });
+    return () => { cancelled = true; };
+  }, [open, meal]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -151,7 +85,7 @@ export const RecipeModal = ({ open, onOpenChange, meal }: RecipeModalProps) => {
         <div>
           <h3 className="font-bold text-lg mb-3">Ingredients</h3>
           <ul className="space-y-2">
-            {recipe.ingredients.map((ingredient: string, idx: number) => (
+            {recipe.ingredients.map((ingredient, idx) => (
               <li key={idx} className="flex items-start gap-2">
                 <span className="text-primary mt-1">•</span>
                 <span>{ingredient}</span>
@@ -166,7 +100,7 @@ export const RecipeModal = ({ open, onOpenChange, meal }: RecipeModalProps) => {
         <div>
           <h3 className="font-bold text-lg mb-3">Instructions</h3>
           <ol className="space-y-3">
-            {recipe.instructions.map((step: string, idx: number) => (
+            {recipe.instructions.map((step, idx) => (
               <li key={idx} className="flex gap-3">
                 <span className="font-bold text-primary min-w-6">{idx + 1}.</span>
                 <span>{step}</span>

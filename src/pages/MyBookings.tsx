@@ -9,6 +9,7 @@ import { naira } from "@/lib/marketplaceService";
 import { supabase } from "@/lib/supabase";
 import { useToast } from "@/hooks/use-toast";
 import { EmptyState } from "@/components/EmptyState";
+import { RolePageHeader } from "@/components/RoleWorkspace";
 
 const STATUS_TONE: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
   pending: "outline", confirmed: "secondary", preparing: "secondary", ready: "secondary",
@@ -41,10 +42,7 @@ export default function MyBookings() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div>
-        <h1 className="text-4xl font-bold text-gradient mb-2">My Bookings</h1>
-        <p className="text-muted-foreground">Everything you've ordered, booked, joined or sponsored on WeFit.</p>
-      </div>
+      <RolePageHeader title="My Bookings" subtitle="Orders, sessions, memberships, and partnerships on your account." />
 
       <Tabs defaultValue="orders" className="space-y-4">
         <TabsList className="flex-wrap h-auto">

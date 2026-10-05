@@ -7,13 +7,14 @@ import { Package, Users, DollarSign, Star, Loader2, AlertTriangle } from "lucide
 import { ListingEditor } from "@/components/ListingEditor";
 import { InquiryInbox } from "@/components/InquiryInbox";
 import { MenuManager } from "@/components/MenuManager";
+import { MealPlanStudio } from "@/components/MealPlanStudio";
 import { EmptyState } from "@/components/EmptyState";
 import { useAuth } from "@/contexts/AuthContext";
 import { useBusinessStats } from "@/hooks/useBusinessStats";
 import { naira } from "@/lib/marketplaceService";
 import { supabase } from "@/lib/supabase";
 import { useToast } from "@/hooks/use-toast";
-import { ROLE_THEME } from "@/lib/roleTheme";
+import { RolePageHeader, RoleStatGrid } from "@/components/RoleWorkspace";
 
 interface LowStockItem { id: string; name: string; quantity: number; }
 
@@ -90,37 +91,23 @@ export default function VendorWorkspace() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div>
-        <h1 className="text-4xl font-bold text-gradient mb-2">{head.title}</h1>
-        <p className="text-muted-foreground">{head.sub}</p>
-      </div>
+      <RolePageHeader title={head.title} subtitle={head.sub} />
 
       {section === "home" && (
         <>
-          <div className="grid gap-4 md:grid-cols-4">
-            {[
-              { label: "Open orders", value: stats.loading ? "…" : String(stats.countA), icon: Package },
-              { label: "Revenue (paid)", value: stats.loading ? "…" : naira(stats.revenue), icon: DollarSign },
-              { label: "Paying customers", value: stats.loading ? "…" : String(stats.countB), icon: Users },
-              { label: "Rating", value: stats.rating, icon: Star },
-            ].map(({ label, value, icon: Icon }) => (
-              <Card key={label} className={ROLE_THEME.vendor.border}>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">{label}</CardTitle>
-                  <div className={`h-7 w-7 rounded-lg ${ROLE_THEME.vendor.bg} flex items-center justify-center`}>
-                    <Icon className={`h-4 w-4 ${ROLE_THEME.vendor.icon}`} />
-                  </div>
-                </CardHeader>
-                <CardContent><div className="text-2xl font-bold">{value}</div></CardContent>
-              </Card>
-            ))}
-          </div>
+          <RoleStatGrid items={[
+            { label: "Open orders", value: stats.loading ? "…" : String(stats.countA), icon: Package },
+            { label: "Revenue (paid)", value: stats.loading ? "…" : naira(stats.revenue), icon: DollarSign },
+            { label: "Paying customers", value: stats.loading ? "…" : String(stats.countB), icon: Users },
+            { label: "Rating", value: stats.rating, icon: Star },
+          ]} />
           <LowStockCard vendorId={stats.listingId} />
           <OrderList rows={stats.rows} loading={stats.loading} advance={advance} limit={5} />
         </>
       )}
 
       {section === "menu" && <MenuManager vendorId={stats.listingId} />}
+      {section === "plans" && user?.id && <MealPlanStudio userId={user.id} />}
 
       {section === "orders" && <OrderList rows={stats.rows} loading={stats.loading} advance={advance} />}
 

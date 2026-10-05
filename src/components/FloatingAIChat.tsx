@@ -26,6 +26,12 @@ const quickReplies = [
 
 export function FloatingAIChat() {
   const [isOpen,          setIsOpen]          = useState(false)
+
+  useEffect(() => {
+    const open = () => setIsOpen(true)
+    window.addEventListener('wefit:open-ada', open)
+    return () => window.removeEventListener('wefit:open-ada', open)
+  }, [])
   const [isMinimized,     setIsMinimized]     = useState(false)
   const [messages,        setMessages]        = useState<Message[]>([{
     id:        '1',
@@ -149,7 +155,7 @@ export function FloatingAIChat() {
             'fixed z-50 w-14 h-14 rounded-full shadow-premium p-0',
             'bg-gradient-to-br from-primary to-secondary',
             'hover:scale-110 transition-all duration-300 animate-scale-in',
-            'bottom-20 md:bottom-6 right-6'
+            'hidden md:flex bottom-6 right-6'
           )}
           aria-label="Open AI Chat"
         >

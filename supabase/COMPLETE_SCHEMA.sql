@@ -39,6 +39,7 @@ create table public.profiles (
   plan             text check (plan in ('free', 'pro', 'elite')) default 'free',
   role             text check (role in ('user', 'vendor', 'trainer', 'gym_owner', 'influencer', 'admin')) default 'user',
   diet_preference  text,
+  health_profile   jsonb,
   join_date        date default current_date,
   onboarding_done  boolean default false,
   created_at       timestamptz default now(),
@@ -844,30 +845,51 @@ CREATE POLICY "activity_feed_user_insert" ON public.activity_feed
   FOR INSERT WITH CHECK (auth.uid() = user_id);
 
 
--- ── Leaderboard view (no RLS bypass needed — view runs as postgres) ─
--- (Final corrected version — gamification.current_streak aliased as streak)
+-- ── Leaderboard view ─
+-- Ranked from completed workouts. Seeded gamification points are not used.
 
 CREATE OR REPLACE VIEW public.leaderboard AS
-SELECT
-  ROW_NUMBER() OVER (ORDER BY g.points DESC) AS rank,
-  p.name,
-  g.points,
-  g.level,
-  g.current_streak   AS streak,
-  g.longest_streak,
-  COALESCE(ws.workout_count, 0)  AS total_workouts,
-  COALESCE(ws.total_calories, 0) AS total_calories
-FROM public.profiles p
-JOIN public.gamification g ON g.user_id = p.id
-LEFT JOIN (
+WITH completed AS (
+  SELECT user_id, date::date AS workout_date, COALESCE(calories_burned, 0) AS calories
+  FROM public.workout_sessions
+  WHERE completed = true
+),
+counts AS (
+  SELECT user_id, COUNT(*)::int AS workout_count, COALESCE(SUM(calories), 0)::int AS total_calories
+  FROM completed GROUP BY user_id
+),
+days AS (
+  SELECT DISTINCT user_id, workout_date FROM completed
+),
+islands AS (
+  SELECT user_id, workout_date,
+         workout_date - (ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY workout_date))::int AS grp
+  FROM days
+),
+runs AS (
+  SELECT user_id, COUNT(*)::int AS len, MAX(workout_date) AS end_date
+  FROM islands GROUP BY user_id, grp
+),
+streaks AS (
   SELECT user_id,
-         COUNT(*)                          AS workout_count,
-         COALESCE(SUM(calories_burned), 0) AS total_calories
-    FROM public.workout_sessions
-   WHERE completed = true
-   GROUP BY user_id
-) ws ON ws.user_id = p.id
-ORDER BY g.points DESC
+         MAX(len) AS longest_streak,
+         COALESCE(MAX(len) FILTER (WHERE end_date IN (CURRENT_DATE, CURRENT_DATE - 1)), 0) AS current_streak
+  FROM runs GROUP BY user_id
+)
+SELECT
+  ROW_NUMBER() OVER (ORDER BY c.workout_count DESC, c.total_calories DESC) AS rank,
+  p.name,
+  (c.workout_count * 100) AS points,
+  ((c.workout_count * 100) / 1000 + 1) AS level,
+  COALESCE(s.current_streak, 0) AS streak,
+  COALESCE(s.longest_streak, 0) AS longest_streak,
+  c.workout_count AS total_workouts,
+  c.total_calories
+FROM counts c
+JOIN public.profiles p ON p.id = c.user_id
+LEFT JOIN streaks s ON s.user_id = c.user_id
+WHERE c.workout_count > 0
+ORDER BY c.workout_count DESC, c.total_calories DESC
 LIMIT 50;
 
 GRANT SELECT ON public.leaderboard TO authenticated;
@@ -904,6 +926,26 @@ VALUES
 
 ON CONFLICT DO NOTHING;
 
+
+-- Food scans stay with the account so a second device sees the same history.
+create table if not exists public.food_scans (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  result jsonb not null,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists food_scans_user_created_idx
+  on public.food_scans (user_id, created_at desc);
+
+alter table public.food_scans enable row level security;
+
+create policy "food_scans_own_read" on public.food_scans
+  for select using (auth.uid() = user_id);
+create policy "food_scans_own_insert" on public.food_scans
+  for insert with check (auth.uid() = user_id);
+create policy "food_scans_own_delete" on public.food_scans
+  for delete using (auth.uid() = user_id);
 
 -- ═══════════════════════════════════════════════════════════════════
 -- Phase 7: Push Notifications

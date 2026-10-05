@@ -15,6 +15,18 @@ function RouteSpinner() {
   );
 }
 
+function ProfileLoadError({ onRetry }: { onRetry: () => void }) {
+  return (
+    <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4 text-center p-6">
+      <p className="font-semibold">We couldn't load your profile.</p>
+      <p className="text-sm text-muted-foreground max-w-sm">Check your connection and try again. Your data is safe.</p>
+      <button type="button" onClick={onRetry} className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">
+        Try again
+      </button>
+    </div>
+  );
+}
+
 interface ProtectedRouteProps {
   children: ReactNode;
   allowedRoles?: UserRole[];
@@ -22,13 +34,16 @@ interface ProtectedRouteProps {
 
 export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) {
   const { user, loading } = useAuth();
-  const { profile, loading: profileLoading } = useUserData();
+  const { profile, loading: profileLoading, profileError, refreshData } = useUserData();
   const location = useLocation();
 
-  if (loading) return <RouteSpinner />;
+  if (loading || (user && profileLoading)) return <RouteSpinner />;
   if (!user) return <Navigate to="/auth" replace state={{ from: location.pathname }} />;
 
-  if (profile && !profile.onboardingDone && location.pathname !== "/onboarding" && location.pathname !== "/role-selection") {
+  if (profileError && !profile) return <ProfileLoadError onRetry={() => void refreshData()} />;
+
+  const needsSetup = !profile || !profile.onboardingDone;
+  if (needsSetup && location.pathname !== "/onboarding") {
     return <Navigate to="/onboarding" replace />;
   }
 
@@ -51,15 +66,16 @@ export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) 
 
 export function GuestOnly({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth();
-  const { profile, loading: profileLoading } = useUserData();
+  const { profile, loading: profileLoading, profileError, refreshData } = useUserData();
 
   if (loading) return <RouteSpinner />;
   if (user) {
-    if (profileLoading && !profile) return <RouteSpinner />;
-    if (profile && !profile.onboardingDone) {
+    if (profileLoading) return <RouteSpinner />;
+    if (profileError && !profile) return <ProfileLoadError onRetry={() => void refreshData()} />;
+    if (!profile || !profile.onboardingDone) {
       return <Navigate to="/onboarding" replace />;
     }
-    return <Navigate to={dashboardPathForRole(profile?.role)} replace />;
+    return <Navigate to={dashboardPathForRole(profile.role)} replace />;
   }
   return <>{children}</>;
 }

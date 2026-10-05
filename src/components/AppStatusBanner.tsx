@@ -4,6 +4,7 @@ import { useRegisterSW } from "virtual:pwa-register/react";
 import { Button } from "@/components/ui/button";
 import { useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import { supabaseConfigured } from "@/lib/supabase";
 
 const PUBLIC_ROUTES = new Set([
   "/", "/auth", "/reset-password", "/about", "/blog", "/careers",
@@ -53,6 +54,16 @@ export function AppStatusBanner() {
   };
 
   const bannerClass = cn("app-status-banner", !usesAppShell && "app-status-banner--flush");
+
+  if (!supabaseConfigured) {
+    return (
+      <div className={`${bannerClass} bg-destructive text-destructive-foreground`} role="alert">
+        <span className="flex-1 text-sm font-medium">
+          WeFit isn’t connected to its server. Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY before beta testers sign in.
+        </span>
+      </div>
+    );
+  }
 
   if (!isOnline) {
     return (

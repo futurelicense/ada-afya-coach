@@ -1,7 +1,7 @@
 "use client";
 
 import {
-  Dumbbell, Utensils, User, Users, Activity, BarChart3, Compass,
+  Dumbbell, Utensils, User, Users, Activity, BarChart3, Compass, Target,
   Store, Building2, TrendingUp, LogOut, ChevronRight, Sparkles, Shield,
   Package, Inbox, CalendarDays, Clock, Radio, Share2,
 } from "lucide-react";
@@ -23,16 +23,19 @@ type NavItem = { title: string; url: string; icon: typeof Activity; end?: boolea
 
 const userNavItems: NavItem[] = [
   { title: "Dashboard",  url: "/dashboard",  icon: Activity, end: true },
+  { title: "Journey",    url: "/journey",    icon: Target },
   { title: "Workouts",   url: "/workouts",   icon: Dumbbell },
   { title: "Nutrition",  url: "/nutrition",  icon: Utensils },
   { title: "Analytics",  url: "/analytics",  icon: BarChart3 },
   { title: "Explore",    url: "/explore",    icon: Compass },
   { title: "Community",  url: "/community",  icon: Users },
+  { title: "Groups",     url: "/groups",     icon: Users },
   { title: "Profile",    url: "/profile",    icon: User },
 ];
 const vendorNavItems: NavItem[] = [
   { title: "Dashboard", url: "/vendor",          icon: Store, end: true },
   { title: "Menu",      url: "/vendor/menu",     icon: Utensils },
+  { title: "Meal plans", url: "/vendor/plans",   icon: Utensils },
   { title: "Orders",    url: "/vendor/orders",   icon: Package },
   { title: "Listing",   url: "/vendor/listing",  icon: Compass },
   { title: "Requests",  url: "/vendor/requests", icon: Inbox },
@@ -44,6 +47,8 @@ const trainerNavItems: NavItem[] = [
   { title: "Dashboard",    url: "/trainer",             icon: Dumbbell, end: true },
   { title: "Bookings",     url: "/trainer/bookings",    icon: CalendarDays },
   { title: "Clients",      url: "/trainer/clients",     icon: Users },
+  { title: "Routines",     url: "/trainer/routines",    icon: Dumbbell },
+  { title: "Packages",    url: "/trainer/packages",   icon: CalendarDays },
   { title: "Availability", url: "/trainer/availability", icon: Clock },
   { title: "Go Live",      url: "/trainer/live",        icon: Radio },
   { title: "Listing",      url: "/trainer/listing",     icon: Compass },
@@ -159,7 +164,7 @@ export function AppSidebar() {
         </SidebarGroup>
 
         {/* Upgrade nudge */}
-        {!collapsed && (
+        {!collapsed && roleKey === "user" && (profile?.plan ?? "free") === "free" && (
           <div className="mx-3 mt-auto mb-2">
             <div className="rounded-2xl bg-gradient-to-br from-emerald-50 to-teal-50 border border-primary/15 p-3.5 space-y-2.5">
               <div className="flex items-center gap-2">
@@ -177,16 +182,6 @@ export function AppSidebar() {
                 Upgrade — ₦2,500/mo
               </Button>
             </div>
-          </div>
-        )}
-        {!collapsed && roleKey === "user" && (
-          <div className="mx-3 mb-3 mt-2 overflow-hidden rounded-2xl bg-[linear-gradient(145deg,#e4faf1,#f3fff9)] p-4">
-            <p className="font-display text-base font-extrabold leading-tight text-primary">
-              A Healthier You,<br />A Brighter Nigeria 🇳🇬
-            </p>
-            <p className="mt-2 text-[11px] leading-relaxed text-muted-foreground">
-              Wellness for a stronger tomorrow.
-            </p>
           </div>
         )}
       </SidebarContent>

@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Apple, ArrowRight, BarChart3, BookOpen, CalendarDays, ChefHat, Droplet,
-  Dumbbell, Flame, Scan, Sparkles, Target, Utensils, Wheat,
+  Dumbbell, Flame, Scan, Sparkles, Target, Wheat,
 } from "lucide-react";
 import nigerianMeal from "@/assets/nigerian-meal.jpg";
 import nutritionHero from "@/assets/reference/nutrition-hero.png";
@@ -13,17 +13,25 @@ import { RecipeModal } from "@/components/RecipeModal";
 import { MealDeliverySystem } from "@/components/MealDeliverySystem";
 import { SwipeableMealCarousel } from "@/components/SwipeableMealCarousel";
 import { ScanFoodButton } from "@/components/ScanFoodButton";
+import { Input } from "@/components/ui/input";
 import { useUserData } from "@/hooks/useUserData";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
+import { loadFoodCatalog } from "@/lib/foodCatalog";
+import { nutritionTargetsFor } from "@/lib/nutritionTargets";
+import type { FoodItem } from "@/lib/foodScanService";
 
 const Nutrition = () => {
-  const { todayMeals, refreshData } = useUserData();
+  const { todayMeals, refreshData, profile } = useUserData();
   const [selectedMeal, setSelectedMeal] = useState<any>(null);
   const [isRecipeModalOpen, setIsRecipeModalOpen] = useState(false);
+  const [tab, setTab] = useState("meals");
+  const [foods, setFoods] = useState<FoodItem[]>([]);
+  const [foodQuery, setFoodQuery] = useState("");
   const { toast } = useToast();
   const navigate = useNavigate();
+  const targets = useMemo(() => nutritionTargetsFor(profile), [profile]);
 
   const openRecipe = (meal: any) => {
     setSelectedMeal(meal);
@@ -42,7 +50,6 @@ const Nutrition = () => {
   const totalProtein = eatenMeals.reduce((sum, m) => sum + m.protein, 0);
   const totalCarbs = eatenMeals.reduce((sum, m) => sum + m.carbs, 0);
   const totalFats = eatenMeals.reduce((sum, m) => sum + m.fats, 0);
-  const targets = { calories: 2500, protein: 150, carbs: 235, fats: 60 };
   const insightItems = [
     { label: "Calories", value: totalCalories, target: targets.calories, color: "#16a36a" },
     { label: "Protein", value: totalProtein, target: targets.protein, color: "#3b82f6" },
@@ -63,50 +70,27 @@ const Nutrition = () => {
     description: `Delicious ${meal.mealType} with balanced macronutrients`,
   }));
 
-  const nigerianFoods = [
-    {
-      name: "Beans Porridge",
-      calories: 320,
-      protein: "16g",
-      benefits: "High in fiber and plant protein",
-      category: "Main Dish",
-    },
-    {
-      name: "Plantain (Boiled)",
-      calories: 180,
-      protein: "2g",
-      benefits: "Rich in potassium and vitamins",
-      category: "Side Dish",
-    },
-    {
-      name: "Egusi Soup",
-      calories: 380,
-      protein: "22g",
-      benefits: "Packed with healthy fats and proteins",
-      category: "Main Dish",
-    },
-    {
-      name: "Suya Salad",
-      calories: 280,
-      protein: "32g",
-      benefits: "Lean protein with fresh vegetables",
-      category: "Salad",
-    },
-    {
-      name: "Zobo Drink",
-      calories: 45,
-      protein: "0g",
-      benefits: "Antioxidant-rich hibiscus drink",
-      category: "Beverage",
-    },
-    {
-      name: "Garden Egg Sauce",
-      calories: 120,
-      protein: "4g",
-      benefits: "Low-calorie, nutrient-dense",
-      category: "Sauce",
-    },
-  ];
+  useEffect(() => {
+    void loadFoodCatalog().then(setFoods);
+  }, []);
+
+  const visibleFoods = foods.filter((food) => {
+    const query = foodQuery.trim().toLowerCase();
+    if (!query) return true;
+    return food.name.toLowerCase().includes(query)
+      || (food.localName?.toLowerCase().includes(query) ?? false);
+  });
+
+  const openFood = (food: FoodItem) => {
+    openRecipe({
+      name: food.name,
+      calories: food.calories,
+      protein: food.protein,
+      carbs: food.carbs,
+      fats: food.fats,
+      mealType: food.category,
+    });
+  };
 
   return (
     <div className="mx-auto max-w-[1440px] space-y-4 pb-10 animate-fade-in">
@@ -119,7 +103,11 @@ const Nutrition = () => {
         </div>
         <div className="flex gap-2">
           <ScanFoodButton className="shadow-glow" onMealLogged={refreshData} />
-          <Button variant="outline" className="gap-2 bg-white">
+          <Button
+            variant="outline"
+            className="gap-2 bg-white"
+            onClick={() => document.getElementById("ai-meal-generator")?.scrollIntoView({ behavior: "smooth" })}
+          >
             <Sparkles className="h-4 w-4" /> AI Optimized
           </Button>
         </div>
@@ -150,7 +138,7 @@ const Nutrition = () => {
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="text-base">Your Nutrition Goals</CardTitle>
-              <Button variant="ghost" size="sm" className="h-7 text-xs text-primary">Edit</Button>
+              <Button variant="ghost" size="sm" className="h-7 text-xs text-primary" onClick={() => navigate("/profile")}>Edit</Button>
             </div>
           </CardHeader>
           <CardContent>
@@ -174,7 +162,7 @@ const Nutrition = () => {
         </Card>
       </div>
 
-      <Tabs defaultValue="meals" className="w-full">
+      <Tabs value={tab} onValueChange={setTab} className="w-full">
         <div className="flex flex-col gap-3 rounded-2xl border bg-white p-2 shadow-card sm:flex-row sm:items-center sm:justify-between">
           <TabsList className="grid h-10 w-full grid-cols-3 bg-muted/50 sm:max-w-lg">
             <TabsTrigger value="meals">Today</TabsTrigger>
@@ -230,8 +218,8 @@ const Nutrition = () => {
               <CardHeader className="pb-2"><CardTitle className="text-base">Quick Tools</CardTitle></CardHeader>
               <CardContent className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-2 xl:grid-cols-4">
                 {[
-                  { icon: Scan, label: "Scan Food", action: () => undefined },
-                  { icon: BookOpen, label: "Find Recipes", action: () => navigate("/nutrition") },
+                  { icon: Scan, label: "Scan Food", action: () => window.dispatchEvent(new Event("wefit:open-scanner")) },
+                  { icon: BookOpen, label: "Find Recipes", action: () => setTab("foods") },
                   { icon: ChefHat, label: "Create Plan", action: () => document.getElementById("ai-meal-generator")?.scrollIntoView({ behavior: "smooth" }) },
                   { icon: Target, label: "Track Meals", action: () => navigate("/dashboard") },
                 ].map(({ icon: Icon, label, action }) => (
@@ -251,18 +239,25 @@ const Nutrition = () => {
         </TabsContent>
 
         <TabsContent value="foods" className="space-y-4 mt-6">
+          <Input
+            value={foodQuery}
+            onChange={(event) => setFoodQuery(event.target.value)}
+            placeholder="Search the food catalog"
+            aria-label="Search the food catalog"
+            className="max-w-md bg-white"
+          />
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {nigerianFoods.map((food, index) => (
-              <Card key={index} className="glass shadow-card hover:shadow-premium transition-all duration-300 border-0 group">
+            {visibleFoods.map((food) => (
+              <Card key={food.id} className="glass shadow-card hover:shadow-premium transition-all duration-300 border-0 group">
                 <CardHeader>
-                  <div className="flex items-start justify-between">
+                  <div className="flex items-start justify-between gap-2">
                     <CardTitle className="flex items-center gap-2 group-hover:text-gradient transition-all duration-300">
                       <div className="p-2 rounded-xl bg-secondary/10 group-hover:scale-110 transition-transform">
                         <Apple className="h-5 w-5 text-secondary" />
                       </div>
                       {food.name}
                     </CardTitle>
-                    <Badge variant="outline" className="glass">{food.category}</Badge>
+                    <Badge variant="outline" className="glass capitalize">{food.category}</Badge>
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-3">
@@ -272,21 +267,24 @@ const Nutrition = () => {
                   </div>
                   <div className="flex items-center justify-between text-sm p-3 rounded-xl glass">
                     <span className="text-muted-foreground">Protein</span>
-                    <span className="font-bold text-secondary">{food.protein}</span>
+                    <span className="font-bold text-secondary">{food.protein}g</span>
                   </div>
                   <div className="glass p-3 rounded-xl border border-secondary/20">
                     <p className="text-sm flex items-start gap-2">
                       <Sparkles className="h-4 w-4 text-secondary flex-shrink-0 mt-0.5" />
-                      <span className="text-muted-foreground">{food.benefits}</span>
+                      <span className="text-muted-foreground">{food.portionSize}{food.healthFlags[0] ? ` · ${food.healthFlags[0]}` : ""}</span>
                     </p>
                   </div>
-                  <Button variant="ghost" className="w-full justify-between text-primary" onClick={() => toast({ title: food.name, description: food.benefits })}>
+                  <Button variant="ghost" className="w-full justify-between text-primary" onClick={() => openFood(food)}>
                     View nutrition <ArrowRight className="h-4 w-4" />
                   </Button>
                 </CardContent>
               </Card>
             ))}
           </div>
+          {visibleFoods.length === 0 && (
+            <p className="text-sm text-muted-foreground">No dishes match that search.</p>
+          )}
         </TabsContent>
       </Tabs>
 

@@ -18,7 +18,7 @@ export default defineConfig(({ mode }) => ({
       // Apply new builds immediately so deploys are visible without a manual "Update now" tap.
       registerType: "autoUpdate",
       injectRegister: null,
-      includeAssets: ["favicon.svg", "icons/icon-192.svg", "robots.txt"],
+      includeAssets: ["favicon.svg", "icons/icon-192.png", "icons/icon-512.png", "icons/apple-touch-icon.png", "robots.txt"],
       manifest: {
         name: "WeFit — AI Fitness Platform",
         short_name: "WeFit",
@@ -30,7 +30,10 @@ export default defineConfig(({ mode }) => ({
         scope: "/",
         start_url: "/",
         icons: [
-          { src: "/icons/icon-192.svg", sizes: "any", type: "image/svg+xml", purpose: "any maskable" },
+          { src: "/icons/icon-192.png", sizes: "192x192", type: "image/png", purpose: "any" },
+          { src: "/icons/icon-192.png", sizes: "192x192", type: "image/png", purpose: "maskable" },
+          { src: "/icons/icon-512.png", sizes: "512x512", type: "image/png", purpose: "any" },
+          { src: "/icons/icon-512.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
         ],
       },
       workbox: {

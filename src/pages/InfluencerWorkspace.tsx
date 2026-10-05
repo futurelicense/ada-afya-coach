@@ -14,17 +14,17 @@ import { useBusinessStats } from "@/hooks/useBusinessStats";
 import { naira } from "@/lib/marketplaceService";
 import { supabase } from "@/lib/supabase";
 import { useToast } from "@/hooks/use-toast";
-import { ROLE_THEME } from "@/lib/roleTheme";
+import { RolePageHeader, RoleStatGrid } from "@/components/RoleWorkspace";
 
 const PIPELINE_STAGES = ["pending", "paid", "accepted", "declined"] as const;
 
 function PartnershipPipeline({ rows }: { rows: { status: string }[] }) {
   const counts = Object.fromEntries(PIPELINE_STAGES.map((s) => [s, rows.filter((r) => r.status === s).length]));
   return (
-    <Card className={ROLE_THEME.influencer.border}>
+    <Card className="border-0 shadow-card">
       <CardHeader className="pb-2">
         <CardTitle className="text-base flex items-center gap-2">
-          <Share2 className={`h-4 w-4 ${ROLE_THEME.influencer.icon}`} /> Partnership pipeline
+          <Share2 className="h-4 w-4 text-primary" /> Partnership pipeline
         </CardTitle>
         <CardDescription>Where brand requests stand right now.</CardDescription>
       </CardHeader>
@@ -58,10 +58,10 @@ function useLatestPost(influencerId: string | null) {
 function LatestPostCard({ influencerId }: { influencerId: string | null }) {
   const post = useLatestPost(influencerId);
   return (
-    <Card className={ROLE_THEME.influencer.border}>
+    <Card className="border-0 shadow-card">
       <CardHeader className="pb-2">
         <CardTitle className="text-base flex items-center gap-2">
-          <Sparkles className={`h-4 w-4 ${ROLE_THEME.influencer.icon}`} /> Latest content
+          <Sparkles className="h-4 w-4 text-primary" /> Latest content
         </CardTitle>
       </CardHeader>
       <CardContent className="flex flex-wrap items-center justify-between gap-3">
@@ -109,31 +109,16 @@ export default function InfluencerWorkspace() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div>
-        <h1 className="text-4xl font-bold text-gradient mb-2">{head.title}</h1>
-        <p className="text-muted-foreground">{head.sub}</p>
-      </div>
+      <RolePageHeader title={head.title} subtitle={head.sub} />
 
       {section === "home" && (
         <>
-          <div className="grid gap-4 md:grid-cols-4">
-            {[
-              { label: "Followers", value: stats.loading ? "…" : String(stats.countA), icon: Users },
-              { label: "Profile views", value: stats.loading ? "…" : String(stats.countB), icon: Eye },
-              { label: "Partnerships", value: stats.rating, icon: Share2 },
-              { label: "Revenue (paid)", value: stats.loading ? "…" : naira(stats.revenue), icon: DollarSign },
-            ].map(({ label, value, icon: Icon }) => (
-              <Card key={label} className={ROLE_THEME.influencer.border}>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">{label}</CardTitle>
-                  <div className={`h-7 w-7 rounded-lg ${ROLE_THEME.influencer.bg} flex items-center justify-center`}>
-                    <Icon className={`h-4 w-4 ${ROLE_THEME.influencer.icon}`} />
-                  </div>
-                </CardHeader>
-                <CardContent><div className="text-2xl font-bold">{value}</div></CardContent>
-              </Card>
-            ))}
-          </div>
+          <RoleStatGrid items={[
+            { label: "Followers", value: stats.loading ? "…" : String(stats.countA), icon: Users },
+            { label: "Profile views", value: stats.loading ? "…" : String(stats.countB), icon: Eye },
+            { label: "Partnerships", value: stats.rating, icon: Share2 },
+            { label: "Revenue (paid)", value: stats.loading ? "…" : naira(stats.revenue), icon: DollarSign },
+          ]} />
           <div className="grid gap-4 md:grid-cols-2">
             <PartnershipPipeline rows={stats.rows} />
             <LatestPostCard influencerId={stats.listingId} />

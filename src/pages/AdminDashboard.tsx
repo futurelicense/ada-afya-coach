@@ -1,16 +1,16 @@
 import { useCallback, useEffect, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Inbox, Layers } from "lucide-react";
+import { Loader2, Layers, Users as UsersIcon, Crown, Inbox, Wallet, Store, Dumbbell, Building2, Sparkles } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useToast } from "@/hooks/use-toast";
 import { naira } from "@/lib/marketplaceService";
 import { EmptyState } from "@/components/EmptyState";
+import { RolePageHeader, RoleStatGrid } from "@/components/RoleWorkspace";
 import type { UserRole } from "@/lib/userDataService";
 
 const ROLES: UserRole[] = ["user", "vendor", "trainer", "gym_owner", "influencer", "admin"];
@@ -22,25 +22,17 @@ function Overview() {
     void supabase.rpc("admin_overview").then(({ data }) => setData((data as Record<string, number>) ?? {}));
   }, []);
   if (!data) return <div className="flex justify-center py-10"><Loader2 className="h-6 w-6 animate-spin" /></div>;
-  const cards: [string, string][] = [
-    ["Members", String(data.members ?? 0)],
-    ["Pro / Elite", `${data.pro ?? 0} / ${data.elite ?? 0}`],
-    ["Open requests", String(data.open_inquiries ?? 0)],
-    ["GMV", naira(data.gmv_naira ?? 0)],
-    ["Vendors", String(data.vendors ?? 0)],
-    ["Trainers", String(data.trainers ?? 0)],
-    ["Gyms", String(data.gyms ?? 0)],
-    ["Influencers", String(data.influencers ?? 0)],
-  ];
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-      {cards.map(([label, value]) => (
-        <Card key={label}>
-          <CardHeader className="pb-2"><CardTitle className="text-sm font-medium">{label}</CardTitle></CardHeader>
-          <CardContent><div className="text-2xl font-bold">{value}</div></CardContent>
-        </Card>
-      ))}
-    </div>
+    <RoleStatGrid items={[
+      { label: "Members", value: String(data.members ?? 0), icon: UsersIcon },
+      { label: "Pro / Elite", value: `${data.pro ?? 0} / ${data.elite ?? 0}`, icon: Crown },
+      { label: "Open requests", value: String(data.open_inquiries ?? 0), icon: Inbox },
+      { label: "GMV", value: naira(data.gmv_naira ?? 0), icon: Wallet },
+      { label: "Vendors", value: String(data.vendors ?? 0), icon: Store },
+      { label: "Trainers", value: String(data.trainers ?? 0), icon: Dumbbell },
+      { label: "Gyms", value: String(data.gyms ?? 0), icon: Building2 },
+      { label: "Influencers", value: String(data.influencers ?? 0), icon: Sparkles },
+    ]} />
   );
 }
 
@@ -252,10 +244,7 @@ function Challenges() {
 /* ── Page ─────────────────────────────────────────────── */
 const AdminDashboard = () => (
   <div className="space-y-6 animate-fade-in">
-    <div>
-      <h1 className="text-4xl font-bold text-gradient mb-2">Admin</h1>
-      <p className="text-muted-foreground">Platform overview, moderation, and user management.</p>
-    </div>
+    <RolePageHeader title="Admin" subtitle="Platform overview, moderation, and user management." />
     <Tabs defaultValue="overview">
       <TabsList>
         <TabsTrigger value="overview">Overview</TabsTrigger>

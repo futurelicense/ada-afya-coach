@@ -1,5 +1,5 @@
 import {
-  Home, Dumbbell, UtensilsCrossed, MoreHorizontal, Compass, Users,
+  Home, Dumbbell, UtensilsCrossed, MoreHorizontal, Compass, Users, Target,
   CalendarDays, User, BarChart3, Radio, Package, Store, Building2,
   TrendingUp, Shield, Clock, Inbox, Share2,
 } from "lucide-react";
@@ -36,6 +36,7 @@ function navigationForRole(role: string | undefined, homePath: string) {
         { icon: Compass, label: "Explore", path: "/explore" },
       ],
       more: [
+        { icon: UtensilsCrossed, label: "Meal plans", path: "/vendor/plans" },
         { icon: Compass, label: "Listing", path: "/vendor/listing" },
         { icon: Inbox, label: "Requests", path: "/vendor/requests" },
         ...shared.filter(item => item.path !== "/explore"),
@@ -49,6 +50,8 @@ function navigationForRole(role: string | undefined, homePath: string) {
         { icon: Radio, label: "Go Live", path: "/trainer/live" },
       ],
       more: [
+        { icon: Dumbbell, label: "Routines", path: "/trainer/routines" },
+        { icon: CalendarDays, label: "Packages", path: "/trainer/packages" },
         { icon: Users, label: "Clients", path: "/trainer/clients" },
         { icon: Compass, label: "Listing", path: "/trainer/listing" },
         { icon: Inbox, label: "Requests", path: "/trainer/requests" },
@@ -100,7 +103,11 @@ function navigationForRole(role: string | undefined, homePath: string) {
       { icon: UtensilsCrossed, label: "Nutrition", path: "/nutrition" },
       { icon: Compass, label: "Explore", path: "/explore" },
     ],
-    more: shared.filter(item => item.path !== "/explore"),
+    more: [
+      { icon: Target, label: "Journey", path: "/journey" },
+      { icon: Users, label: "Groups", path: "/groups" },
+      ...shared.filter(item => item.path !== "/explore"),
+    ],
   };
 }
 
@@ -123,7 +130,7 @@ export function BottomNavigation() {
               onClick={() => navigate(item.path)}
               aria-label={item.label}
               aria-current={active ? "page" : undefined}
-              className="relative flex flex-col items-center justify-center gap-1 w-14 py-1.5 rounded-2xl transition-all duration-300 active:scale-90"
+              className="relative flex flex-col items-center justify-center gap-1 w-16 py-1.5 rounded-2xl transition-all duration-300 active:scale-90"
             >
               {/* Active pill background */}
               {active && (
@@ -144,7 +151,7 @@ export function BottomNavigation() {
               />
               <span
                 className={cn(
-                  "text-[9px] font-medium relative z-10 transition-all duration-300 leading-none",
+                  "text-[11px] font-medium relative z-10 transition-all duration-300 leading-none",
                   active ? "text-primary font-semibold" : "text-muted-foreground/50"
                 )}
               >
@@ -158,11 +165,11 @@ export function BottomNavigation() {
             <button
               aria-label="More navigation options"
               aria-current={moreActive ? "page" : undefined}
-              className="relative flex w-14 flex-col items-center justify-center gap-1 rounded-2xl py-1.5 transition-all duration-300 active:scale-90"
+              className="relative flex w-16 flex-col items-center justify-center gap-1 rounded-2xl py-1.5 transition-all duration-300 active:scale-90"
             >
               {moreActive && <div className="absolute inset-0 rounded-2xl bg-primary/15 shadow-[inset_0_0_0_1px_hsl(var(--primary)/0.25)]" />}
               <MoreHorizontal className={cn("relative z-10 h-5 w-5", moreActive ? "text-primary" : "text-muted-foreground/60")} />
-              <span className={cn("relative z-10 text-[9px] font-medium leading-none", moreActive ? "text-primary" : "text-muted-foreground/50")}>More</span>
+              <span className={cn("relative z-10 text-[11px] font-medium leading-none", moreActive ? "text-primary" : "text-muted-foreground")}>More</span>
             </button>
           </SheetTrigger>
           <SheetContent side="bottom" className="rounded-t-3xl pb-[calc(1.5rem+env(safe-area-inset-bottom))]">

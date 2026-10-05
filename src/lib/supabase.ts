@@ -3,7 +3,10 @@ import { createClient } from '@supabase/supabase-js'
 const url  = import.meta.env.VITE_SUPABASE_URL
 const key  = import.meta.env.VITE_SUPABASE_ANON_KEY
 
-if (!url || !key) {
+/** True only when both public Supabase env vars are present. */
+export const supabaseConfigured = Boolean(url && key)
+
+if (!supabaseConfigured) {
   console.warn(
     '[WeFit] Supabase env vars missing. Copy .env.example → .env and fill in your project values.\n' +
     'https://supabase.com/dashboard/project/_/settings/api'

@@ -73,6 +73,11 @@ export const HealthProfileSetup = ({ open, onOpenChange, onComplete }: HealthPro
   const [profile, setProfile] = useState<UserHealthProfile>(() => foodScanService.getHealthProfile());
   const { toast } = useToast();
 
+  useEffect(() => {
+    if (!open) return;
+    void foodScanService.hydrateHealthProfile().then(setProfile);
+  }, [open]);
+
   const totalSteps = 4;
 
   const toggleArrayItem = (array: string[], item: string) => {

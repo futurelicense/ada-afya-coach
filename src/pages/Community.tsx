@@ -178,11 +178,14 @@ const Community = () => {
     );
   }
 
+  const weekAgo = Date.now() - 7 * 86_400_000;
+  const activitiesThisWeek = activityFeed.filter(item => new Date(item.created_at).getTime() >= weekAgo).length;
+  const topStreak = leaderboard.reduce((max, entry) => Math.max(max, entry.streak), 0);
   const communityStats = [
-    { icon: Users,     label: "Active Members",         value: leaderboard.length ? `${leaderboard.length}+` : "—",   color: "text-primary" },
-    { icon: Flame,     label: "Active Challenges",       value: challenges.length.toString(),                          color: "text-secondary" },
-    { icon: TrendingUp,label: "Activities This Week",    value: activityFeed.length.toString(),                        color: "text-info" },
-    { icon: Award,     label: "Top Streak (days)",       value: leaderboard[0] ? leaderboard[0].streak.toString() : "—", color: "text-success" },
+    { icon: Users,     label: "Active Members",      value: leaderboard.length ? String(leaderboard.length) : "—", hint: "with a completed workout", color: "text-primary" },
+    { icon: Flame,     label: "Active Challenges",   value: challenges.length.toString(),                          hint: "open right now",            color: "text-secondary" },
+    { icon: TrendingUp,label: "Activities This Week",value: String(activitiesThisWeek),                            hint: "posted in the last 7 days", color: "text-info" },
+    { icon: Award,     label: "Top Streak (days)",   value: leaderboard.length ? String(topStreak) : "—",          hint: "from completed workouts",    color: "text-success" },
   ];
 
   return (
@@ -224,9 +227,9 @@ const Community = () => {
                 <div>
                   <p className="text-xs font-medium text-muted-foreground sm:text-sm">{stat.label}</p>
                   <p className="mt-1 text-2xl font-black sm:text-3xl">{stat.value}</p>
-                  <p className="mt-1 text-[10px] font-semibold text-emerald-600">↑ live community data</p>
+                  <p className="mt-1 text-[10px] font-medium text-muted-foreground">{stat.hint}</p>
                 </div>
-                <div className="grid h-11 w-11 place-items-center rounded-xl bg-white shadow-sm"><stat.icon className={`h-6 w-6 ${stat.color}`} /></div>
+                <div className="hidden h-11 w-11 place-items-center rounded-xl bg-white shadow-sm md:grid"><stat.icon className={`h-6 w-6 ${stat.color}`} /></div>
               </div>
             </CardContent>
           </Card>
@@ -249,7 +252,7 @@ const Community = () => {
                 <Trophy className="h-6 w-6 text-amber-500" />
                 All-Time Leaderboard
               </CardTitle>
-              <CardDescription>Top performers ranked by total points</CardDescription>
+              <CardDescription>Ranked by completed workouts. Members with no finished sessions are left off.</CardDescription>
             </CardHeader>
             <CardContent className="p-0">
               {loading ? (
@@ -286,7 +289,7 @@ const Community = () => {
                       <span>👥 {challenges[0].participant_count.toLocaleString()} joining</span><span>🎯 {daysLeft(challenges[0].ends_at)} days</span>
                     </div>
                   </div>
-                ) : <EmptyState icon={Target} title="Coming soon" description="A featured challenge will appear here." />}
+                ) : <EmptyState icon={Target} title="No featured challenge right now" description="Open the Challenges tab to see what's running." />}
               </CardContent>
             </Card>
             <Card className="border-border/60 shadow-sm">
